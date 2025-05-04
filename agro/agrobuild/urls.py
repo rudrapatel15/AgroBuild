@@ -2,14 +2,16 @@ from django.urls import path
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
-
+from django.contrib.auth.views import LogoutView
+from django.contrib.auth import views as auth_views
 urlpatterns = [
     path('', views.index, name="index"),
     path('wishlist/', views.wishlist, name="wishlist"),
     path('add_to_wishlist/<int:product_id>/', views.add_to_wishlist, name='add_to_wishlist'),
     path('remove_from_wishlist/<int:product_id>/', views.remove_from_wishlist, name='remove_from_wishlist'),
     path('basic/', views.basic, name="basic"),
-    path('my_account/', views.account, name="account"),
+    path('update-account/', views.update_account, name='update_account'),
+    path('my-account/', views.my_account, name='my_account'),
     path('prod_view/', views.prod_view, name='prod_view'),
     path('cart/', views.cart, name='cart'),
     path('update_cart/', views.update_cart, name='update_cart'),
@@ -22,6 +24,8 @@ urlpatterns = [
     path('blog/', views.blog, name='blog'),
     path('aboutus/', views.aboutus, name='aboutus'),
     path('contactus/', views.contactus, name='contactus'),
+    path('save-contact/', views.save_contact, name='save_contact'),
+    path('logout/', views.logout_view, name='logout'),
     path('faq/', views.faq, name='faq'),
     path('category/<slug:slug>/', views.category_products, name='category_products'),
 ]

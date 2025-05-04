@@ -1,6 +1,16 @@
 {% extends 'htmldemo.net/basic.html' %}
 {% block title %} My Account {% endblock %}
 {% block body %}
+{% if messages %}
+<div class="container">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
 {%load static%}
     <!--breadcrumbs area start-->
     <div class="breadcrumbs_area">
@@ -35,7 +45,14 @@
                                 <li><a href="#address" data-bs-toggle="tab" class="nav-link">Addresses</a></li>
                                 <li><a href="#account-details" data-bs-toggle="tab" class="nav-link">Account details</a>
                                 </li>
-                                <li><a href="{% url 'login' %}" class="nav-link">logout</a></li>
+                                <li>
+                                <div class="logout-section">
+                                    <form method="POST" action="{% url 'logout' %}">
+                                      {% csrf_token %}
+                                      <button type="submit" class="btn">Logout</button>
+                                    </form>
+                                  </div>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -130,52 +147,62 @@
                                 </address>
                             </div>
                             <div class="tab-pane fade" id="account-details">
-                                <h3>Account details </h3>
+                                <h3>Account details</h3>
                                 <div class="login">
                                     <div class="login_form_container">
                                         <div class="account_login_form">
-                                            <form action="#">
-                                                <p>Already have an account? <a href="#">Log in instead!</a></p>
-                                                <div class="input-radio">
-                                                    <span class="custom-radio"><input type="radio" value="1"
-                                                            name="id_gender"> Mr.</span>
-                                                    <span class="custom-radio"><input type="radio" value="1"
-                                                            name="id_gender"> Mrs.</span>
-                                                </div> <br>
-                                                <label>First Name</label>
-                                                <input type="text" name="first-name">
-                                                <label>Last Name</label>
-                                                <input type="text" name="last-name">
-                                                <label>Email</label>
-                                                <input type="text" name="email-name">
-                                                <label>Password</label>
-                                                <input type="password" name="user-password">
-                                                <label>Birthdate</label>
-                                                <input type="text" placeholder="MM/DD/YYYY" value="" name="birthday">
-                                                <span class="example">
-                                                    (E.g.: 05/31/1970)
-                                                </span>
-                                                <br>
-                                                <span class="custom_checkbox">
-                                                    <input type="checkbox" value="1" name="optin">
-                                                    <label>Receive offers from our partners</label>
-                                                </span>
-                                                <br>
-                                                <span class="custom_checkbox">
-                                                    <input type="checkbox" value="1" name="newsletter">
-                                                    <label>Sign up for our newsletter<br><em>You may unsubscribe at any
-                                                            moment. For that purpose, please find our contact info in
-                                                            the legal notice.</em></label>
-                                                </span>
+                                            <form method="POST" action="{% url 'update_account' %}">
+                                                {% csrf_token %}                                               
+                                                <div class="mb-3">
+                                                    <label class="form-label">First Name</label>
+                                                    <input type="text" class="form-control" name="first_name" value="{{ user.first_name }}">
+                                                </div>
+                                                
+                                                <div class="mb-3">
+                                                    <label class="form-label">Last Name</label>
+                                                    <input type="text" class="form-control" name="last_name" value="{{ user.last_name }}">
+                                                </div>
+                                                
+                                                <div class="mb-3">
+                                                    <label class="form-label">Email</label>
+                                                    <input type="email" class="form-control" name="email" value="{{ user.email }}" required>
+                                                </div>
+                                                
+                                                <div class="mb-3">
+                                                    <label class="form-label">Phone Number</label>
+                                                    <input type="text" class="form-control" name="phone" value="{{ profile.phone }}">
+                                                </div>
+                                                
+                                                <div class="mb-3">
+                                                    <label class="form-label">Birthdate</label>
+                                                    <input type="date" class="form-control" name="dob" value="{{ profile.dob|date:'Y-m-d' }}">
+                                                    <small class="text-muted">Example: 05/31/1990</small>
+                                                </div>
+                                                  
+                                                <div class="input-radio mb-3">
+                                                    <span class="custom-radio me-3">
+                                                        <input type="radio" id="gender_male" value="Male" name="gender" {% if profile.gender == 'Male' %}checked{% endif %}>
+                                                        <label for="gender_male" class="ms-1">Male</label>
+                                                    </span>
+                                                    <span class="custom-radio me-3">
+                                                        <input type="radio" id="gender_female" value="Female" name="gender" {% if profile.gender == 'Female' %}checked{% endif %}>
+                                                        <label for="gender_female" class="ms-1">Female</label>
+                                                    </span>
+                                                    <span class="custom-radio">
+                                                        <input type="radio" id="gender_other" value="Other" name="gender" {% if profile.gender == 'Other' %}checked{% endif %}>
+                                                        <label for="gender_other" class="ms-1">Other</label>
+                                                    </span>
+                                                </div>
+                                                
                                                 <div class="save_button primary_btn default_button">
-                                                    <button type="submit">Save</button>
+                                                    <button type="submit" class="btn btn-primary">Save Changes</button>
                                                 </div>
                                             </form>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div>        
                     </div>
                 </div>
             </div>

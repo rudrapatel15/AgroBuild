@@ -133,13 +133,8 @@
                                                 <i class="bi bi-people"></i>
                                             </a>
                                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                                {% if user.is_authenticated %}
-                                                <li><a class="dropdown-item" href="{% url 'account' %}">My Account</a></li>
-                                                <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
-                                                {% else %}
                                                 <li><a class="dropdown-item" href="{% url 'login' %}">Login</a></li>
                                                 <li><a class="dropdown-item" href="{% url 'registration' %}">Registration</a></li>
-                                                {% endif %}
                                             </ul>
                                         </div>
                                     </div>
@@ -194,14 +189,11 @@
 
                                             <div class="mini_cart_table" style="margin-top: 15px;">
                                                 <div class="cart_table_border">
-                                                    <div class="cart_total">
-                                                        <span>Sub total:</span>
-                                                        <span class="price">₹{{ cart_total }}</span>
+                                                    <div class="cart_subtotal mt-10">
+                                                        <p>Total</p>
+                                                        <p class="cart_amount">₹<span id="cart_total">0</span></p>
                                                     </div>
-                                                    <div class="cart_total mt-10">
-                                                        <span>Total:</span>
-                                                        <span class="price">₹{{ cart_total }}</span>
-                                                    </div>
+                                                
                                                 </div>
                                             </div>
 
@@ -399,7 +391,7 @@
                                     <li><a href="{% url 'blog' %}">Blog</a></li>
                                     <li><a href="{% url 'aboutus' %}">About Us</a></li>
                                     <li><a href="{% url 'contactus' %}">Contact Us</a></li>
-                                    <li><a href="{% url 'account' %}">My Account</a></li>
+                                    <li><a href="{% url 'my_account' %}">My Account</a></li>
                                 </ul>
                             </nav>
                         </div>

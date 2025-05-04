@@ -46,27 +46,42 @@
             <div class="col-lg-6 col-md-12">
                 <div class="contact_message form">
                     <h3>Leave a comments</h3>
-                    <form id="contact-form" method="POST" action="https://htmldemo.net/lukani/lukani/assets/mail.php">
-                        <p>
-                            <label> Your Name (required)</label>
-                            <input name="name" placeholder="Name *" type="text">
-                        </p>
-                        <p>
-                            <label> Your Email (required)</label>
-                            <input name="email" placeholder="Email *" type="email">
-                        </p>
-                        <p>
-                            <label> Subject</label>
-                            <input name="subject" placeholder="Subject *" type="text">
-                        </p>
-                        <div class="contact_textarea">
-                            <label> Your Comments</label>
-                            <textarea placeholder="Comments *" name="message" class="form-control2"></textarea>
+                    {% if messages %}
+                        <div class="alert alert-success">
+                            {% for message in messages %}
+                                {{ message }}
+                            {% endfor %}
                         </div>
-                        <button type="submit"> Send</button>
-                        <p class="form-messege"></p>
-                    </form>
-
+                    {% endif %}
+                    
+                    {% if not form_submitted %}
+                        {% if user.is_authenticated %}
+                            <form id="contact-form" method="POST" action="{% url 'save_contact' %}">
+                                {% csrf_token %}
+                                <p>
+                                    <label> Your Name (required)</label>
+                                    <input name="name" placeholder="Name *" type="text" value="{{ user.first_name }} {{ user.last_name }}" required>
+                                </p>
+                                <p>
+                                    <label> Your Email (required)</label>
+                                    <input name="email" placeholder="Email *" type="email" value="{{ user.email }}" required>
+                                </p>
+                                <p>
+                                    <label> Subject</label>
+                                    <input name="subject" placeholder="Subject *" type="text" required>
+                                </p>
+                                <div class="contact_textarea">
+                                    <label> Your Comments</label>
+                                    <textarea placeholder="Comments *" name="message" class="form-control2" required></textarea>
+                                </div>
+                                <button type="submit"> Send</button>
+                            </form>
+                        {% else %}
+                            <div class="alert alert-info">
+                                Please <a href="{% url 'login' %}?next={% url 'contactus' %}">login</a> to submit the contact form.
+                            </div>
+                        {% endif %}
+                    {% endif %}
                 </div>
             </div>
         </div>

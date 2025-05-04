@@ -2,6 +2,7 @@ from django.db import models
 from decimal import Decimal
 from django.contrib.auth.models import User
 from django.urls import reverse
+from django.utils import timezone
 
 class Wishlist(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -49,7 +50,15 @@ class Product(models.Model):
     def __str__(self):
         return self.P_name
 
-# models.py (update Order model)
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    phone = models.CharField(max_length=15, blank=True, null=True)
+    dob = models.DateField(blank=True, null=True)
+    gender = models.CharField(max_length=10, choices=[("Male", "Male"), ("Female", "Female"), ("Other", "Other")], blank=True)
+
+    def __str__(self):
+        return self.user.email
+
 class Order(models.Model):
     STATUS_CHOICES = (
         ('pending', 'Pending'),
@@ -95,3 +104,14 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.quantity} x {self.product.P_name}"
+    
+class ContactMessage(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    subject = models.CharField(max_length=200)
+    message = models.TextField()
+    created_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"Message from {self.name} - {self.subject}"

@@ -51,12 +51,16 @@
                                         </form>
                                     </td>
                                     <td class="product_thumb">
-                                        <img src="/media/{{ item.product.P_img }}" alt="{{ item.product.P_name }}"style="max-width: 80px; max-height: 80px;">
+                                        <img src="/media/{{ item.product.P_img }}" alt="{{ item.product.P_name }}" style="max-width: 80px; max-height: 80px;">
                                     </td>
                                     <td class="product_name">{{ item.product.P_name }}</td>
                                     <td class="product-price">₹<span class="unit_price">{{ item.product.P_price }}</span></td>
                                     <td class="product_quantity">
-                                        <input class="qty_input" min="1" max="100" value="{{ item.quantity }}" type="number">
+                                        <form method="post" action="{% url 'update_cart' %}" class="update-quantity-form" style="display:inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="item_id" value="{{ item.id }}">
+                                            <input class="qty_input" name="quantity_{{ item.id }}" min="1" max="100" value="{{ item.quantity }}" type="number">
+                                        </form>
                                     </td>
                                     <td class="product_total">₹<span class="line_total">{{ item.total_price }}</span></td>
                                 </tr>
@@ -87,7 +91,7 @@
                         <div class="coupon_inner">                                                           
                             <div class="cart_subtotal">
                                 <p>Total</p>
-                                <p class="cart_amount">₹<span id="cart_total">0</span></p>
+                                <p class="cart_amount">₹<span id="cart_total">{{ subtotal }}</span></p>
                             </div>
                             <div class="checkout_btn">
                                 <a href="{% url 'checkout' %}">Proceed to Checkout</a>
@@ -101,7 +105,7 @@
     </div>
 </div>
 
-<!-- JavaScript to handle quantity & total calculation -->
+
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const shipping = 0;
@@ -109,7 +113,7 @@
         function updateCartTotals() {
             let subtotal = 0;
             document.querySelectorAll("#cart_table tbody tr").forEach(function (row) {
-                const price = parseFloat(row.dataset.price);
+                const price = parseFloat(row.querySelector(".unit_price").textContent);
                 const qty = parseInt(row.querySelector(".qty_input").value);
                 const lineTotal = price * qty;
                 row.querySelector(".line_total").textContent = lineTotal.toFixed(2);
@@ -119,24 +123,29 @@
             document.getElementById("cart_total").textContent = (subtotal + shipping).toFixed(2);
         }
 
-        // Update totals on quantity change
+       
         document.querySelectorAll(".qty_input").forEach(input => {
             input.addEventListener("input", updateCartTotals);
         });
 
-        // Delete row on click
-        document.querySelectorAll(".delete_item").forEach(btn => {
-            btn.addEventListener("click", function (e) {
-                e.preventDefault();
-                const row = this.closest("tr");
-                row.remove();
-                updateCartTotals();
-            });
-        });
-
-        // Initialize totals
+      
         updateCartTotals();
     });
 </script>
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    const quantityInputs = document.querySelectorAll('.qty_input');
+    
 
+    quantityInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            
+            this.closest('.update-quantity-form').submit();
+        });
+    });
+});
+</script>
+{% endblock %}
 {% endblock %}

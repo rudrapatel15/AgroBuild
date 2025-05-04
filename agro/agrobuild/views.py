@@ -1,6 +1,7 @@
 # views.py
 from django.shortcuts import render, redirect
-from .models import Product, Wishlist, CartItem, Order, OrderItem, Category
+from .models import Product, Wishlist, CartItem, Order, OrderItem, Category, UserProfile, ContactMessage
+from django.contrib.auth.models import User
 from math import ceil
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
@@ -9,10 +10,28 @@ from django.http import JsonResponse
 from .payment_utils import create_razorpay_order
 from django.conf import settings
 import razorpay
-from django.urls import reverse
+from django.contrib.auth import logout
+from django.contrib import messages
+from django.utils import timezone
+
+@login_required
+def save_contact(request):
+    if request.method == 'POST':
+        ContactMessage.objects.create(
+            user=request.user,
+            name=request.POST.get('name'),
+            email=request.POST.get('email'),
+            subject=request.POST.get('subject'),
+            message=request.POST.get('message'),
+            created_at=timezone.now()
+        )
+        messages.success(request, "Thank you for contacting us! We'll get back to you soon.")
+        return redirect('contactus') 
+    
+    return redirect('contactus')
 
 @require_POST
-@login_required
+@login_required(login_url='/login/')
 def update_cart(request):
     for item_id, quantity in request.POST.items():
         if item_id.startswith('quantity_'):
@@ -25,7 +44,41 @@ def update_cart(request):
                 continue
     return redirect('cart')
 
-@login_required
+@login_required(login_url='/login/')
+def my_account(request):
+    profile, created = UserProfile.objects.get_or_create(user=request.user)
+    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    
+    return render(request, 'htmldemo.net/my-account.html', {
+        'user': request.user,
+        'profile': profile,
+        'orders': orders,
+    })
+
+@login_required(login_url='/login/')
+def update_account(request):
+    if request.method == 'POST':
+        user = request.user
+        profile, created = UserProfile.objects.get_or_create(user=user)
+       
+        user.email = request.POST.get('email')
+        user.first_name = request.POST.get('first_name')
+        user.last_name = request.POST.get('last_name')
+        user.save()
+
+        profile.phone = request.POST.get('phone')
+        profile.dob = request.POST.get('dob')
+        profile.gender = request.POST.get('gender')
+        profile.save()
+        messages.success(request, 'Account details updated successfully!')
+    return redirect('my_account')
+
+@login_required(login_url='/login/')
+def logout_view(request):
+    logout(request)
+    return redirect('index')
+
+@login_required(login_url='/login/')
 def add_to_cart_from_wishlist(request, product_id):
     product = get_object_or_404(Product, P_id=product_id)
     cart_item, created = CartItem.objects.get_or_create(user=request.user, product=product)
@@ -35,7 +88,7 @@ def add_to_cart_from_wishlist(request, product_id):
     return redirect('cart')
 
 @require_POST
-@login_required
+@login_required(login_url='/login/')
 def remove_from_cart(request):
     item_id = request.POST.get('item_id')
     CartItem.objects.filter(id=item_id, user=request.user).delete()
@@ -57,25 +110,25 @@ def index(request):
 
 def account(request): return render(request, 'htmldemo.net/my-account.html')
 
-@login_required
+@login_required(login_url='/login/')
 def wishlist(request):
     wishlist_items = Wishlist.objects.filter(user=request.user).select_related('product')
     return render(request, 'htmldemo.net/wishlist.html', {'wishlist_items': wishlist_items})
 
-@login_required
+@login_required(login_url='/login/')
 def add_to_wishlist(request, product_id):
     product = Product.objects.get(P_id=product_id)
     product = get_object_or_404(Product, pk=product_id)
     Wishlist.objects.get_or_create(user=request.user, product=product)
     return redirect('wishlist') 
 
-@login_required
+@login_required(login_url='/login/')
 def remove_from_wishlist(request, product_id):
     wishlist_item = get_object_or_404(Wishlist, user=request.user, product__P_id=product_id)
     wishlist_item.delete()
     return redirect('wishlist') 
 
-@login_required
+@login_required(login_url='/login/')
 def add_to_cart(request, product_id):
     product = Product.objects.get(P_id=product_id)
     product = get_object_or_404(Product, pk=product_id)
@@ -88,7 +141,7 @@ def add_to_cart(request, product_id):
 
 def basic(request): return render(request, 'htmldemo.net/basic.html')
 
-@login_required
+@login_required(login_url='/login/')
 def cart(request):
     cart_items = CartItem.objects.filter(user=request.user).select_related('product')
     subtotal = sum(item.product.P_price * item.quantity for item in cart_items)
@@ -101,7 +154,7 @@ def cart(request):
         'total': total
     })
 
-@login_required
+@login_required(login_url='/login/')
 def checkout(request):
     cart_items = CartItem.objects.filter(user=request.user)
     subtotal = sum(item.product.P_price * item.quantity for item in cart_items)
@@ -111,26 +164,33 @@ def checkout(request):
     if request.method == 'POST':
         payment_method = request.POST.get('payment_method')
         
-        if payment_method == 'online':
-           
-            razorpay_order = create_razorpay_order(total)
-            
-            order = Order.objects.create(
-                user=request.user,
-                full_name=request.POST.get('full_name'),
-                total_amount=total,
-                payment_method='Online Payment',
-                razorpay_order_id=razorpay_order['id'],
-                is_paid=False
+       
+        order = Order.objects.create(
+            user=request.user,
+            full_name=request.POST.get('full_name'),
+            email=request.POST.get('email'),
+            address=request.POST.get('address'),
+            city=request.POST.get('city'),
+            state=request.POST.get('state'),
+            zip_code=request.POST.get('zip_code'),
+            mobile_number=request.POST.get('mobile_number'),
+            total_amount=total,
+            payment_method='Online Payment' if payment_method == 'online' else 'Cash on Delivery',
+            is_paid=(payment_method == 'cod')  
+        )
+        
+        for item in cart_items:
+            OrderItem.objects.create(
+                order=order,
+                product=item.product,
+                price=item.product.P_price,
+                quantity=item.quantity
             )
-            
-            for item in cart_items:
-                OrderItem.objects.create(
-                    order=order,
-                    product=item.product,
-                    price=item.product.P_price,
-                    quantity=item.quantity
-                )
+        
+        if payment_method == 'online':
+            razorpay_order = create_razorpay_order(total)
+            order.razorpay_order_id = razorpay_order['id']
+            order.save()
             
             context = {
                 'razorpay_order_id': razorpay_order['id'],
@@ -141,13 +201,18 @@ def checkout(request):
                 'user': request.user
             }
             return render(request, 'htmldemo.net/payment.html', context)
-          
+        else:
+            
+            CartItem.objects.filter(user=request.user).delete()
+            return redirect('order_confirmation', order_id=order.id)
+    
     return render(request, 'htmldemo.net/checkout.html', {
         'cart_items': cart_items,
         'subtotal': subtotal,
         'shipping': shipping,
         'total': total
     })
+
 def payment_verification(request):
    
     client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
@@ -198,11 +263,6 @@ def prod_view(request):
     prod_id = request.GET.get('myid')
     product = Product.objects.filter(P_id=prod_id).first()
     return render(request, 'htmldemo.net/prod_View.html', {'product': product})
-
-@login_required
-def account(request):
-    orders = Order.objects.filter(user=request.user).order_by('-created_at')
-    return render(request, 'htmldemo.net/my-account.html', {'orders': orders})
 
 def category_products(request, slug):
     category = get_object_or_404(Category, slug=slug)
