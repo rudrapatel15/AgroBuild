@@ -1,0 +1,224 @@
+{% extends 'htmldemo.net/basic.html' %}
+{% block title %} Index {% endblock %}
+{% block body %}
+{% load static %}
+
+<!-- Slider Section -->
+<section class="slider_section">
+    <div class="slider_area owl-carousel">
+        <div class="single_slider d-flex align-items-center" data-bgimg="{% static 'img/slider/slider10.jpg' %}">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="slider_content">
+                            <h1>" Plant the seeds</h1>  
+                            <p>of positivity, <span>and your life will be </span> a garden of happiness.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="single_slider d-flex align-items-center" data-bgimg="{% static 'img/slider/slider9.jpg' %}">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="slider_content">
+                            <h1>" The discovery </h1>    
+                            <p>of agriculture <span>was the first big step </span> toward a civilized life. </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="single_slider d-flex align-items-center" data-bgimg="{% static 'img/slider/slider3.jpg' %}">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="slider_content">
+                            <h1>" HE WHO PLANTS </h1> 
+                            <p>A TREE <span>PLANTS </span> A HOPE. " </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Shipping Info -->
+<div class="shipping_area">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 col-md-6">
+                <div class="single_shipping">
+                    <div class="shipping_icone">
+                        <img src="{% static 'img/about/shipping1.png' %}" alt="">
+                    </div>
+                    <div class="shipping_content">
+                        <h3>Free Delivery</h3>
+                        <p>Free shipping around the world for all <br> orders over $120</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="single_shipping col_2">
+                    <div class="shipping_icone">
+                        <img src="{% static 'img/about/shipping2.png' %}" alt="">
+                    </div>
+                    <div class="shipping_content">
+                        <h3>Safe Payment</h3>
+                        <p>With our payment gateway, don’t worry <br> about your information</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="single_shipping col_3">
+                    <div class="shipping_icone">
+                        <img src="{% static 'img/about/shipping3.png' %}" alt="">
+                    </div>
+                    <div class="shipping_content">
+                        <h3>Friendly Services</h3>
+                        <p>You have 30-day return guarantee for <br> every single order</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Dynamic Product Sections -->
+{% for products, range, nSlides, category in allProds %}
+<div class="product_area mb-95">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="product_header">
+                    <div class="section_title">
+                        <h2>{{ category|title }} Products</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-content">
+            <div class="tab-pane fade show active" role="tabpanel">
+                <div class="row">
+                    <div class="product_carousel product_column4 owl-carousel">
+                        {% for product in products %}
+                        <div class="col-lg-3">
+                            <div class="product_items">
+                                <article class="single_product">
+                                    <figure>
+                                        <div class="product_thumb">
+                                            <a class="primary_img" href="/prod_view/?myid={{ product.P_id }}">
+                                                <img src="/media/{{ product.P_img }}" alt="{{ product.P_name }}"style="height:250px; width:250px; object-fit:cover;">
+                                            </a>
+                                            <div class="label_product">
+                                                
+                                            </div>
+                                            <div class="action_links">
+                                                <ul>
+                                                    <li class="add_to_cart"><a href="{% url 'add_to_cart' product.P_id %}" title="Add to cart"><i class="icon-shopping-bag"></i></a></li>
+
+                                                    <li class="wishlist">
+                                                        <a href="{% url 'add_to_wishlist' product.P_id %}" title="Add to Wishlist"><i class="icon-heart"></i></a>
+                                                      </li>
+                                                      
+                                                    <li class="quick_button"><a href="/prod_view/?myid={{ product.P_id }}"><i class="icon-eye"></i></a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <figcaption class="product_content">
+                                            <div class="product_rating">
+                                                <ul>
+                                                    {% for _ in "12345" %}
+                                                    <li><a href="#"><i class="icon-star"></i></a></li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                            <h4 class="product_name"><a href="/prod_view/?myid={{ product.P_id }}">{{ product.P_name }}</a></h4>
+                                            <div class="price_box">
+                                                <span class="current_price">₹{{ product.P_price }}</span>
+                                                
+                                            </div>
+                                        </figcaption>
+                                    </figure>
+                                </article>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<!-- Testimonial Section -->
+<div class="testimonial_area">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="section_title">
+                    <h2>What Our Customers Say?</h2>
+                </div>
+            </div>
+        </div>
+        <div class="testimonial_container">
+            <div class="row">
+                <div class="testimonial_carousel owl-carousel">
+                    <div class="col-12">
+                        <div class="single-testimonial">
+                            <div class="testimonial-icon-img">
+                                <img src="{% static 'img/about/testimonials-icon.png' %}" alt="">
+                            </div>
+                            <div class="testimonial_content">
+                                <p>"I've been using Agro Build for several months now and I'm extremely satisfied. Their plant selection is amazing, and the quality of the products is top-notch."</p>
+                                <div class="testimonial_text_img">
+                                    <a href="#"><img src="{% static 'img/about/customer1.jpeg' %}" alt=""></a>
+                                </div>
+                                <div class="testimonial_author">
+                                    <p><a href="#">Adhya Sharma</a> / <span>CEO of CSC</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="single-testimonial">
+                            <div class="testimonial-icon-img">
+                                <img src="{% static 'img/about/testimonials-icon.png' %}" alt="">
+                            </div>
+                            <div class="testimonial_content">
+                                <p>"The expert advice provided by Agro Build has been invaluable. I've learned so much about plant care and have been able to successfully grow a variety of plants in my garden."</p>
+                                <div class="testimonial_text_img">
+                                    <a href="#"><img src="{% static 'img/about/customer2.jpeg' %}" alt=""></a>
+                                </div>
+                                <div class="testimonial_author">
+                                    <p><a href="#">Hemani Oberoi</a> / <span>CEO of DND</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="single-testimonial">
+                            <div class="testimonial-icon-img">
+                                <img src="{% static 'img/about/testimonials-icon.png' %}" alt="">
+                            </div>
+                            <div class="testimonial_content">
+                                <p>"I love the convenience of ordering agricultural products directly from Agro Build. The delivery is always prompt, and the prices are competitive."</p>
+                                <div class="testimonial_text_img">
+                                    <a href="#"><img src="{% static 'img/about/customer3.jpeg' %}" alt=""></a>
+                                </div>
+                                <div class="testimonial_author">
+                                    <p><a href="#">Nilima Bhatt</a> / <span>CEO of SFD</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,60 @@
+<!-- filepath: c:\Users\RUDRA PATEL\Downloads\AGRO_BUILD_final 1\agro\agrobuild\templates\htmldemo.net\Registration.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+    <title>AGRO BUILD - Registration</title>
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { height: 100vh; display: flex; align-items: center; justify-content: center; background-image: url("{% static 'img/Login_Bg/BGImg.jpg' %}"); background-size: cover; }
+        .container { max-width: 430px; width: 100%; background: #fff; border-radius: 20px; box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1); padding: 30px; }
+        .form .title { font-size: 27px; font-weight: 600; margin-bottom: 20px; }
+        .form-outline { margin-bottom: 20px; }
+        .form-outline input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        .form-outline label { margin-top: 5px; display: block; font-size: 14px; }
+        .btn { width: 100%; padding: 10px; background-color: #4070f4; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .btn:hover { background-color: #305bbf; }
+        .login-signup { text-align: center; margin-top: 20px; }
+        .login-signup a { color: #4070f4; text-decoration: none; }
+        .login-signup a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form">
+            <span class="title">Registration</span>
+            <form method="post" action="{% url 'registration' %}">
+                {% csrf_token %}
+                <div class="form-outline">
+                    <input type="text" name="username" id="username" required>
+                    <label for="username">Your Name</label>
+                </div> 
+                <div class="form-outline mb-4">
+                    <input type="email" id="form3Example3cg" class="form-control form-control-lg" />
+                    <label class="form-label" for="form3Example3cg">Your Email</label>
+                </div>
+
+                <div class="form-outline">
+                    <input type="password" name="password1" id="password1" required>
+                    <label for="password1">Password</label>
+                </div>
+                <div class="form-outline">
+                    <input type="password" name="password2" id="password2" required>
+                    <label for="password2">Confirm Password</label>
+                </div>
+                <button type="submit" class="btn">Register</button>
+            </form>
+            <div class="login-signup">
+                <span>Already a member? <a href="{% url 'login' %}">Login Now</a></span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

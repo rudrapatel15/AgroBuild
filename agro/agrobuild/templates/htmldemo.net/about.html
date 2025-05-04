@@ -1,0 +1,268 @@
+{% extends 'htmldemo.net/basic.html' %}
+{% block title %} About us {% endblock %}
+{% block body %}
+{%load static%}
+    <!--breadcrumbs area start-->
+    <div class="breadcrumbs_area">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="breadcrumb_content">
+                        <h3>About Us</h3>
+                        <ul>
+                            <li><a href="{% url 'index' %}">Home</a></li>
+                            <li>About us</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--breadcrumbs area end-->
+
+    <!--about section area -->
+    <section class="about_section">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <figure>
+                        <!-- <div class="about_thumb"> -->
+                            <img src="{% static 'img/about/about1.jpeg' %}" alt="" width="100%">
+                        <!-- </div> -->
+                        <figcaption class="about_content">
+                            <h1>Agro Build offers agriculture products, expert advice, and watering reminders for efficient plant care.</h1>
+                            <p>Agro Build is a comprehensive online platform dedicated to assisting agriculture enthusiasts and professionals. We offer a wide range of essential agricultural products, including plants, pesticides, and composed fertilizers. Our platform also provides valuable information on plant cultivation, growth enhancement techniques, and optimal watering requirements. To ensure timely care for your plants, Agro Build offers convenient reminder notifications. With Agro Build, you can efficiently access specific data and streamline your agricultural endeavors.</p>
+                            <!-- <div class="about_signature">
+                                <img src="assets/img/about/about-us-signature.png" alt="">
+                            </div> -->
+                        </figcaption>
+                    </figure>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!--about section end-->
+
+    <!--services img area-->
+    <div class="about_gallery_section">
+        <div class="container">
+            <div class="about_gallery_container">
+                <div class="row">
+                    <div class="col-lg-4 col-md-4">
+                        <article class="single_gallery_section">
+                            <figure>
+                                <div class="gallery_thumb">
+                                    <img src="{% static 'img/about/about2.jpg' %}" alt="">
+                                </div>
+                                <figcaption class="about_gallery_content">
+                                    <h3>What do we do?</h3>
+                                    <p>We offer a wide range of essential agricultural products, including plants, pesticides, and composed fertilizers. Our platform provides expert advice on plant cultivation, growth enhancement techniques, and optimal watering requirements.</p>
+                                </figcaption>
+                            </figure>
+                        </article>
+                    </div>
+                    <div class="col-lg-4 col-md-4">
+                        <article class="single_gallery_section">
+                            <figure>
+                                <div class="gallery_thumb">
+                                    <img src="{% static 'img/about/about3.jpeg' %}" alt="">
+                                </div>
+                                <figcaption class="about_gallery_content">
+                                    <h3>Our Mission</h3>
+                                    <p>Agro Build's mission is to empower individuals and businesses to thrive in agriculture by providing comprehensive resources, expert advice, and innovative solutions.</p>
+                                </figcaption>
+                            </figure>
+                        </article>
+                    </div>
+                    <div class="col-lg-4 col-md-4">
+                        <article class="single_gallery_section">
+                            <figure>
+                                <div class="gallery_thumb">
+                                    <img src="{% static 'img/about/about4.jpg' %}" alt="">
+                                </div>
+                                <figcaption class="about_gallery_content">
+                                    <h3>History Of Us</h3>
+                                    <p>The aim of revolutionizing the agriculture industry. Our team of experienced professionals is passionate about providing farmers and agriculture enthusiasts with the tools and resources they need to succeed.</p>
+                                </figcaption>
+                            </figure>
+                        </article>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--services img end-->
+
+    <!--testimonial area start-->
+    <div class="faq-client-say-area">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 col-md-6">
+                    <div class="faq-client_title">
+                        <h2>What can we do for you ?</h2>
+                    </div>
+                    <div class="faq-style-wrap" id="faq-five">
+                        <!-- Panel-default -->
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h5 class="panel-title">
+                                    <a id="octagon" class="collapsed" role="button" data-bs-toggle="collapse"
+                                        data-bs-target="#faq-collapse1" aria-expanded="true" aria-controls="faq-collapse1">
+                                        <span class="button-faq"></span>How can I find information about plant care?</a>
+                                </h5>
+                            </div>
+                            <div id="faq-collapse1" class="collapse show" aria-expanded="true" role="tabpanel"
+                                data-parent="#faq-five">
+                                <div class="panel-body">
+                                    <p>Our platform provides valuable information on plant cultivation, growth enhancement techniques, and optimal watering requirements. You can access this information through our website or contact our experts for personalized advice.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!--// Panel-default -->
+
+                        <!-- Panel-default -->
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h5 class="panel-title">
+                                    <a class="collapsed" role="button" data-bs-toggle="collapse"
+                                        data-bs-target="#faq-collapse2" aria-expanded="false"
+                                        aria-controls="faq-collapse2"> <span class="button-faq"></span>Can you help me select the right plants for my garden?</a>
+                                </h5>
+                            </div>
+                            <div id="faq-collapse2" class="collapse" aria-expanded="false" role="tabpanel"
+                                data-parent="#faq-five">
+                                <div class="panel-body">
+                                    <p>Absolutely! Our experts can assist you in choosing plants that are suitable for your climate, soil conditions, and gardening goals.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!--// Panel-default -->
+
+                        <!-- Panel-default -->
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h5 class="panel-title">
+                                    <a class="collapsed" role="button" data-bs-toggle="collapse"
+                                        data-bs-target="#faq-collapse3" aria-expanded="false"
+                                        aria-controls="faq-collapse3"> <span class="button-faq"></span>How do I use composed fertilizers?</a>
+                                </h5>
+                            </div>
+                            <div id="faq-collapse3" class="collapse" role="tabpanel" data-parent="#faq-five">
+                                <div class="panel-body">
+                                    <p>Our platform provides detailed instructions on how to use composed fertilizers to enhance plant growth and health.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!--// Panel-default -->
+
+                        <!-- Panel-default -->
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h5 class="panel-title">
+                                    <a class="collapsed" role="button" data-bs-toggle="collapse"
+                                        data-bs-target="#faq-collapse4" aria-expanded="false"
+                                        aria-controls="faq-collapse4"> <span class="button-faq"></span>What is your return policy?</a>
+                                </h5>
+                            </div>
+                            <div id="faq-collapse4" class="collapse" role="tabpanel" data-parent="#faq-five">
+                                <div class="panel-body">
+                                    <p>We have a flexible return policy in place to ensure customer satisfaction. Please review our return policy for more information.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!--// Panel-default -->
+
+                         <!-- Panel-default -->
+                         <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h5 class="panel-title">
+                                    <a class="collapsed" role="button" data-bs-toggle="collapse"
+                                        data-bs-target="#faq-collapse5" aria-expanded="false"
+                                        aria-controls="faq-collapse5"> <span class="button-faq"></span>How do I place an order for products?</a>
+                                </h5>
+                            </div>
+                            <div id="faq-collapse5" class="collapse" role="tabpanel" data-parent="#faq-five">
+                                <div class="panel-body">
+                                    <p>Our website provides a user-friendly checkout process where you can select your desired products and complete your purchase.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!--// Panel-default -->
+                    </div>
+
+                </div>
+                <div class="col-lg-6 col-md-6">
+                    <!--testimonial area start-->
+                    <div class="testimonial_area  testimonial_about">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="section_title">
+                                        <h2>What Our Customers Says ?</h2>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="testimonial_container">
+                                <div class="row">
+                                    <div class="testimonial_carousel owl-carousel">
+                                        <div class="col-12">
+                                            <div class="single-testimonial">
+                                                <div class="testimonial-icon-img">
+                                                    <img src="{% static 'img/about/testimonials-icon.png' %}" alt="">
+                                                </div>
+                                                <div class="testimonial_content">
+                                                    <p>"I've been using Agro Build for several months now and I'm extremely satisfied. Their plant selection is amazing, and the quality of the products is top-notch. The watering reminders have been a lifesaver for my busy schedule." </p>
+                                                    <div class="testimonial_text_img">
+                                                        <a href="#"><img src="{% static 'img/about/customer1.jpeg' %}" alt=""></a>
+                                                    </div>
+                                                    <div class="testimonial_author">
+                                                        <p><a href="#">Adhya Sharma</a> / <span>CEO of CSC</span></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="single-testimonial">
+                                                <div class="testimonial-icon-img">
+                                                    <img src="{% static 'img/about/testimonials-icon.png' %}" alt="">
+                                                </div>
+                                                <div class="testimonial_content">
+                                                    <p>"The expert advice provided by Agro Build has been invaluable. I've learned so much about plant care and have been able to successfully grow a variety of plants in my garden."</p>
+                                                    <div class="testimonial_text_img">
+                                                        <a href="#"><img src="{% static 'img/about/customer2.jpeg' %}" alt=""></a>
+                                                    </div>
+                                                    <div class="testimonial_author">
+                                                        <p><a href="#">Hemani Oberoi</a> / <span>CEO of DND</span></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="single-testimonial">
+                                                <div class="testimonial-icon-img">
+                                                    <img src="{% static 'img/about/testimonials-icon.png' %}" alt="">
+                                                </div>
+                                                <div class="testimonial_content">
+                                                    <p>"I love the convenience of ordering agricultural products directly from Agro Build. The delivery is always prompt, and the prices are competitive."</p>
+                                                    <div class="testimonial_text_img">
+                                                        <a href="#"><img src="{% static 'img/about/customer3.jpeg' %}" alt=""></a>
+                                                    </div>
+                                                    <div class="testimonial_author">
+                                                        <p><a href="#">Nilima Bhatt</a> / <span>CEO of SFD</span></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--testimonial area end-->
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--testimonial area end-->
+
+    {% endblock %}

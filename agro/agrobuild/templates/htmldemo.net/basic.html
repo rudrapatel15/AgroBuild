@@ -1,0 +1,475 @@
+<!doctype html>
+<html class="no-js" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>{% block title %}AGRO BUILD - Home{% endblock %}</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% load static %}
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/slick.css' %}">
+    <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
+    <link rel="stylesheet" href="{% static 'css/font.awesome.css' %}">
+    <link rel="stylesheet" href="{% static 'css/animate.css' %}">
+    <link rel="stylesheet" href="{% static 'css/jquery-ui.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/slinky.menu.css' %}">
+    <link rel="stylesheet" href="{% static 'css/plugins.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
+    <style>
+        .user-dropdown:hover .dropdown-menu {
+            display: block;
+            margin-top: 0;
+        }
+        .category-card {
+            border: 1px solid #e1e1e1;
+            border-radius: 5px;
+            overflow: hidden;
+            height: 100%;
+            transition: all 0.3s ease;
+        }
+        .category-card:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-5px);
+        }
+        .category-list {
+            list-style: none;
+            padding-left: 0;
+        }
+        .category-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .category-list li:last-child {
+            border-bottom: none;
+        }
+        .category-list li a {
+            color: #333;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .category-list li a:hover {
+            color: #4CAF50;
+            padding-left: 5px;
+        }
+        .subcategory-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .subcategory-list a {
+            padding: 8px 15px;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+            color: #333;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .subcategory-list a:hover {
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
+    <script src="{% static 'js/vendor/modernizr-3.7.1.min.js' %}"></script>
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!--header area start-->
+    <header>
+        <div class="main_header">
+            <div class="header_middle">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-lg-3 col-md-3 col-4">
+                            <div class="logo">
+                                <a href="{% url 'index' %}"><img src="{% static 'img/logo/logo.png' %}" alt=""></a>
+                            </div>
+                        </div>
+                        <div class="col-lg-9 col-md-6 col-6">
+                            <div class="header_right_info">
+                                <div class="search_container">
+                                    <form action="#">
+                                        <div class="hover_category">
+                                            <select class="select_option" name="select" id="categori1">
+                                                <option selected value="1">All Categories</option>
+                                                <option value="2">Plants</option>
+                                                <option value="3">Seeds</option>
+                                                <option value="4">Compost</option>
+                                                <option value="5">Fertilizers</option>
+                                                <option value="6">Pesticides</option>
+                                            </select>
+                                        </div>
+                                        <div class="search_box">
+                                            <input placeholder="Search product..." type="text" id="searchInput">
+                                            <button type="submit"><i class="icon-search"></i></button>
+                                        </div>
+                                    </form>
+                                    <div id="popularSearches" class="popular_searches" style="display: none;">
+                                        <h4>Popular Searches</h4>
+                                        <ul>
+                                            <li>Money Plant</li>
+                                            <li>Tomato Seeds</li>
+                                            <li>Silica Pro Fertilizer</li>
+                                            <li>Corton Petra</li>
+                                            <li>Ethrel Growth Promoter</li>
+                                            <li>Aerca Plam</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="header_account_area">
+                                    <div class="header_account-list top_links">
+                                        <div class="dropdown user-dropdown me-4">
+                                            <a href="#" class="text-dark fs-4 dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="bi bi-people"></i>
+                                            </a>
+                                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                                {% if user.is_authenticated %}
+                                                <li><a class="dropdown-item" href="{% url 'account' %}">My Account</a></li>
+                                                <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+                                                {% else %}
+                                                <li><a class="dropdown-item" href="{% url 'login' %}">Login</a></li>
+                                                <li><a class="dropdown-item" href="{% url 'registration' %}">Registration</a></li>
+                                                {% endif %}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="header_account-list header_wishlist">
+                                        <a href="{% url 'wishlist' %}"><i class="icon-heart"></i></a>
+                                    </div>
+                                    <div class="header_account-list mini_cart_wrapper">
+                                        <a href="javascript:void(0)"><i class="icon-shopping-bag"></i><span class="item_count">{{ cart_items.count }}</span></a>
+                                        <!--mini cart-->
+                                        <div class="mini_cart" style="width: 350px; max-height: 500px; overflow-y: auto; padding: 15px;">
+                                            <div class="cart_gallery">
+                                                <div class="cart_close" style="display: flex; justify-content: space-between; align-items: center;">
+                                                    <div class="cart_text">
+                                                        <h3 style="margin: 0;">Cart</h3>
+                                                    </div>
+                                                    <div class="mini_cart_close">
+                                                        <a href="javascript:void(0)"><i class="icon-x"></i></a>
+                                                    </div>
+                                                </div>
+
+                                                {% if cart_items %}
+                                                    {% for item in cart_items %}
+                                                    <div class="cart_item" style="display: flex; gap: 10px; margin-top: 15px; align-items: center;">
+                                                        <div class="cart_img" style="flex-shrink: 0;">
+                                                            <a href="#">
+                                                                <img src="/media/{{ item.product.P_img }}" alt="{{ item.product.P_name }}" style="width: 60px; height: 60px; object-fit: cover; border: 1px solid #ddd;">
+                                                            </a>
+                                                        </div>
+                                                        <div class="cart_info" style="flex-grow: 1; min-width: 0;">
+                                                            <p style="font-size: 14px; margin: 0; word-break: break-word; max-width: 160px;">
+                                                                {{ item.product.P_name }}
+                                                            </p>
+                                                            <p style="margin: 4px 0; font-size: 13px;">{{ item.quantity }} x <span>₹{{ item.product.P_price }}</span></p>
+                                                        </div>
+                                                        <div class="cart_remove">
+                                                            <form method="post" action="{% url 'remove_from_cart' %}" style="display:inline;">
+                                                                {% csrf_token %}
+                                                                <input type="hidden" name="item_id" value="{{ item.id }}">
+                                                                <button type="submit" style="background: none; border: none; padding: 0;">
+                                                                    <i class="icon-x"></i>
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    <div class="cart_item">
+                                                        <p style="padding: 10px;">Your cart is empty.</p>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+
+                                            <div class="mini_cart_table" style="margin-top: 15px;">
+                                                <div class="cart_table_border">
+                                                    <div class="cart_total">
+                                                        <span>Sub total:</span>
+                                                        <span class="price">₹{{ cart_total }}</span>
+                                                    </div>
+                                                    <div class="cart_total mt-10">
+                                                        <span>Total:</span>
+                                                        <span class="price">₹{{ cart_total }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="mini_cart_footer" style="margin-top: 15px;">
+                                                <div class="cart_button" style="margin-bottom: 10px;">
+                                                    <a href="{% url 'cart' %}"><i class="fa fa-shopping-cart"></i> View Cart</a>
+                                                </div>
+                                                <div class="cart_button">
+                                                    <a class="active" href="{% url 'checkout' %}"><i class="fa fa-sign-in"></i> Checkout</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!--mini cart end-->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="header_bottom sticky-header">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <!--main menu start-->
+                        <div class="main_menu menu_position">
+                            <nav>
+                                <ul>
+                                    <li><a href="{% url 'index' %}">Home</a></li>
+                                    <li class="mega_items"><a href="#">Plants</a>
+                                        <div class="mega_menu">
+                                            <ul class="mega_menu_inner col-lg-6">
+                                                <li><a href="{% url 'category_products' 'wellbeing-plants' %}">Wellbeing Plants</a>
+                                                    <ul>
+                                                        <li><a href="{% url 'category_products' 'peace-positivity' %}">Peace & Positivity</a></li>
+                                                        <li><a href="{% url 'category_products' 'stress-buster' %}">Stress Buster</a></li>
+                                                        <li><a href="{% url 'category_products' 'mental-health' %}">Mental Health</a></li>
+                                                        <li><a href="{% url 'category_products' 'boosts-creativity' %}">Boosts Creativity</a></li>
+                                                        <li><a href="{% url 'category_products' 'self-care-plants' %}">Self Care Plants</a></li>
+                                                        <li><a href="{% url 'category_products' 'improves-mood' %}">Improves Mood</a></li>
+                                                        <li><a href="{% url 'category_products' 'aura-planters' %}">Aura Planters</a></li>
+                                                    </ul>
+                                                </li>
+                                                <li><a href="{% url 'category_products' 'shop-by-type' %}">Shop by type</a>
+                                                    <ul>
+                                                        <li><a href="{% url 'category_products' 'air-purifying-plants' %}">Air Purifying Plants</a></li>
+                                                        <li><a href="{% url 'category_products' 'indoor-plants' %}">Indoor Plants</a></li>
+                                                        <li><a href="{% url 'category_products' 'low-maintenance-plants' %}">Low Maintenance Plants</a></li>
+                                                        <li><a href="{% url 'category_products' 'hanging-plants' %}">Hanging Plants</a></li>
+                                                        <li><a href="{% url 'category_products' 'colorful-plants' %}">Colorful Plants</a></li>
+                                                        <li><a href="{% url 'category_products' 'vastu-plants' %}">Vastu Plants</a></li>
+                                                        <li><a href="{% url 'category_products' 'fast-growing-plants' %}">Fast Growing</a></li>
+                                                    </ul>
+                                                </li>
+                                                <li><a href="{% url 'category_products' 'shop-by-face' %}">Shop by face</a>
+                                                    <ul>
+                                                        <li><a href="{% url 'category_products' 'office-plants' %}">Office Plants</a></li>
+                                                        <li><a href="{% url 'category_products' 'dining-table-plants' %}">Dining Table Plants</a></li>
+                                                        <li><a href="{% url 'category_products' 'living-room-plants' %}">Living Room Plants</a></li>
+                                                        <li><a href="{% url 'category_products' 'bedroom-plants' %}">Bedroom Plants</a></li>
+                                                        <li><a href="{% url 'category_products' 'balcony-plants' %}">Balcony Plants</a></li>
+                                                        <li><a href="{% url 'category_products' 'study-room-plants' %}">Study Room Plants</a></li>
+                                                        <li><a href="{% url 'category_products' 'window-plants' %}">Window Plants</a></li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li class="mega_items"><a href="#">Seeds</a>
+                                        <div class="mega_menu">
+                                            <ul class="mega_menu_inner col-lg-5">
+                                                <li><a href="{% url 'category_products' 'horticulture-crops' %}">Horticulture Crops</a>
+                                                    <ul>
+                                                        <li><a href="{% url 'category_products' 'vegetable-seeds' %}">Vegetable Seeds</a></li>
+                                                        <li><a href="{% url 'category_products' 'fruit-seeds' %}">Fruit Seeds</a></li>
+                                                        <li><a href="{% url 'category_products' 'flower-seeds' %}">Flower Seeds</a></li>
+                                                        <li><a href="{% url 'category_products' 'seeds-germinator' %}">Seeds Germinator</a></li>
+                                                    </ul>
+                                                </li>
+                                                <li><a href="{% url 'category_products' 'field-crops' %}">Field Crops</a>
+                                                    <ul>
+                                                        <li><a href="{% url 'category_products' 'forages' %}">Forages</a></li>
+                                                        <li><a href="{% url 'category_products' 'maize-corn' %}">Maize\Corn</a></li>
+                                                        <li><a href="{% url 'category_products' 'paddy' %}">Paddy</a></li>
+                                                        <li><a href="{% url 'category_products' 'mustard' %}">Mustard</a></li>
+                                                        <li><a href="{% url 'category_products' 'jowar' %}">Jowar</a></li>
+                                                        <li><a href="{% url 'category_products' 'cotton' %}">Cotton</a></li>
+                                                        <li><a href="{% url 'category_products' 'fast-growing-seeds' %}">Fast Growing</a></li>
+                                                    </ul>
+                                                </li>
+                                                <li><a href="{% url 'category_products' 'popular-products' %}">Popular Products</a>
+                                                    <ul>
+                                                        <li><a href="{% url 'category_products' 'tomato' %}">Tomato</a></li>
+                                                        <li><a href="{% url 'category_products' 'brinjal' %}">Brinjal</a></li>
+                                                        <li><a href="{% url 'category_products' 'cauliflower' %}">Cauliflower</a></li>
+                                                        <li><a href="{% url 'category_products' 'cucumber' %}">Cucumber</a></li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li class="mega_items"><a href="#">Crop Nutrition</a>
+                                        <div class="mega_menu">
+                                            <ul class="mega_menu_inner col-lg-7">
+                                                <li><a href="{% url 'category_products' 'fertilizers' %}">Fertilizers</a>
+                                                    <ul>
+                                                        <li><a href="{% url 'category_products' 'bio-organic-fertilizers' %}">BIO/Organic Fertilizers</a></li>
+                                                        <li><a href="{% url 'category_products' 'chemical-fertilizers' %}">Chemical Fertilizers</a></li>
+                                                        <li><a href="{% url 'category_products' 'npk-fertilizers' %}">NPK Fertilizers</a></li>
+                                                        <li><a href="{% url 'category_products' 'liquid-fertilizers' %}">Liquid Fertilizers</a></li>
+                                                        <li><a href="{% url 'category_products' 'ph-balancers' %}">pH Balancers</a></li>
+                                                        <li><a href="{% url 'category_products' 'humic-acids' %}">Humic Acids</a></li>
+                                                    </ul>
+                                                </li>
+                                                <li><a href="{% url 'category_products' 'growth-promotors' %}">Growth Promotors</a>
+                                                    <ul>
+                                                        <li><a href="{% url 'category_products' 'plant-growth-promotors' %}">Plant Growth Promotors</a></li>
+                                                        <li><a href="{% url 'category_products' 'plant-enhancers' %}">Plant Enhancers</a></li>
+                                                        <li><a href="{% url 'category_products' 'bio-activators-stimulants' %}">BIO Activators/Stimulants</a></li>
+                                                    </ul>
+                                                </li>
+                                                <li><a href="{% url 'category_products' 'plant-growth-regulators' %}">Plant Growth Regulators</a>
+                                                    <ul>
+                                                        <li><a href="{% url 'category_products' 'fruit-enhancers' %}">Fruit Enhancers</a></li>
+                                                        <li><a href="{% url 'category_products' 'flower-boosters' %}">Flower Boosters</a></li>
+                                                        <li><a href="{% url 'category_products' 'yields-boosters' %}">Yields Boosters</a></li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li class="mega_items"><a href="#">Crop Protection</a>
+                                        <div class="mega_menu">
+                                            <ul class="mega_menu_inner col-lg-6">
+                                                <li><a href="{% url 'category_products' 'bio-organic-pesticides' %}">BIO/Organic Pesticides</a>
+                                                    <ul>
+                                                        <li><a href="{% url 'category_products' 'bio-insecticides' %}">BIO Insecticides</a></li>
+                                                        <li><a href="{% url 'category_products' 'bio-fungicides' %}">BIO Fungicides</a></li>
+                                                        <li><a href="{% url 'category_products' 'bio-viricides' %}">BIO Viricides</a></li>
+                                                        <li><a href="{% url 'category_products' 'bio-nematicides' %}">BIO Nematicides</a></li>
+                                                        <li><a href="{% url 'category_products' 'bio-miticides-acaricides' %}">BIO Miticides/Acaricides</a></li>
+                                                    </ul>
+                                                </li>
+                                                <li><a href="{% url 'category_products' 'chemical-pesticides' %}">Chemical Pesticides</a>
+                                                    <ul>
+                                                        <li><a href="{% url 'category_products' 'insecticides' %}">Insecticides</a></li>
+                                                        <li><a href="{% url 'category_products' 'fungicides' %}">Fungicides</a></li>
+                                                        <li><a href="{% url 'category_products' 'bactericides' %}">Bactericides</a></li>
+                                                        <li><a href="{% url 'category_products' 'herbicides' %}">Herbicides</a></li>
+                                                        <li><a href="{% url 'category_products' 'miticides-acaricides' %}">Miticides/Acaricides</a></li>
+                                                    </ul>
+                                                </li>
+                                                <li><a href="{% url 'category_products' 'traps-and-lures' %}">Traps And Lures</a>
+                                                    <ul>
+                                                        <li><a href="{% url 'category_products' 'sticky-traps' %}">Sticky Traps</a></li>
+                                                        <li><a href="{% url 'category_products' 'pheromone-traps' %}">Pheromone Traps</a></li>
+                                                        <li><a href="{% url 'category_products' 'pheromone-lures' %}">Pheromone Lures</a></li>
+                                                        <li><a href="{% url 'category_products' 'solar-light-traps' %}">Solar Light Traps</a></li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li class="mega_items"><a href="#">Agricultural Equipments</a>
+                                        <div class="mega_menu">
+                                            <ul class="mega_menu_inner col-lg-6">
+                                                <li><a href="{% url 'category_products' 'agricultural-tools' %}">Agricultural Tools</a>
+                                                    <ul>
+                                                        <li><a href="{% url 'category_products' 'nursery-tools' %}">Nursery Tools</a></li>
+                                                        <li><a href="{% url 'category_products' 'fruit-harvester-plucker' %}">Fruit Harvester/plucker</a></li>
+                                                        <li><a href="{% url 'category_products' 'garden-tools' %}">Garden Tools</a></li>
+                                                        <li><a href="{% url 'category_products' 'seeder-transplantner' %}">Seeder/Transplantner</a></li>
+                                                        <li><a href="{% url 'category_products' 'miticides-acaricides-tools' %}">Miticides/Acaricides</a></li>
+                                                    </ul>
+                                                </li>
+                                                <li><a href="{% url 'category_products' 'accessories' %}">Accessories</a>
+                                                    <ul>
+                                                        <li><a href="{% url 'category_products' 'tripal-tarpaulin' %}">Tripal/Tarpaulin</a></li>
+                                                        <li><a href="{% url 'category_products' 'shade-net' %}">Shade Net</a></li>
+                                                        <li><a href="{% url 'category_products' 'crop-cover' %}">Crop Cover</a></li>
+                                                        <li><a href="{% url 'category_products' 'safety-kit' %}">Safety Kit</a></li>
+                                                        <li><a href="{% url 'category_products' 'mulch' %}">Mulch</a></li>
+                                                    </ul>
+                                                </li>
+                                                <li><a href="{% url 'category_products' 'irrigation' %}">Irrigation</a>
+                                                    <ul>
+                                                        <li><a href="{% url 'category_products' 'pipe' %}">Pipe</a></li>
+                                                        <li><a href="{% url 'category_products' 'water-pump' %}">Water Pump</a></li>
+                                                        <li><a href="{% url 'category_products' 'sprinkler' %}">Sprinkler</a></li>
+                                                        <li><a href="{% url 'category_products' 'drip-kit' %}">Drip Kit</a></li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li><a href="{% url 'blog' %}">Blog</a></li>
+                                    <li><a href="{% url 'aboutus' %}">About Us</a></li>
+                                    <li><a href="{% url 'contactus' %}">Contact Us</a></li>
+                                    <li><a href="{% url 'account' %}">My Account</a></li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!--header area end-->
+
+    {% block body %}{% endblock %}
+
+    <footer>
+        <div class="footer-container">
+            <div class="about-section">
+                <img src="{% static 'img/logo/logo.png' %}" alt="AGRO BUILD" width="156">
+                <p>Agro Build is a comprehensive online platform dedicated to assisting agriculture enthusiasts and professionals. We offer a wide range of essential agricultural products, including plants, pesticides, and composed fertilizers. Our platform also provides valuable information on plant cultivation, growth enhancement techniques, and optimal watering requirements. To ensure timely care for your plants, Agro Build offers convenient reminder notifications. With Agro Build, you can efficiently access specific data and streamline your agricultural endeavors.</p>
+                <div class="offcanvas_footer">
+                    <ul>
+                        <li class="facebook"><a href="#"><i class="fa fa-facebook"></i></a></li>
+                        <li class="twitter"><a href="#"><i class="fa fa-twitter"></i></a></li>
+                        <li class="pinterest"><a href="#"><i class="fa fa-pinterest-p"></i></a></li>
+                        <li class="google-plus"><a href="#"><i class="fa fa-google-plus"></i></a></li>
+                        <li class="linkedin"><a href="#"><i class="fa fa-linkedin"></i></a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="quick-links">
+                <h2>Quick Links</h2>
+                <ul>
+                    <li><a href="{% url 'index' %}">Home</a></li>
+                    <li><a href="{% url 'aboutus' %}">About Us</a></li>
+                    <li><a href="{% url 'contactus' %}">Contact Us</a></li>
+                    <li><a href="#">Terms & Conditions</a></li>
+                    <li><a href="{% url 'blog' %}">Blogs</a></li>
+                    <li><a href="{% url 'faq' %}">FAQ</a></li>
+                </ul>
+            </div>
+            <div class="contact-section">
+                <h2>Get In Touch</h2>
+                <p>Address: A/16, Diamond Earth Corporate Park AB Rd, Ahmedabad, Gujarat 380081</p>
+                <p>Call us for Support: +91 1234567891</p>
+                <p><strong>Timings:</strong> Mon-Sat from 10 am to 6 pm</p>
+                <p><strong>Email</strong></p>
+                <p>For Support: <a href="mailto:support@agrobuild.co">support@agrobuild.co</a></p>
+                <p>For Bulk Orders: <a href="mailto:corporate@agrobuild.co">corporate@agrobuild.co</a></p>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>Copyright © 2024 <a href="{% url 'index' %}">Agro_Build.co</a></p>
+        </div>
+    </footer>
+    <!--footer area end-->
+
+    <!-- JS -->
+    <script src="{% static 'js/vendor/jquery-3.4.1.min.js' %}"></script>
+    <script src="{% static 'js/popper.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/owl.carousel.min.js' %}"></script>
+    <script src="{% static 'js/slick.min.js' %}"></script>
+    <script src="{% static 'js/jquery.magnific-popup.min.js' %}"></script>
+    <script src="{% static 'js/jquery.counterup.min.js' %}"></script>
+    <script src="{% static 'js/jquery.countdown.js' %}"></script>
+    <script src="{% static 'js/jquery.ui.js' %}"></script>
+    <script src="{% static 'js/jquery.elevatezoom.js' %}"></script>
+    <script src="{% static 'js/isotope.pkgd.min.js' %}"></script>
+    <script src="{% static 'js/slinky.menu.js' %}"></script>
+    <script src="{% static 'js/plugins.js' %}"></script>
+    <script src="{% static 'js/popularSearches.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block js %}{% endblock %}
+</body>
+</html>

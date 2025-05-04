@@ -1,0 +1,11 @@
+{% extends 'htmldemo.net/basic.html' %}
+{% block title %} Payment Error {% endblock %}
+{% block body %}
+<div class="container mt-5">
+    <div class="alert alert-danger">
+        <h4>Payment Error</h4>
+        <p>There was an error processing your payment. Please try again.</p>
+        <a href="{% url 'checkout' %}" class="btn btn-primary">Return to Checkout</a>
+    </div>
+</div>
+{% endblock %}

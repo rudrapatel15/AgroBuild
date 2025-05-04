@@ -1,0 +1,434 @@
+<!doctype html>
+<html class="no-js" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>AGRO BUILD</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% load static %}
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+
+    <!-- CSS 
+    ========================= -->
+    <!--bootstrap min css-->
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <!--owl carousel min css-->
+    <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}">
+    <!--slick min css-->
+    <link rel="stylesheet" href="{% static 'css/slick.css' %}">
+    <!--magnific popup min css-->
+    <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}">
+    <!--font awesome css-->
+    <link rel="stylesheet" href="{% static 'css/font.awesome.css' %}">
+    <!--animate css-->
+    <link rel="stylesheet" href="{% static 'css/animate.css' %}">
+    <!--jquery ui min css-->
+    <link rel="stylesheet" href="{% static 'css/jquery-ui.min.css' %}">
+    <!--slinky menu css-->
+    <link rel="stylesheet" href="{% static 'css/slinky.menu.css' %}">
+    <!--plugins css-->
+    <link rel="stylesheet" href="{% static 'css/plugins.css' %}">
+    <!-- Main Style CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <!--modernizr min js here-->
+    <script src="{% static 'js/vendor/modernizr-3.7.1.min.js' %}"></script>
+</head>
+<body>
+    <!--header area start-->
+    <header>
+        <div class="main_header">
+            <div class="header_middle">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-lg-3 col-md-3 col-4">
+                            <div class="logo">
+                                <a href="{% url 'index' %}"><img src="{% static 'img/logo/logo.png' %}" alt=""></a>
+                            </div>
+                        </div>
+                        <div class="col-lg-9 col-md-6 col-6">
+                            <div class="header_right_info">
+                                <div class="search_container">
+                                    <form action="#">
+                                        <div class="hover_category">
+                                            <select class="select_option" name="select" id="categori1">
+                                                <option selected value="1">All Categories</option>
+                                                <option value="#https://docs.djangoproject.com/en/5.2/intro/tutorial01/">Plants</option>
+                                                <option value="3">Seeds</option>
+                                                <option value="4">Compost</option>
+                                                <option value="5">Fertilizers</option>
+                                                <option value="6">Pesticides</option>
+                                            </select>
+                                        </div>
+                                        <div class="search_box">
+                                            <input placeholder="Search product..." type="text" id="searchInput">
+                                            <button type="submit"><i class="icon-search"></i></button>
+                                        </div>
+                                    </form>
+                                    <!-- Popular searches -->
+                                    <div id="popularSearches" class="popular_searches" style="display: none;">
+                                        <h4>Popular Searches</h4>
+                                            <ul>
+                                                <li>Money Plant</li>
+                                                <li>Tomato Seeds</li>
+                                                <li>Silica Pro Fertilizer</li>
+                                                <li>Corton Petra</li>
+                                                <li>Ethrel Growth Promoter</li>
+                                                <li>Aerca Plam</li>
+                                            </ul>
+                                    </div>
+                                </div>
+                                <div class="header_account_area">
+                                    <div class="header_account-list top_links">
+                                        <div class="dropdown">
+                                            <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                              <i class="icon-users"></i> 
+                                            </a>
+                                            <div class="dropdown-menu">
+                                              <a class="dropdown-item" href="{% url 'login' %}">Login</a>
+                                              <a class="dropdown-item" href="{% url 'registration' %}">Registration</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="header_account-list header_wishlist">
+                                        <a href="{% url 'wishlist' %}"><i class="icon-heart"></i></a>
+                                    </div>
+                                    <div class="header_account-list  mini_cart_wrapper">
+                                        <a href="javascript:void(0)"><i class="icon-shopping-bag"></i><span
+                                                class="item_count">2</span></a>
+                                        <!--mini cart-->
+                                        <div class="mini_cart">
+                                            <div class="cart_gallery">
+                                                <div class="cart_close">
+                                                    <div class="cart_text">
+                                                        <h3>Cart</h3>
+                                                    </div>
+                                                    <div class="mini_cart_close">
+                                                        <a href="javascript:void(0)"><i class="icon-x"></i></a>
+                                                    </div>
+                                                </div>
+                                                <div class="cart_item">
+                                                    <div class="cart_img">
+                                                        <a href="#"><img src="{% static 'img/s-product/Petra_Corton.jpeg' %}"
+                                                                alt=""></a>
+                                                    </div>
+                                                    <div class="cart_info">
+                                                        <a href="#">Corton Petra</a>
+                                                        <p>2 x <span>₹349</span></p>
+                                                    </div>
+                                                    <div class="cart_remove">
+                                                        <a href="#"><i class="icon-x"></i></a>
+                                                    </div>
+                                                </div>
+                                                <div class="cart_item">
+                                                    <div class="cart_img">
+                                                        <a href="#"><img src="{% static 'img/s-product/Aerca_Plam_Tree.jpeg' %}"
+                                                                alt=""></a>
+                                                    </div>
+                                                    <div class="cart_info">
+                                                        <a href="#">Aerca Plam</a>
+                                                        <p>1 x <span>₹799</span></p>
+                                                    </div>
+                                                    <div class="cart_remove">
+                                                        <a href="#"><i class="icon-x"></i></a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="mini_cart_table">
+                                                <div class="cart_table_border">
+                                                    <div class="cart_total">
+                                                        <span>Sub total:</span>
+                                                        <span class="price">₹1,497</span>
+                                                    </div>
+                                                    <div class="cart_total mt-10">
+                                                        <span>total:</span>
+                                                        <span class="price">₹1,497</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="mini_cart_footer">
+                                                <div class="cart_button">
+                                                    <a href="{% url 'cart' %}"><i class="fa fa-shopping-cart"></i> View
+                                                        Cart</a>
+                                                </div>
+                                                <div class="cart_button">
+                                                    <a class="active" href="{% url 'checkout' %}"><i class="fa fa-sign-in"></i>
+                                                        Checkout</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!--mini cart end-->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="header_bottom sticky-header">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <!--main menu start-->
+                        <div class="main_menu menu_position">
+                            <nav>
+                                <ul>
+                                    <li><a href="{% url 'index' %}">Home</a></li>
+                                    <li class="mega_items"><a href="#">Plants</a>
+                                        <div class="mega_menu">
+                                            <ul class="mega_menu_inner col-lg-6">
+                                                <li><a href="#">Wellbeing Plants</a>
+                                                    <ul>
+                                                        <li><a href="#">Peace & Positivity</a></li>
+                                                        <li><a href="#">Stress Buster</a></li>
+                                                        <li><a href="#">Mental Health</a></li>
+                                                        <li><a href="#">Boosts Creativity</a></li>
+                                                        <li><a href="#">Self Care Plants</a></li>
+                                                        <li><a href="#">Improves Mood</a></li>
+                                                        <li><a href="#">Aura Planters</a></li>
+                                                    </ul>
+                                                </li>
+                                                <li><a href="#">Shop by type</a>
+                                                    <ul>
+                                                        <li><a href="#">Air Purifying Plants</a></li>
+                                                        <li><a href="#">Indoor Plants</a></li>
+                                                        <li><a href="#">Low Maintenance Plants</a></li>
+                                                        <li><a href="#">Hanging Plants</a></li>
+                                                        <li><a href="#">Colorful Plants</a></li>
+                                                        <li><a href="#">Vastu Plants</a></li>
+                                                        <li><a href="#">Fast Growing</a></li>
+                                                    </ul>
+                                                </li>
+                                                <li><a href="#">Shop by face</a>
+                                                    <ul>
+                                                        <li><a href="#">Office Plants</a></li>
+                                                        <li><a href="#">Dining Table Plants</a></li>
+                                                        <li><a href="#">Living Room Plants</a></li>
+                                                        <li><a href="#">Bedroom Plants</a></li>
+                                                        <li><a href="#">Balcony Plants</a></li>
+                                                        <li><a href="#">Study Room Plants</a></li>
+                                                        <li><a href="#">Window Plants</a></li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li class="mega_items"><a href="#">Seeds</a>
+                                        <div class="mega_menu">
+                                            <ul class="mega_menu_inner col-lg-5">
+                                                <li><a href="#">Horticulture Crops</a>
+                                                    <ul>
+                                                        <li><a href="#">Vegetable Seeds</a></li>
+                                                        <li><a href="#">Fruit Seeds</a></li>
+                                                        <li><a href="#">Flower Seeds</a></li>
+                                                        <li><a href="#">Seeds Germinator</a></li>
+                                                    </ul>
+                                                </li>
+                                                <li><a href="#">Field Crops</a>
+                                                    <ul>
+                                                        <li><a href="#">Forages</a></li>
+                                                        <li><a href="#">Maize\Corn</a></li>
+                                                        <li><a href="#">Paddy</a></li>
+                                                        <li><a href="#">Mustard</a></li>
+                                                        <li><a href="#">Jowar</a></li>
+                                                        <li><a href="#">Cotton</a></li>
+                                                        <li><a href="#">Fast Growing</a></li>
+                                                    </ul>
+                                                </li>
+                                                <li><a href="#">Popular Products</a>
+                                                    <ul>
+                                                        <li><a href="#">Tomato</a></li>
+                                                        <li><a href="#">Brinjal</a></li>
+                                                        <li><a href="#">Cauliflower</a></li>
+                                                        <li><a href="#">Cucumber</a></li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li class="mega_items"><a href="#">Crop Nutrition</a>
+                                        <div class="mega_menu">
+                                            <ul class="mega_menu_inner col-lg-7">
+                                                <li><a href="#">Fertilizers</a>
+                                                    <ul>
+                                                        <li><a href="#">BIO/Organic Fertilizers</a></li>
+                                                        <li><a href="#">Chemical Fertilizers</a></li>
+                                                        <li><a href="#">NPK Fertilizers</a></li>
+                                                        <li><a href="#">Liquid Fertilizers</a></li>
+                                                        <li><a href="#">pH Balancers</a></li>
+                                                        <li><a href="#">Humic Acids</a></li>
+                                                    </ul>
+                                                </li>
+                                                <li><a href="#">Growth Promotors</a>
+                                                    <ul>
+                                                        <li><a href="#">Plant Growth Promotors</a></li>
+                                                        <li><a href="#">Plant Enhancers</a></li>
+                                                        <li><a href="#">BIO Activators/Stimulants</a></li>
+                                                    </ul>
+                                                </li>
+                                                <li><a href="#">Plant Growth Regulators</a>
+                                                    <ul>
+                                                        <li><a href="#">Fruit Enhancers</a></li>
+                                                        <li><a href="#">Flower Boosters</a></li>
+                                                        <li><a href="#">Yields Boosters</a></li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li class="mega_items"><a href="#">Crop Protection</a>
+                                        <div class="mega_menu">
+                                            <ul class="mega_menu_inner col-lg-6">
+                                                <li><a href="#">BIO/Organic Pesticides</a>
+                                                    <ul>
+                                                        <li><a href="#">BIO Insecticides</a></li>
+                                                        <li><a href="#">BIO Fungicides</a></li>
+                                                        <li><a href="#">BIO Viricides</a></li>
+                                                        <li><a href="#">BIO Nematicides</a></li>
+                                                        <li><a href="#">BIO Miticides/Acaricides</a></li>
+                                                    </ul>
+                                                </li>
+                                                <li><a href="#">Chemical Pesticides</a>
+                                                    <ul>
+                                                        <li><a href="#">Insecticides</a></li>
+                                                        <li><a href="#">Fungicides</a></li>
+                                                        <li><a href="#">Bactericides</a></li>
+                                                        <li><a href="#">Herbicides</a></li>
+                                                        <li><a href="#">Miticides/Acaricides</a></li>
+                                                    </ul>
+                                                </li>
+                                                <li><a href="#">Traps And Lures</a>
+                                                    <ul>
+                                                        <li><a href="#">Sticky Traps</a></li>
+                                                        <li><a href="#">Pheromone Traps</a></li>
+                                                        <li><a href="#">Pheromone Lures</a></li>
+                                                        <li><a href="#">Solar Light Traps</a></li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li class="mega_items"><a href="#">Agricultural Equipments</a>
+                                        <div class="mega_menu">
+                                            <ul class="mega_menu_inner col-lg-6">
+                                                <li><a href="#">Agricultural Tools</a>
+                                                    <ul>
+                                                        <li><a href="#">Nursery Tools</a></li>
+                                                        <li><a href="#">Fruit Harvester/plucker</a></li>
+                                                        <li><a href="#">Garden Tools</a></li>
+                                                        <li><a href="#">Seeder/Transplantner</a></li>
+                                                        <li><a href="#">Miticides/Acaricides</a></li>
+                                                    </ul>
+                                                </li>
+                                                <li><a href="#">Accessories</a>
+                                                    <ul>
+                                                        <li><a href="#">Tripal/Tarpaulin</a></li>
+                                                        <li><a href="#">Shade Net</a></li>
+                                                        <li><a href="#">Crop Cover</a></li>
+                                                        <li><a href="#">Safety Kit</a></li>
+                                                        <li><a href="#">Mulch</a></li>
+                                                    </ul>
+                                                </li>
+                                                <li><a href="#">Irrigation</a>
+                                                    <ul>
+                                                        <li><a href="#">Pipe</a></li>
+                                                        <li><a href="#">Water Pump</a></li>
+                                                        <li><a href="#">Sprinkler</a></li>
+                                                        <li><a href="#">Drip Kit</a></li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li><a href="{% url 'blog' %}">Blog</a></li>
+                                    <li><a href="{% url 'aboutus' %}">About Us</a></li>
+                                    <li><a href="{% url 'contactus' %}"> Contact Us</a></li>
+                                    <li><a href="{% url 'account' %}"> My Account</a></li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!--header area end-->
+
+    <!--footer area start-->
+    <footer>
+        <div class="footer-container">
+            <div class="about-section">
+                <img src="{% static 'img/logo/logo.png' %}" alt="AGRO BUILD" width="156">
+                <p>Agro Build is a comprehensive online platform dedicated to assisting agriculture enthusiasts and professionals. We offer a wide range of essential agricultural products, including plants, pesticides, and composed fertilizers. Our platform also provides valuable information on plant cultivation, growth enhancement techniques, and optimal watering requirements. To ensure timely care for your plants, Agro Build offers convenient reminder notifications. With Agro Build, you can efficiently access specific data and streamline your agricultural endeavors.</p>
+                <div class="offcanvas_footer">
+                    <ul>
+                        <li class="facebook"><a href="#"><i class="fa fa-facebook"></i></a></li>
+                        <li class="twitter"><a href="#"><i class="fa fa-twitter"></i></a></li>
+                        <li class="pinterest"><a href="#"><i class="fa fa-pinterest-p"></i></a></li>
+                        <li class="google-plus"><a href="#"><i class="fa fa-google-plus"></i></a></li>
+                        <li class="linkedin"><a href="#"><i class="fa fa-linkedin"></i></a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="quick-links">
+                <h2>Quick Links</h2>
+                <ul>
+                    <li><a href="{% url 'index' %}">Home</a></li>
+                    <li><a href="{% url 'aboutus' %}">About Us</a></li>
+                    <li><a href="{% url 'contactus' %}">Contact Us</a></li>
+                    <li><a href="#">Terms & Conditions</a></li>
+                    <li><a href="{% url 'blog' %}">Blogs</a></li>
+                    <li><a href="{% url 'faq' %}">FAQ</a></li>
+                </ul>
+            </div>
+            <div class="contact-section">
+                <h2>Get In Touch</h2>
+                <p>Address: A/16, Diamond Earth Corporate Park AB Rd, Ahmedabad, Gujarat 380081</p>
+                <p>Call us for Support: +91 1234567891</p>
+                <p><strong>Timings:</strong> Mon-Sat from 10 am to 6 pm</p>
+                <p><strong>Email</strong></p>
+                <p>For Support: <a href="mailto:support@agrobuild.co">support@agrobuild.co</a></p>
+                <p>For Bulk Orders: <a href="mailto:corporate@agrobuild.co">corporate@agrobuild.co</a></p>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>Copyright © 2024 <a href="{% url 'index' %}">Agro_Build.co</a></p>
+        </div>
+    </footer>
+    <!--footer area end-->
+
+    <!-- JS
+============================================ -->
+    <!--jquery min js-->
+    <script src="{% static 'js/vendor/jquery-3.4.1.min.js' %}"></script>
+    <!--popper min js-->
+    <script src="{% static 'js/popper.js' %}"></script>
+    <!--bootstrap min js-->
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <!--owl carousel min js-->
+    <script src="{% static 'js/owl.carousel.min.js' %}"></script>
+    <!--slick min js-->
+    <script src="{% static 'js/slick.min.js' %}"></script>
+    <!--magnific popup min js-->
+    <script src="{% static 'js/jquery.magnific-popup.min.js' %}"></script>
+    <!--counterup min js-->
+    <script src="{% static 'js/jquery.counterup.min.js' %}"></script>
+    <!--jquery countdown min js-->
+    <script src="{% static 'js/jquery.countdown.js' %}"></script>
+    <!--jquery ui min js-->
+    <script src="{% static 'js/jquery.ui.js' %}"></script>
+    <!--jquery elevatezoom min js-->
+    <script src="{% static 'js/jquery.elevatezoom.js' %}"></script>
+    <!--isotope packaged min js-->
+    <script src="{% static 'js/isotope.pkgd.min.js' %}"></script>
+    <!--slinky menu js-->
+    <script src="{% static 'js/slinky.menu.js' %}"></script>
+    <!-- Plugins JS -->
+    <script src="{% static 'js/plugins.js' %}"></script>
+    <!-- Popular searches JS -->
+    <script src="{% static 'js/popularSearches.js' %}"></script>
+    <!-- Main JS -->
+    <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

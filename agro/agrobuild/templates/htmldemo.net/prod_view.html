@@ -1,0 +1,69 @@
+{% extends 'htmldemo.net/basic.html' %}
+{% block title %} {{ product.P_name }} - Agro Build {% endblock %}
+{% block body %}
+{% load static %}
+
+<div class="product_details mt-100 mb-100">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 col-md-6">
+                <div class="product-details-tab">
+                    <div id="img-1" class="zoomWrapper single-zoom">
+                        <img id="zoom1" src="/media/{{ product.P_img }}" data-zoom-image="/media/{{ product.P_img }}" alt="{{ product.P_name }}" style="height:400px; width:400px; object-fit:cover;">
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6">
+                <div class="product_d_right">
+                    <!-- Add to Cart Form -->
+                    <form method="POST" action="{% url 'add_to_cart' product.P_id %}">
+                        {% csrf_token %}
+                        <h1>{{ product.P_name }} - {{ product.P_title }}</h1>
+                        <div class="product_ratting">
+                            <ul>
+                                {% for _ in "12345" %}
+                                <li><a href="#"><i class="icon-star"></i></a></li>
+                                {% endfor %}
+                                <li class="review"><a href="#"> (customer review) </a></li>
+                            </ul>
+                        </div>
+                        <div class="price_box">
+                            <span class="current_price">₹{{ product.P_price }}</span>
+                        </div>
+                        <div class="product_desc">
+                            <p>{{ product.P_Description }}</p>
+                        </div>
+                        <div class="product_variant quantity">
+                            <label>Quantity</label>
+                            <input name="quantity" min="1" max="100" value="1" type="number">
+                            <button class="button" type="submit">Add To Cart</button>
+                        </div>
+                    </form>
+
+                    <!-- Add to Wishlist Form -->
+                    <form method="POST" action="{% url 'add_to_wishlist' product.P_id %}">
+                        {% csrf_token %}
+                        <div class="product_d_action mt-3">
+                            <ul>
+                                <li><button type="submit" style="border:none; background:none; padding:0; color:#27ae60; font-weight:bold; cursor:pointer;">+ Add to Wishlist</button></li>
+                            </ul>
+                        </div>
+                    </form>
+
+                    <div class="product_meta">
+                        <span>Category: <a href="#">{{ product.category }}</a></span>
+                    </div>
+
+                    <div class="priduct_social mt-4">
+                        <ul>
+                            <li><a class="facebook" href="https://www.facebook.com" title="facebook"><i class="fa fa-facebook"></i> Facebook</a></li>
+                            <li><a class="pinterest" href="https://www.pinterest.com/" title="pinterest" target="_blank"><i class="fa fa-pinterest"></i> Pinterest</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

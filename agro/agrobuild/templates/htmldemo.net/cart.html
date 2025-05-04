@@ -1,0 +1,142 @@
+{% extends 'htmldemo.net/basic.html' %}
+{% block title %} Cart {% endblock %}
+{% block body %}
+{% load static %}
+
+<!-- breadcrumbs -->
+<div class="breadcrumbs_area">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="breadcrumb_content">
+                    <h3>Cart</h3>
+                    <ul>
+                        <li><a href="{% url 'index' %}">Home</a></li>
+                        <li>Shopping Cart</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- cart display -->
+<div class="shopping_cart_area mt-100">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="table_desc">
+                    <div class="cart_page table-responsive">
+                        <table id="cart_table">
+                            <thead>
+                                <tr>
+                                    <th class="product_remove">Delete</th>
+                                    <th class="product_thumb">Image</th>
+                                    <th class="product_name">Product</th>
+                                    <th class="product-price">Price</th>
+                                    <th class="product_quantity">Quantity</th>
+                                    <th class="product_total">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in cart_items %}
+                                <tr data-price="{{ item.product.P_price }}" data-id="{{ item.id }}">
+                                    <td class="product_remove">
+                                        <form method="post" action="{% url 'remove_from_cart' %}" style="display:inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="item_id" value="{{ item.id }}">
+                                            <button type="submit" style="background: none; border: none;">
+                                                <i class="fa fa-trash-o"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                    <td class="product_thumb">
+                                        <img src="/media/{{ item.product.P_img }}" alt="{{ item.product.P_name }}"style="max-width: 80px; max-height: 80px;">
+                                    </td>
+                                    <td class="product_name">{{ item.product.P_name }}</td>
+                                    <td class="product-price">₹<span class="unit_price">{{ item.product.P_price }}</span></td>
+                                    <td class="product_quantity">
+                                        <input class="qty_input" min="1" max="100" value="{{ item.quantity }}" type="number">
+                                    </td>
+                                    <td class="product_total">₹<span class="line_total">{{ item.total_price }}</span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- totals -->
+        <div class="coupon_area">
+            <div class="row">
+                <div class="col-lg-6 col-md-6">
+                    <div class="coupon_code left">
+                        <h3>Coupon</h3>
+                        <div class="coupon_inner">
+                            <p>Enter your coupon code if you have one.</p>
+                            <input placeholder="Coupon code" type="text">
+                            <button type="button">Apply coupon</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6">
+                    <div class="coupon_code right">
+                        <h3>Cart Totals</h3>
+                        <div class="coupon_inner">                                                           
+                            <div class="cart_subtotal">
+                                <p>Total</p>
+                                <p class="cart_amount">₹<span id="cart_total">0</span></p>
+                            </div>
+                            <div class="checkout_btn">
+                                <a href="{% url 'checkout' %}">Proceed to Checkout</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- JavaScript to handle quantity & total calculation -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const shipping = 0;
+
+        function updateCartTotals() {
+            let subtotal = 0;
+            document.querySelectorAll("#cart_table tbody tr").forEach(function (row) {
+                const price = parseFloat(row.dataset.price);
+                const qty = parseInt(row.querySelector(".qty_input").value);
+                const lineTotal = price * qty;
+                row.querySelector(".line_total").textContent = lineTotal.toFixed(2);
+                subtotal += lineTotal;
+            });
+            
+            document.getElementById("cart_total").textContent = (subtotal + shipping).toFixed(2);
+        }
+
+        // Update totals on quantity change
+        document.querySelectorAll(".qty_input").forEach(input => {
+            input.addEventListener("input", updateCartTotals);
+        });
+
+        // Delete row on click
+        document.querySelectorAll(".delete_item").forEach(btn => {
+            btn.addEventListener("click", function (e) {
+                e.preventDefault();
+                const row = this.closest("tr");
+                row.remove();
+                updateCartTotals();
+            });
+        });
+
+        // Initialize totals
+        updateCartTotals();
+    });
+</script>
+
+{% endblock %}

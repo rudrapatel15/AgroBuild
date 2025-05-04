@@ -1,0 +1,77 @@
+{% extends 'htmldemo.net/basic.html' %}
+{% block title %} Contact Us {% endblock %}
+{% block body %}
+{%load static%}
+<!--breadcrumbs area start-->
+<div class="breadcrumbs_area">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="breadcrumb_content">
+                    <h3>Contact Us</h3>
+                    <ul>
+                        <li><a href="{% url 'index' %}">Home</a></li>
+                        <li>contact us</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--breadcrumbs area end-->
+
+<!--contact map start-->
+<div class="contact_map mt-100">
+    <div class="map-area">
+        <div id="googleMap"></div>
+    </div>
+</div>
+<!--contact map end-->
+
+<!--contact area start-->
+<div class="contact_area">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 col-md-12">
+                <div class="contact_message content">
+                    <h3>contact us</h3>
+                    <p>Whether you have a question about plant care, need advice on selecting the perfect plants for your space, or want to inquire about your order, we're here to Aid and assist you.We strive to provide excellent customer service and are happy to assist you with any inquiries. Choose the most convenient way to contact us below:</p>
+                    <ul>
+                        <li><i class="fa fa-fax"></i>Address: A/16, Diamond Earth Corporate Park AB Rd, Ahmedabad, Gujarat 380081</li>
+                        <li><i class="fa fa-envelope-o"></i> <a href="mailto:info@agrobuild.co">info@agrobuild.co</a></li>
+                        <li><i class="fa fa-phone"></i><a href="tel:+91 1234567891">+91 1234567891</a> </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-12">
+                <div class="contact_message form">
+                    <h3>Leave a comments</h3>
+                    <form id="contact-form" method="POST" action="https://htmldemo.net/lukani/lukani/assets/mail.php">
+                        <p>
+                            <label> Your Name (required)</label>
+                            <input name="name" placeholder="Name *" type="text">
+                        </p>
+                        <p>
+                            <label> Your Email (required)</label>
+                            <input name="email" placeholder="Email *" type="email">
+                        </p>
+                        <p>
+                            <label> Subject</label>
+                            <input name="subject" placeholder="Subject *" type="text">
+                        </p>
+                        <div class="contact_textarea">
+                            <label> Your Comments</label>
+                            <textarea placeholder="Comments *" name="message" class="form-control2"></textarea>
+                        </div>
+                        <button type="submit"> Send</button>
+                        <p class="form-messege"></p>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--contact area end-->
+
+{% endblock %}

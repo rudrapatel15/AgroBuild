@@ -1,0 +1,191 @@
+{% extends 'htmldemo.net/basic.html' %}
+{% block title %} Faq {% endblock %}
+{% block body %}
+{%load static%}
+    <!--breadcrumbs area start-->
+    <div class="breadcrumbs_area">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="breadcrumb_content">
+                        <h3>Frequently Ask Questions</h3>
+                        <ul>
+                            <li><a href="{% url 'index' %}">Home</a></li>
+                            <li>Frequently Questions</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--breadcrumbs area end-->
+
+    <!--faq area start-->
+    <div class="faq_content_area">
+        <div class="container">
+            <div class="faq_content_wrapper">
+                <h4>Below are frequently asked questions, you may find the answer for yourself</h4>
+            </div>
+        </div>
+    </div>
+    <!--Accordion area-->
+    <div class="accordion_area">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div id="accordion" class="card__accordion">
+                        <div class="card card_dipult">
+                            <div class="card-header card_accor" id="headingOne">
+                                <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#collapseOne"
+                                    aria-expanded="true" aria-controls="collapseOne">
+                                    How often should I water my plants?
+                                    <i class="fa fa-plus"></i>
+                                    <i class="fa fa-minus"></i>
+                                </button>
+                            </div>
+
+                            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne"
+                                data-parent="#accordion">
+                                <div class="card-body">
+                                    <p>Watering frequency depends on the plant type and environment. For most indoor plants, water when the top inch of soil is dry. Succulents and cacti need less frequent watering, while outdoor plants generally need about 1 inch of water weekly. Always check the soil moisture before watering.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card  card_dipult">
+                            <div class="card-header card_accor" id="headingTwo">
+                                <button class="btn btn-link collapsed" data-bs-toggle="collapse" data-bs-target="#collapseTwo"
+                                    aria-expanded="false" aria-controls="collapseTwo">
+                                    Why are my plant’s leaves turning yellow?
+                                    <i class="fa fa-plus"></i>
+                                    <i class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo"
+                                data-parent="#accordion">
+                                <div class="card-body">
+                                    <p>Yellow leaves can be caused by several factors: overwatering, underwatering, or nutrient deficiencies (such as lack of nitrogen). Insufficient light or too much direct sunlight can also be responsible. Ensure the plant is in the right environment and adjust care accordingly.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card  card_dipult">
+                            <div class="card-header card_accor" id="headingThree">
+                                <button class="btn btn-link collapsed" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                    How can I prevent pests on my plants?
+                                    <i class="fa fa-plus"></i>
+                                    <i class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                            <div id="collapseThree" class="collapse" aria-labelledby="headingThree"
+                                data-parent="#accordion">
+                                <div class="card-body">
+                                    <p> Keep plants clean by wiping leaves regularly and removing dead foliage. Inspect for common pests like aphids or spider mites, especially on the undersides of leaves. Use neem oil or insecticidal soap if pests are present, and maintain good air circulation to prevent infestations.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card  card_dipult">
+                            <div class="card-header card_accor" id="headingfour">
+                                <button class="btn btn-link collapsed" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseeight" aria-expanded="false" aria-controls="collapseeight">
+                                    What type of soil should I use?
+                                    <i class="fa fa-plus"></i>
+                                    <i class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                            <div id="collapseeight" class="collapse" aria-labelledby="headingfour"
+                                data-parent="#accordion">
+                                <div class="card-body">
+                                    <p>Choose soil based on the plant’s needs. Succulents and cacti thrive in well-draining, sandy soil, while most houseplants do well in standard potting mixes. Outdoor plants may need soil rich in nutrients or tailored to their specific needs (loamy, sandy, or clay-based).</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card  card_dipult">
+                            <div class="card-header card_accor" id="headingfive">
+                                <button class="btn btn-link collapsed" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseseven" aria-expanded="false" aria-controls="collapseseven">
+                                    When should I fertilize my plants?
+                                    <i class="fa fa-plus"></i>
+                                    <i class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                            <div id="collapseseven" class="collapse" aria-labelledby="headingfive"
+                                data-parent="#accordion">
+                                <div class="card-body">
+                                    <p> Fertilize most plants during the growing season (spring and summer) every 4-6 weeks with a balanced fertilizer. Succulents require lighter feeding, while flowering plants may need specific nutrient ratios. Avoid fertilizing in winter when most plants are dormant.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card  card_dipult">
+                            <div class="card-header card_accor" id="headingsix">
+                                <button class="btn btn-link collapsed" data-bs-toggle="collapse"
+                                    data-bs-target="#collapsefour" aria-expanded="false" aria-controls="collapsefour">
+                                    Can I propagate my plant?
+                                    <i class="fa fa-plus"></i>
+                                    <i class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                            <div id="collapsefour" class="collapse" aria-labelledby="headingsix"
+                                data-parent="#accordion">
+                                <div class="card-body">
+                                    <p>Yes, many plants can be propagated using methods like stem cuttings, leaf cuttings, or root division. Stem cuttings can be rooted in water or soil, while succulents often propagate from individual leaves. Some plants, like ferns, can be divided into smaller clumps and replanted.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card  card_dipult">
+                            <div class="card-header card_accor" id="headingseven">
+                                <button class="btn btn-link collapsed" data-bs-toggle="collapse"
+                                    data-bs-target="#collapsefive" aria-expanded="false" aria-controls="collapsefive">
+                                    How do I prune my plants?
+                                    <i class="fa fa-plus"></i>
+                                    <i class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                            <div id="collapsefive" class="collapse" aria-labelledby="headingseven"
+                                data-parent="#accordion">
+                                <div class="card-body">
+                                    <p>Prune plants using clean, sharp tools to prevent disease. Start by removing dead, damaged, or diseased leaves and stems. To shape the plant, cut just above a leaf node to encourage branching. Regular pruning helps plants grow healthier and more vigorously.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card  card_dipult">
+                            <div class="card-header card_accor" id="headingeight">
+                                <button class="btn btn-link collapsed" data-bs-toggle="collapse" data-bs-target="#collapsesix"
+                                    aria-expanded="false" aria-controls="collapsesix">
+                                    What plants are good for beginners?
+                                    <i class="fa fa-plus"></i>
+                                    <i class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                            <div id="collapsesix" class="collapse" aria-labelledby="headingeight"
+                                data-parent="#accordion">
+                                <div class="card-body">
+                                    <p>Beginner-friendly plants include snake plants (Sansevieria), pothos (Epipremnum aureum), and spider plants (Chlorophytum comosum). These plants are tolerant of low light, infrequent watering, and can handle a range of growing conditions, making them ideal for new plant owners.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card  card_dipult">
+                            <div class="card-header card_accor" id="headingnine">
+                                <button class="btn btn-link collapsed" data-bs-toggle="collapse" data-bs-target="#collapsenine"
+                                    aria-expanded="false" aria-controls="collapsesix">
+                                    How can I revive a dying plant?
+                                    <i class="fa fa-plus"></i>
+                                    <i class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                            <div id="collapsenine" class="collapse" aria-labelledby="headingnine"
+                                data-parent="#accordion">
+                                <div class="card-body">
+                                    <p>First, identify the problem (overwatering, pests, lack of light). Trim away any dead or damaged leaves, and repot the plant in fresh, well-draining soil if necessary. Adjust its watering schedule, light exposure, and humidity levels, and be patient as it recovers.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Accordion area end-->
+    <!--faq area end-->
+
+{% endblock %}
