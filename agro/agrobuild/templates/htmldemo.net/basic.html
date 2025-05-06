@@ -133,8 +133,14 @@
                                                 <i class="bi bi-people"></i>
                                             </a>
                                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                                <li><a class="dropdown-item" href="{% url 'login' %}">Login</a></li>
-                                                <li><a class="dropdown-item" href="{% url 'registration' %}">Registration</a></li>
+                                                {% if user.is_authenticated %}
+                                                    <li><span class="dropdown-item-text">Hello, {{ user.username }}</span></li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+                                                {% else %}
+                                                    <li><a class="dropdown-item" href="{% url 'login' %}">Login</a></li>
+                                                    <li><a class="dropdown-item" href="{% url 'registration' %}">Registration</a></li>
+                                                {% endif %}
                                             </ul>
                                         </div>
                                     </div>
@@ -388,7 +394,7 @@
                                             </ul>
                                         </div>
                                     </li>
-                                    <li><a href="{% url 'blog' %}">Blog</a></li>
+                                    <li><a href="{% url 'blog_list' %}">Blog</a></li>
                                     <li><a href="{% url 'aboutus' %}">About Us</a></li>
                                     <li><a href="{% url 'contactus' %}">Contact Us</a></li>
                                     <li><a href="{% url 'my_account' %}">My Account</a></li>
@@ -426,7 +432,7 @@
                     <li><a href="{% url 'aboutus' %}">About Us</a></li>
                     <li><a href="{% url 'contactus' %}">Contact Us</a></li>
                     <li><a href="#">Terms & Conditions</a></li>
-                    <li><a href="{% url 'blog' %}">Blogs</a></li>
+                    <li><a href="{% url 'blog_list' %}">Blogs</a></li>
                     <li><a href="{% url 'faq' %}">FAQ</a></li>
                 </ul>
             </div>

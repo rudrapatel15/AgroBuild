@@ -1,8 +1,20 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
-from .models import Product, Wishlist, CartItem, Order, OrderItem, Category, UserProfile, ContactMessage
+from .models import Product, Wishlist, CartItem, Order, OrderItem, Category, UserProfile, ContactMessage, Blog, BlogComment
 from django.utils import timezone
+
+@admin.register(Blog)
+class BlogAdmin(admin.ModelAdmin):
+    list_display = ('title', 'type', 'date')
+    search_fields = ('title', 'type')
+    list_filter = ('type', 'date')
+
+@admin.register(BlogComment)
+class BlogCommentAdmin(admin.ModelAdmin):
+    list_display = ('name', 'email', 'blog', 'created_at')
+    search_fields = ('name', 'email', 'message')
+    list_filter = ('created_at',)
 
 @admin.register(ContactMessage)
 class ContactMessageAdmin(admin.ModelAdmin):

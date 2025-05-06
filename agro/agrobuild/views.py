@@ -1,6 +1,6 @@
 # views.py
 from django.shortcuts import render, redirect
-from .models import Product, Wishlist, CartItem, Order, OrderItem, Category, UserProfile, ContactMessage
+from .models import Product, Wishlist, CartItem, Order, OrderItem, Category, UserProfile, ContactMessage, Blog, BlogComment
 from django.contrib.auth.models import User
 from math import ceil
 from django.contrib.auth.decorators import login_required
@@ -13,6 +13,33 @@ import razorpay
 from django.contrib.auth import logout
 from django.contrib import messages
 from django.utils import timezone
+
+def blog_list(request):
+    blogs = Blog.objects.all().order_by('-date')
+    return render(request, 'htmldemo.net/blog.html', {'blogs': blogs})
+
+def blog_detail(request, id):
+    blog = get_object_or_404(Blog, id=id)
+    comments = blog.comments.all().order_by('-created_at')
+    related_blogs = Blog.objects.filter(type=blog.type).exclude(id=id)[:3]
+    recent_posts = Blog.objects.all().order_by('-date')[:4]
+    recent_comments = BlogComment.objects.all().order_by('-created_at')[:4]
+
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        message = request.POST.get('message')
+        if name and email and message:
+            BlogComment.objects.create(blog=blog, name=name, email=email, message=message)
+            return redirect('blog_detail', id=blog.id)
+
+    return render(request, 'htmldemo.net/blog-details.html', {
+        'blog': blog,
+        'comments': comments,
+        'related_blogs': related_blogs,
+        'recent_posts': recent_posts,
+        'recent_comments': recent_comments,
+    })
 
 @login_required
 def save_contact(request):

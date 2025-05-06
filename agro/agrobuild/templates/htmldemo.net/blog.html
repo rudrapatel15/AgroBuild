@@ -1,0 +1,207 @@
+{% extends 'htmldemo.net/basic.html' %}
+{% block title %} Blog {% endblock %}
+{% block body %}
+{% load static %}
+
+<!-- Hero Section with Updated Styling -->
+<div class="blog-hero-section">
+    <div class="container">
+        <div class="blog-hero-content">
+            <div class="hero-text-container">
+                <h1>Learning<br>about house<br>plant care<br>is a lifelong<br>pursuit.</h1>
+                <p class="hero-subtext">We care about house plants</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Blog List Section -->
+<div class="blog-list-section">
+    <div class="container">
+        <div class="blog-container">
+            {% for blog in blogs %}
+            <div class="blog-card">
+                <div class="blog-list-image">
+                    <img src="{{ blog.image.url }}" alt="{{ blog.title }}">
+                </div>
+                <h2>{{ blog.title }}</h2>
+                <p>{{ blog.description|truncatewords:30 }}</p>
+                <a href="{% url 'blog_detail' blog.id %}" class="read-more">Read More</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Hero Section with Image Styling */
+    .blog-hero-section {
+        background-image: url('{% static "img/blog/blog-big5.jpg" %}');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        padding: 120px 0 150px;
+        color: #2a2a2a;
+        margin-bottom: 60px;
+        position: relative;
+        width: 100%;
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+    }
+    
+    .blog-hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .blog-hero-content {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+    }
+    
+    .hero-text-container {
+        flex: 1;
+        text-align: left;
+        padding-right: 40px;
+    }
+    
+    .blog-hero-content h1 {
+        font-family: 'Georgia', serif;
+        font-size: 4.5rem;
+        font-weight: 300;
+        line-height: 1.1;
+        margin-bottom: 30px;
+        letter-spacing: -0.5px;
+    }
+    
+    .hero-subtext {
+        font-family: 'Arial', sans-serif;
+        font-size: 1.5rem;
+        font-weight: 400;
+        color: #2a2a2a;
+        margin-bottom: 0;
+    }
+    
+    .blog-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .blog-card {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 350px;
+        padding: 20px;
+        transition: transform 0.3s ease;
+    }
+    
+    .blog-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .blog-card h2 {
+        color: #2c3e50;
+        margin-top: 15px;
+        margin-bottom: 10px;
+        font-size: 1.4rem;
+    }
+    
+    .blog-card p {
+        color: #7f8c8d;
+        margin-bottom: 20px;
+    }
+    
+    .read-more {
+        display: inline-block;
+        background-color: #27ae60;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: background-color 0.3s;
+    }
+    
+    .read-more:hover {
+        background-color: #2ecc71;
+    }
+    
+    .blog-list-image {
+        margin-bottom: 15px;
+    }
+    
+    .blog-list-image img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+    
+    @media (max-width: 992px) {
+        .blog-hero-content h1 {
+            font-size: 3.5rem;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .blog-card {
+            max-width: 100%;
+        }
+        
+        .blog-hero-content {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0 20px;
+        }
+        
+        .blog-hero-content h1 {
+            font-size: 2.8rem;
+            margin-bottom: 20px;
+        }
+        
+        .hero-text-container {
+            padding-right: 0;
+            margin-bottom: 30px;
+        }
+        
+        .author-signature {
+            margin-left: 0;
+            text-align: left;
+        }
+        
+        .blog-hero-section {
+            min-height: 60vh;
+            padding: 80px 0 100px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .blog-hero-content h1 {
+            font-size: 2.2rem;
+        }
+        
+        .hero-subtext {
+            font-size: 1.2rem;
+        }
+    }
+</style>
+{% endblock %}
