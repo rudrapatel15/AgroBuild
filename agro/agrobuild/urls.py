@@ -5,7 +5,7 @@ from django.conf.urls.static import static
 from django.contrib.auth.views import LogoutView
 from django.contrib.auth import views as auth_views
 urlpatterns = [
-    path('', views.index, name="index"),
+    path('', views.blog_list, name='blog_list'),
     path('wishlist/', views.wishlist, name="wishlist"),
     path('add_to_wishlist/<int:product_id>/', views.add_to_wishlist, name='add_to_wishlist'),
     path('remove_from_wishlist/<int:product_id>/', views.remove_from_wishlist, name='remove_from_wishlist'),
@@ -21,7 +21,7 @@ urlpatterns = [
     path('checkout/', views.checkout, name='checkout'),
     path('payment/verify/', views.payment_verification, name='payment_verification'),
     path('order-confirmation/<int:order_id>/', views.order_confirmation, name='order_confirmation'),
-    path('blogs/', views.blog_list, name='blog_list'),
+    path('home/', views.index, name='home'),
     path('blog/<int:id>/', views.blog_detail, name='blog_detail'),
     path('aboutus/', views.aboutus, name='aboutus'),
     path('contactus/', views.contactus, name='contactus'),
@@ -29,6 +29,8 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('faq/', views.faq, name='faq'),
     path('category/<slug:slug>/', views.category_products, name='category_products'),
+    path('search/', views.search, name='search'),
+    path('search/ajax/', views.search_ajax, name='search_ajax'),
 ]
 
 if settings.DEBUG:

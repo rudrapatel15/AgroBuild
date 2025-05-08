@@ -1,0 +1,108 @@
+{% extends 'htmldemo.net/basicsearch.html' %}
+{% block title %}Search Results{% endblock %}
+
+{% block body %}
+<div class="breadcrumbs_area">
+    <div class="container">   
+        <div class="row">
+            <div class="col-12">
+                <div class="breadcrumb_content">
+                    <h3>Search Results</h3>
+                    <ul>
+                        <li><a href="{% url 'index' %}">Home</a></li>
+                        <li>Search</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="product_area mb-95">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="product_header">
+                    <div class="section_title">
+                        <h2>Results for "{{ query }}"</h2>
+                        {% if category_slug %}
+                        <p>Filtered by category: {{ category.name }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {% if products %}
+        <div class="row">
+            {% for product in products %}
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="product_items">
+                    <article class="single_product">
+                        <figure>
+                            <div class="product_thumb">
+                                <a class="primary_img" href="/prod_view/?myid={{ product.P_id }}">
+                                    <img src="/media/{{ product.P_img }}" alt="{{ product.P_name }}" style="height:250px; width:100%; object-fit:cover;">
+                                </a>
+                                <div class="action_links">
+                                    <ul>
+                                        <li class="add_to_cart"><a href="{% url 'add_to_cart' product.P_id %}" title="Add to cart"><i class="icon-shopping-bag"></i></a></li>
+                                        <li class="wishlist"><a href="{% url 'add_to_wishlist' product.P_id %}" title="Add to Wishlist"><i class="icon-heart"></i></a></li>
+                                        <li class="quick_button"><a href="/prod_view/?myid={{ product.P_id }}"><i class="icon-eye"></i></a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <figcaption class="product_content">
+                                <h4 class="product_name"><a href="/prod_view/?myid={{ product.P_id }}">{{ product.P_name }}</a></h4>
+                                <div class="price_box">
+                                    <span class="current_price">₹{{ product.P_price }}</span>
+                                </div>
+                            </figcaption>
+                        </figure>
+                    </article>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="row">
+            <div class="col-12">
+                <div class="pagination_area">
+                    {% if products.has_other_pages %}
+                    <ul class="pagination">
+                        {% if products.has_previous %}
+                        <li class="page-item"><a class="page-link" href="?q={{ query }}&page={{ products.previous_page_number }}{% if category_slug %}&category={{ category_slug }}{% endif %}">Previous</a></li>
+                        {% endif %}
+                        
+                        {% for num in products.paginator.page_range %}
+                            {% if products.number == num %}
+                            <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+                            {% else %}
+                            <li class="page-item"><a class="page-link" href="?q={{ query }}&page={{ num }}{% if category_slug %}&category={{ category_slug }}{% endif %}">{{ num }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if products.has_next %}
+                        <li class="page-item"><a class="page-link" href="?q={{ query }}&page={{ products.next_page_number }}{% if category_slug %}&category={{ category_slug }}{% endif %}">Next</a></li>
+                        {% endif %}
+                    </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-info">
+                    {% if query %}
+                    No products found matching "{{ query }}"
+                    {% else %}
+                    {{ message }}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

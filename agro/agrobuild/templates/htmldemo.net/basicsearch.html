@@ -238,7 +238,15 @@
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-6 col-6">
-                            
+                            <div class="search_container">
+                                <form id="searchForm" action="{% url 'search' %}" method="GET">
+                                    <div class="search-box">
+                                        <input type="text" id="searchInput" name="q" placeholder="Search products..." autocomplete="off">
+                                        <button type="submit"><i class="icon-search"></i></button>
+                                    </div>
+                                    <div class="search-results" id="searchResults"></div>
+                                </form>
+                            </div>
                         </div>
                         <div class="col-lg-3 col-md-3 col-2">
                             <div class="header_account_area">

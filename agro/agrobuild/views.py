@@ -13,6 +13,79 @@ import razorpay
 from django.contrib.auth import logout
 from django.contrib import messages
 from django.utils import timezone
+from django.db.models import Q
+from django.core.paginator import Paginator
+
+def search(request):
+    query = request.GET.get('q', '').strip()
+    category_slug = request.GET.get('category', '')
+    
+    if len(query) < 3:
+        return render(request, 'htmldemo.net/search.html', {
+            'query': query,
+            'message': 'Please enter at least 3 characters to search'
+        })
+    
+    products = Product.objects.filter(
+        Q(P_name__icontains=query) | 
+        Q(P_Description__icontains=query)
+    )
+    
+    # If searching from a category page, filter by that category
+    if category_slug:
+        category = get_object_or_404(Category, slug=category_slug)
+        products = products.filter(categories=category)
+    
+    # For AJAX requests
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        results = []
+        for product in products[:10]:
+            results.append({
+                'P_id': product.P_id,
+                'P_name': product.P_name,
+                'P_img': product.P_img.name if product.P_img else '',
+                'P_price': str(product.P_price),
+                'category': ', '.join([cat.name for cat in product.categories.all()])
+            })
+        return JsonResponse({'results': results})
+    
+    paginator = Paginator(products, 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    return render(request, 'htmldemo.net/search.html', {
+        'products': page_obj,
+        'query': query,
+        'category_slug': category_slug
+    })
+
+def search_ajax(request):
+    query = request.GET.get('q', '').strip()
+    category_slug = request.GET.get('category', '')
+    
+    if len(query) < 3:
+        return JsonResponse({'results': []})
+    
+    products = Product.objects.filter(
+        Q(P_name__icontains=query) | 
+        Q(P_Description__icontains=query)
+    )
+    
+    if category_slug:
+        category = get_object_or_404(Category, slug=category_slug)
+        products = products.filter(categories=category)
+    
+    results = []
+    for product in products[:10]:
+        results.append({
+            'P_id': product.P_id,
+            'P_name': product.P_name,
+            'P_img': product.P_img.name if product.P_img else '',
+            'P_price': str(product.P_price),
+            'category': ', '.join([cat.name for cat in product.categories.all()])
+        })
+    
+    return JsonResponse({'results': results})
 
 def blog_list(request):
     blogs = Blog.objects.all().order_by('-date')
@@ -65,7 +138,7 @@ def update_cart(request):
             item_pk = int(item_id.split('_')[1])
             try:
                 cart_item = CartItem.objects.get(id=item_pk, user=request.user)
-                cart_item.quantity = max(1, int(quantity))  # avoid zero or negative
+                cart_item.quantity = max(1, int(quantity))  
                 cart_item.save()
             except CartItem.DoesNotExist:
                 continue
@@ -127,11 +200,13 @@ def index(request):
     categories_to_show = ['indoor plants', 'Fruit Seeds', 'Garden Tools']
     
     for category_name in categories_to_show:
-        prod = Product.objects.filter(category__iexact=category_name)
-        n = len(prod)
-        if n > 0:
-            nSlides = n // 4 + ceil((n / 4) - (n // 4))
-            allProds.append([prod, range(1, nSlides), nSlides, category_name])
+        category = Category.objects.filter(name__iexact=category_name).first()
+        if category:
+            prod = Product.objects.filter(categories=category)
+            n = len(prod)
+            if n > 0:
+                nSlides = n // 4 + ceil((n / 4) - (n // 4))
+                allProds.append([prod, range(1, nSlides), nSlides, category_name])
     
     return render(request, 'htmldemo.net/index.html', {'allProds': allProds})
 

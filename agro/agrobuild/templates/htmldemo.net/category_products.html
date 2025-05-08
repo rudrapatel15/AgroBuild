@@ -1,4 +1,4 @@
-{% extends 'htmldemo.net/basic.html' %}
+{% extends 'htmldemo.net/basicsearch.html' %}
 {% load static %}
 {% block title %}{{ category.name }}{% endblock %}
 
@@ -46,11 +46,6 @@
                                             <a class="primary_img" href="/prod_view/?myid={{ product.P_id }}">
                                                 <img src="/media/{{ product.P_img }}" alt="{{ product.P_name }}" style="height:250px; width:250px; object-fit:cover;">
                                             </a>
-                                            <div class="label_product">
-                                                {% if product.P_Quality > 90 %}
-                                                <span class="label_sale">Premium</span>
-                                                {% endif %}
-                                            </div>
                                             <div class="action_links">
                                                 <ul>
                                                     <li class="add_to_cart"><a href="{% url 'add_to_cart' product.P_id %}" title="Add to cart"><i class="icon-shopping-bag"></i></a></li>

@@ -1,4 +1,4 @@
-{% extends 'htmldemo.net/basic.html' %}
+{% extends 'htmldemo.net/basicsearch.html' %}
 {% block title %} {{ product.P_name }} - Agro Build {% endblock %}
 {% block body %}
 {% load static %}
@@ -18,15 +18,8 @@
                     <!-- Add to Cart Form -->
                     <form method="POST" action="{% url 'add_to_cart' product.P_id %}">
                         {% csrf_token %}
-                        <h1>{{ product.P_name }} - {{ product.P_title }}</h1>
-                        <div class="product_ratting">
-                            <ul>
-                                {% for _ in "12345" %}
-                                <li><a href="#"><i class="icon-star"></i></a></li>
-                                {% endfor %}
-                                <li class="review"><a href="#"> (customer review) </a></li>
-                            </ul>
-                        </div>
+                        <h1>{{ product.P_name }}</h1>
+                        
                         <div class="price_box">
                             <span class="current_price">₹{{ product.P_price }}</span>
                         </div>
@@ -34,8 +27,7 @@
                             <p>{{ product.P_Description }}</p>
                         </div>
                         <div class="product_variant quantity">
-                            <label>Quantity</label>
-                            <input name="quantity" min="1" max="100" value="1" type="number">
+                            
                             <button class="button" type="submit">Add To Cart</button>
                         </div>
                     </form>

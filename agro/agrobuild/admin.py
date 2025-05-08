@@ -46,12 +46,12 @@ class CartItemAdmin(admin.ModelAdmin):
 class ProductAdmin(admin.ModelAdmin):
     list_display = ('P_id', 'P_name', 'P_price', 'display_categories')
     filter_horizontal = ('categories',)
-    search_fields = ('P_name', 'P_title')
+    search_fields = ('P_name',)
     
     def display_categories(self, obj):
         return ", ".join([category.name for category in obj.categories.all()])
     display_categories.short_description = 'Categories'
-
+    
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'full_name', 'email', 'total_amount', 'status', 'tracking_number', 'created_at', 'is_paid')
