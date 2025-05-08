@@ -7,9 +7,9 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
-from .payment_utils import create_razorpay_order
+# from .payment_utils import create_razorpay_order
 from django.conf import settings
-import razorpay
+# import razorpay
 from django.contrib.auth import logout
 from django.contrib import messages
 from django.utils import timezone
