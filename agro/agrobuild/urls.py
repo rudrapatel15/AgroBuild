@@ -31,6 +31,7 @@ urlpatterns = [
     path('category/<slug:slug>/', views.category_products, name='category_products'),
     path('search/', views.search, name='search'),
     path('search/ajax/', views.search_ajax, name='search_ajax'),
+    path('feedback/', views.feedback, name='feedback'),
 ]
 
 if settings.DEBUG:

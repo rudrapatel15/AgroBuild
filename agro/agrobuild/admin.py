@@ -1,8 +1,14 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
-from .models import Product, Wishlist, CartItem, Order, OrderItem, Category, UserProfile, ContactMessage, Blog, BlogComment
+from .models import Product, Wishlist, CartItem, Order, OrderItem, Category, UserProfile, ContactMessage, Blog, BlogComment, Feedback
 from django.utils import timezone
+
+@admin.register(Feedback)
+class FeedbackAdmin(admin.ModelAdmin):
+    list_display = ('name', 'email', 'product_name', 'category', 'created_at')
+    search_fields = ('name', 'email', 'product_name', 'review')
+    list_filter = ('category', 'created_at')
 
 @admin.register(Blog)
 class BlogAdmin(admin.ModelAdmin):

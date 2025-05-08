@@ -4,6 +4,28 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
 
+class Feedback(models.Model):
+    CATEGORY_CHOICES = [
+        ('plants', 'Plants'),
+        ('seeds', 'Seeds'),
+        ('compost', 'Compost'),
+        ('fertilizers', 'Fertilizers'),
+        ('pesticides', 'Pesticides'),
+        ('equipment', 'Equipment'),
+        ('other', 'Other'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    product_name = models.CharField(max_length=255, blank=True, null=True)
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
+    review = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"Feedback from {self.name} about {self.product_name or self.category}"
+
 class Blog(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()

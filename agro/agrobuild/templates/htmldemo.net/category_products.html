@@ -10,10 +10,7 @@
                 <div class="breadcrumb_content">
                     <h3>{{ category.name }}</h3>
                     <ul>
-                        <li><a href="{% url 'index' %}">Home</a></li>
-                        {% if category.parent %}
-                        <li><a href="{% url 'category_products' category.parent.slug %}">{{ category.parent.name }}</a></li>
-                        {% endif %}
+                        <li><a href="{% url 'home' %}">Products</a></li>
                         <li>{{ category.name }}</li>
                     </ul>
                 </div>

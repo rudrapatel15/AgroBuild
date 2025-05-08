@@ -15,6 +15,31 @@ from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Q
 from django.core.paginator import Paginator
+from .forms import FeedbackForm  
+
+@login_required(login_url='/login/')
+def feedback(request):
+    if request.method == 'POST':
+        form = FeedbackForm(request.POST)
+        if form.is_valid():
+            feedback = form.save(commit=False)
+            if request.user.is_authenticated:
+                feedback.user = request.user
+                feedback.name = request.user.get_full_name() or request.user.username
+                feedback.email = request.user.email
+            feedback.save()
+            messages.success(request, 'Thank you for your feedback!')
+            return redirect('feedback')
+    else:
+        initial = {}
+        if request.user.is_authenticated:
+            initial = {
+                'name': request.user.get_full_name() or request.user.username,
+                'email': request.user.email
+            }
+        form = FeedbackForm(initial=initial)
+    
+    return render(request, 'htmldemo.net/feedback.html', {'form': form})
 
 def search(request):
     query = request.GET.get('q', '').strip()
@@ -114,7 +139,7 @@ def blog_detail(request, id):
         'recent_comments': recent_comments,
     })
 
-@login_required
+@login_required(login_url='/login/')
 def save_contact(request):
     if request.method == 'POST':
         ContactMessage.objects.create(

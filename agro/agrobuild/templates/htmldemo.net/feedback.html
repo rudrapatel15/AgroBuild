@@ -1,0 +1,158 @@
+{% extends 'htmldemo.net/basic.html' %}
+{% block title %} Feedback {% endblock %}
+{% block body %}
+{% load static %}
+<!--breadcrumbs area start-->
+<div class="breadcrumbs_area">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="breadcrumb_content">
+                    <h3>Review</h3>
+                    <ul>
+                        <li><a href="{% url 'index' %}">Home</a></li>
+                        <li>Review</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--breadcrumbs area end-->
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0 text-center">Share Your Feedback</h3>
+                </div>
+                
+                <div class="card-body p-4">
+                    {% if messages %}
+                    <div class="alert alert-dismissible fade show {% if message.tags %}{{ message.tags }}{% else %}alert-info{% endif %}">
+                        {% for message in messages %}
+                        {{ message }}
+                        {% endfor %}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endif %}
+                    
+                    {% if user.is_authenticated %}
+                    <form id="feedback-form" method="POST" action="{% url 'feedback' %}" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="row g-3">
+                            <!-- Name Field -->
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="name" name="name" 
+                                           value="{{ user.first_name }} {{ user.last_name }}" required readonly>
+                                    <label for="name">Your Name</label>
+                                    <div class="invalid-feedback">
+                                        Please provide your name.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Email Field -->
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="email" class="form-control" id="email" name="email" 
+                                           value="{{ user.email }}" required readonly>
+                                    <label for="email">Your Email</label>
+                                    <div class="invalid-feedback">
+                                        Please provide a valid email.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                                                      
+                            <!-- Category Field -->
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    <select class="form-select" id="category" name="category" required>
+                                        <option value="" selected disabled>Select a category</option>
+                                        <option value="plants">Plants</option>
+                                        <option value="seeds">Seeds</option>
+                                        <option value="compost">Compost</option>
+                                        <option value="fertilizers">Fertilizers</option>
+                                        <option value="pesticides">Pesticides</option>
+                                        <option value="equipment">Equipment</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                    <label for="category">Feedback Category</label>
+                                    <div class="invalid-feedback">
+                                        Please select a category.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                             <!-- Product Name Field -->
+                             <div class="col-12">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="product_name" name="product_name" 
+                                           placeholder="Product Name">
+                                    <label for="product_name">Product Name </label>
+                                </div>
+                            </div>
+                            <!-- Feedback Field -->
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    <textarea class="form-control" id="review" name="review" 
+                                              style="height: 150px" required></textarea>
+                                    <label for="review">Your Feedback</label>
+                                    <div class="invalid-feedback">
+                                        Please provide your feedback.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Submit Button -->
+                            <div class="col-12 text-center mt-4">
+                                <button class="btn btn-success btn-lg px-5 py-3" type="submit">
+                                    <i class="bi bi-send-fill me-2"></i> Submit Feedback
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    {% else %}
+                    <div class="alert alert-info text-center">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        Please <a href="{% url 'login' %}?next={% url 'feedback' %}" class="alert-link">login</a> to submit feedback.
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="card-footer bg-light text-muted text-center">
+                    <small>We value your feedback and will respond as soon as possible.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Form validation script
+(function () {
+    'use strict'
+    
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    var forms = document.querySelectorAll('.needs-validation')
+    
+    // Loop over them and prevent submission
+    Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                
+                form.classList.add('was-validated')
+            }, false)
+        })
+})()
+</script>
+
+{% endblock %}
