@@ -1,0 +1,19 @@
+{% extends 'htmldemo.net/basic.html' %}
+{% block body %}
+<div class="container mt-4">
+    <h2>Your Watering Notifications</h2>
+    <div class="list-group">
+        {% for notification in notifications %}
+        <div class="list-group-item">
+            <h5>🌿 {{ notification.product.P_name }}</h5>
+            <p>Water at: 
+                {% if notification.morning_time %}Morning {{ notification.morning_time|time }}{% endif %}
+                {% if notification.evening_time %} and Evening {{ notification.evening_time|time }}{% endif %}
+            </p>
+        </div>
+        {% empty %}
+        <p>No active notifications</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

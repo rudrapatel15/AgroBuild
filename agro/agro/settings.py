@@ -163,3 +163,9 @@ TIME_ZONE = 'Asia/Kolkata'
 
 # Use timezone-aware datetimes
 USE_TZ = True
+
+VAPID_PUBLIC_KEY = "BOvzrSdS6ObRFLCMt9FLZvh-ejM2xXzrKw8wgEX8ZYoRHb_t-dXwQCPcs5alCzphdlE9bHln81-p5GhS-zxEeeg"
+VAPID_PRIVATE_KEY = "lg52aE4lBE6bePIORE21vHwtF5nRmihShciFbBACDEw"
+VAPID_CLAIMS = {
+    "sub": "mailto:admin@example.com"
+}

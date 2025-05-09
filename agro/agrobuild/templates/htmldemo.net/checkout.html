@@ -94,6 +94,39 @@
                                     </tfoot>
                                 </table>
                             </div>
+ <div class="panel-default">
+    <input id="enable_notifications" name="enable_notifications" type="checkbox" value="true" />
+    <label for="enable_notifications">Notify me for watering reminders</label>
+    
+    <div id="notificationOptions" style="margin-top: 15px; padding-left: 20px;">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label>Morning Time (6:00-9:00 AM)</label>
+                <select name="morning_time" class="form-control">
+                    <option value="06:00">6:00 AM</option>
+                    <option value="07:00">7:00 AM</option>
+                    <option value="08:00" selected>8:00 AM</option>
+                    <option value="09:00">9:00 AM</option>
+                </select>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>Evening Time (5:00-6:30 PM)</label>
+                <select name="evening_time" class="form-control">
+                    <option value="17:00">5:00 PM</option>
+                    <option value="17:30">5:30 PM</option>
+                    <option value="18:00" selected>6:00 PM</option>
+                    <option value="18:30">6:30 PM</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" name="allow_push" id="allow_push" value="true">
+            <label class="form-check-label" for="allow_push">
+                Allow browser push notifications
+            </label>
+        </div>
+    </div>
+</div>
                             <div class="payment_method">
                                 <div class="panel-default">
                                     <input id="payment_cod" name="payment_method" type="radio" value="cod" checked />

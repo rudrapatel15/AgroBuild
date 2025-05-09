@@ -3,6 +3,20 @@ from decimal import Decimal
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
+from datetime import time
+
+class PushSubscription(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    endpoint = models.TextField()
+    keys = models.JSONField()
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'endpoint')
+
+    def __str__(self):
+        return f"Push subscription for {self.user.username}"
 
 class Feedback(models.Model):
     CATEGORY_CHOICES = [
@@ -86,10 +100,63 @@ class Product(models.Model):
     P_img = models.ImageField(upload_to='image/img',default="")
     P_price = models.DecimalField(max_digits=10, default=Decimal('0.00'), decimal_places=2)
     categories = models.ManyToManyField(Category)
+    summer_watering = models.CharField(
+        max_length=50, 
+        choices=[
+            ('daily', 'Daily'),
+            ('twice', 'Twice a day'),
+            ('every_two_days', 'Every two days'),
+            ('weekly', 'Weekly')
+        ], 
+        default='daily',
+        verbose_name="Summer (Mar-Jun) Watering"
+    )
+    
+    winter_watering = models.CharField(
+        max_length=50, 
+        choices=[
+            ('daily', 'Daily'),
+            ('twice', 'Twice a day'),
+            ('every_two_days', 'Every two days'),
+            ('weekly', 'Weekly')
+        ], 
+        default='twice',
+        verbose_name="Winter (Nov-Feb) Watering"
+    )
+    
+    monsoon_watering = models.CharField(
+        max_length=50, 
+        choices=[
+            ('daily', 'Daily'),
+            ('twice', 'Twice a day'),
+            ('every_two_days', 'Every two days'),
+            ('weekly', 'Weekly')
+        ], 
+        default='every_two_days',
+        verbose_name="Monsoon (Jul-Oct) Watering"
+    )
+    def is_plant(self):
+        # Check if this product belongs to any plant category
+        return self.categories.filter(name__icontains='plant').exists()
     
     def __str__(self):
         return self.P_name
+    
+class PlantNotification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    morning_time = models.TimeField(default=time(8, 0))  # Default 8:00 AM
+    evening_time = models.TimeField(default=time(18, 0))  # Default 6:00 PM
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    allow_push = models.BooleanField(default=False)
 
+    def __str__(self):
+        return f"{self.product.P_name} reminder for {self.user.username}"
+
+    class Meta:
+        ordering = ['-created_at']
+    
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     phone = models.CharField(max_length=15, blank=True, null=True)

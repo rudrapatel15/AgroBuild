@@ -32,6 +32,10 @@ urlpatterns = [
     path('search/', views.search, name='search'),
     path('search/ajax/', views.search_ajax, name='search_ajax'),
     path('feedback/', views.feedback, name='feedback'),
+    path('notifications/', views.view_notifications, name='view_all_notifications'),
+    path('save-subscription/', views.save_subscription, name='save_subscription'),
+    path('delete-subscription/', views.delete_subscription, name='delete_subscription'),
+    path('get-notifications/', views.get_notifications, name='get_notifications'),
 ]
 
 if settings.DEBUG:

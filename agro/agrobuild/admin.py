@@ -1,8 +1,23 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
-from .models import Product, Wishlist, CartItem, Order, OrderItem, Category, UserProfile, ContactMessage, Blog, BlogComment, Feedback
+from .models import Product, Wishlist, CartItem, Order, OrderItem, Category, UserProfile, ContactMessage, Blog, BlogComment, Feedback, PlantNotification
 from django.utils import timezone
+
+@admin.register(PlantNotification)
+class PlantNotificationAdmin(admin.ModelAdmin):
+    list_display = ('user', 'product', 'is_active')
+    list_filter = ('is_active',)
+    search_fields = ('user__username', 'product__P_name')
+    
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.filter(product__categories__name__icontains='plant')
+    
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "product":
+            kwargs["queryset"] = Product.objects.filter(categories__name__icontains='plant')
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 @admin.register(Feedback)
 class FeedbackAdmin(admin.ModelAdmin):
@@ -58,6 +73,23 @@ class ProductAdmin(admin.ModelAdmin):
         return ", ".join([category.name for category in obj.categories.all()])
     display_categories.short_description = 'Categories'
     
+    fieldsets = (
+        (None, {
+            'fields': ('P_name', 'P_Description', 'P_img', 'P_price', 'categories')
+        }),
+        ('Watering Requirements', {
+            'fields': ('summer_watering', 'winter_watering', 'monsoon_watering'),
+            'description': 'Set watering schedule for different seasons'
+        }),
+    )
+    
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super().get_fieldsets(request, obj)
+        if obj and not obj.is_plant():
+            # Remove watering fields for non-plant products
+            return (fieldsets[0],)
+        return fieldsets
+
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'full_name', 'email', 'total_amount', 'status', 'tracking_number', 'created_at', 'is_paid')

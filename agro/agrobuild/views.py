@@ -1,11 +1,12 @@
 # views.py
 from django.shortcuts import render, redirect
-from .models import Product, Wishlist, CartItem, Order, OrderItem, Category, UserProfile, ContactMessage, Blog, BlogComment
+from .models import Product, Wishlist, CartItem, Order, OrderItem, Category, UserProfile, ContactMessage, Blog, BlogComment, Feedback, PlantNotification
 from django.contrib.auth.models import User
 from math import ceil
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from .payment_utils import create_razorpay_order
 from django.conf import settings
@@ -16,6 +17,60 @@ from django.utils import timezone
 from django.db.models import Q
 from django.core.paginator import Paginator
 from .forms import FeedbackForm  
+from django.http import JsonResponse
+from .models import PushSubscription
+import json
+
+@csrf_exempt
+@login_required(login_url='/login/')
+def save_subscription(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            PushSubscription.objects.create(
+                user=request.user,
+                endpoint=data['endpoint'],
+                keys=data['keys']
+            )
+            return JsonResponse({'status': 'success'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    return JsonResponse({'status': 'error'}, status=405)
+
+@csrf_exempt
+@login_required(login_url='/login/')
+def delete_subscription(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            PushSubscription.objects.filter(
+                user=request.user,
+                endpoint=data['endpoint']
+            ).delete()
+            return JsonResponse({'status': 'success'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    return JsonResponse({'status': 'error'}, status=405)
+
+@login_required(login_url='/login/')
+def view_notifications(request):
+    notifications = PlantNotification.objects.filter(user=request.user)
+    return render(request, 'htmldemo.net/notifications.html', {'notifications': notifications})
+
+@csrf_exempt
+def get_notifications(request):
+    if request.user.is_authenticated:
+        notifications = PlantNotification.objects.filter(
+            user=request.user,
+            is_active=True
+        ).order_by('-created_at')[:10]
+        data = [{
+            'message': f"🌿 Time to water your {n.product.P_name}",
+            'time': n.created_at.strftime("%H:%M"),
+            'product_img': n.product.P_img.url if n.product.P_img else ''
+        } for n in notifications]
+        return JsonResponse({'notifications': data})
+    return JsonResponse({'notifications': []})
 
 @login_required(login_url='/login/')
 def feedback(request):
@@ -284,54 +339,76 @@ def cart(request):
 @login_required(login_url='/login/')
 def checkout(request):
     cart_items = CartItem.objects.filter(user=request.user)
+    if not cart_items.exists():
+        return redirect('cart')
+    
     subtotal = sum(item.product.P_price * item.quantity for item in cart_items)
     shipping = 100
     total = subtotal + shipping
 
     if request.method == 'POST':
-        payment_method = request.POST.get('payment_method')
-        
-       
-        order = Order.objects.create(
-            user=request.user,
-            full_name=request.POST.get('full_name'),
-            email=request.POST.get('email'),
-            address=request.POST.get('address'),
-            city=request.POST.get('city'),
-            state=request.POST.get('state'),
-            zip_code=request.POST.get('zip_code'),
-            mobile_number=request.POST.get('mobile_number'),
-            total_amount=total,
-            payment_method='Online Payment' if payment_method == 'online' else 'Cash on Delivery',
-            is_paid=(payment_method == 'cod')  
-        )
-        
-        for item in cart_items:
-            OrderItem.objects.create(
-                order=order,
-                product=item.product,
-                price=item.product.P_price,
-                quantity=item.quantity
+        try:
+            # Convert checkbox values to boolean
+            enable_notifications = request.POST.get('enable_notifications') == 'true'
+            allow_push = request.POST.get('allow_push') == 'true'
+            
+            order = Order.objects.create(
+                user=request.user,
+                full_name=request.POST.get('full_name'),
+                email=request.POST.get('email'),
+                address=request.POST.get('address'),
+                city=request.POST.get('city'),
+                state=request.POST.get('state'),
+                zip_code=request.POST.get('zip_code'),
+                mobile_number=request.POST.get('mobile_number'),
+                total_amount=total,
+                payment_method='Online Payment' if request.POST.get('payment_method') == 'online' else 'Cash on Delivery',
+                is_paid=False
             )
-        
-        if payment_method == 'online':
-            razorpay_order = create_razorpay_order(total)
-            order.razorpay_order_id = razorpay_order['id']
-            order.save()
             
-            context = {
-                'razorpay_order_id': razorpay_order['id'],
-                'razorpay_amount': razorpay_order['amount'],
-                'currency': 'INR',
-                'key_id': settings.RAZORPAY_KEY_ID,
-                'order': order,
-                'user': request.user
-            }
-            return render(request, 'htmldemo.net/payment.html', context)
-        else:
+            # Create plant notifications if enabled
+            if enable_notifications:
+                for item in cart_items:
+                    if item.product.is_plant():
+                        PlantNotification.objects.create(
+                            user=request.user,
+                            product=item.product,
+                            morning_time=request.POST.get('morning_time', '08:00'),
+                            evening_time=request.POST.get('evening_time', '18:00'),
+                            allow_push=allow_push
+                        )
+
+            # Create order items
+            for item in cart_items:
+                OrderItem.objects.create(
+                    order=order,
+                    product=item.product,
+                    price=item.product.P_price,
+                    quantity=item.quantity
+                )
             
-            CartItem.objects.filter(user=request.user).delete()
-            return redirect('order_confirmation', order_id=order.id)
+            # Handle payment
+            if request.POST.get('payment_method') == 'online':
+                razorpay_order = create_razorpay_order(total)
+                order.razorpay_order_id = razorpay_order['id']
+                order.save()
+                
+                context = {
+                    'razorpay_order_id': razorpay_order['id'],
+                    'razorpay_amount': razorpay_order['amount'],
+                    'currency': 'INR',
+                    'key_id': settings.RAZORPAY_KEY_ID,
+                    'order': order,
+                    'user': request.user
+                }
+                return render(request, 'htmldemo.net/payment.html', context)
+            else:
+                CartItem.objects.filter(user=request.user).delete()
+                return redirect('order_confirmation', order_id=order.id)
+                
+        except Exception as e:
+            messages.error(request, f"Error processing your order: {str(e)}")
+            return redirect('checkout')
     
     return render(request, 'htmldemo.net/checkout.html', {
         'cart_items': cart_items,
