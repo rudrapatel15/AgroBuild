@@ -3,21 +3,42 @@ from decimal import Decimal
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
-from datetime import time
+from datetime import time, timedelta
 
-class PushSubscription(models.Model):
+class WateringReminder(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    endpoint = models.TextField()
-    keys = models.JSONField()
+    product = models.ForeignKey('Product', on_delete=models.CASCADE)
+    category = models.ForeignKey('Category', on_delete=models.CASCADE, null=True, blank=True)
+    morning_time = models.TimeField(default=time(8, 0))
+    evening_time = models.TimeField(default=time(18, 0))
+    allow_website = models.BooleanField(default=False)
+    allow_gmail = models.BooleanField(default=False)
+    gmail = models.EmailField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
+    last_sent = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    def clean(self):
+        if not self.product.is_plant():
+            from django.core.exceptions import ValidationError
+            raise ValidationError("Watering reminders can only be set for plant products.")
 
-    class Meta:
-        unique_together = ('user', 'endpoint')
+    def save(self, *args, **kwargs):
+        self.full_clean()  # Enforce the clean() method
+        super().save(*args, **kwargs)
 
-    def __str__(self):
-        return f"Push subscription for {self.user.username}"
-
+class NotificationHistory(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    product = models.ForeignKey('Product', on_delete=models.CASCADE)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+    def clean(self):
+        # Only allow reminders for plant products
+        if not self.product.is_plant():
+            from django.core.exceptions import ValidationError
+            raise ValidationError("Watering reminders can only be set for plant products.")
+        
 class Feedback(models.Model):
     CATEGORY_CHOICES = [
         ('plants', 'Plants'),
@@ -80,7 +101,7 @@ class Category(models.Model):
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
     description = models.TextField(blank=True)
     image = models.ImageField(upload_to='categories/', blank=True, null=True)
-    
+    menu = models.CharField(max_length=50, blank=True, null=True)
     class Meta:
         verbose_name_plural = "Categories"
     
@@ -100,6 +121,7 @@ class Product(models.Model):
     P_img = models.ImageField(upload_to='image/img',default="")
     P_price = models.DecimalField(max_digits=10, default=Decimal('0.00'), decimal_places=2)
     categories = models.ManyToManyField(Category)
+
     summer_watering = models.CharField(
         max_length=50, 
         choices=[
@@ -111,7 +133,6 @@ class Product(models.Model):
         default='daily',
         verbose_name="Summer (Mar-Jun) Watering"
     )
-    
     winter_watering = models.CharField(
         max_length=50, 
         choices=[
@@ -123,7 +144,6 @@ class Product(models.Model):
         default='twice',
         verbose_name="Winter (Nov-Feb) Watering"
     )
-    
     monsoon_watering = models.CharField(
         max_length=50, 
         choices=[
@@ -136,26 +156,10 @@ class Product(models.Model):
         verbose_name="Monsoon (Jul-Oct) Watering"
     )
     def is_plant(self):
-        # Check if this product belongs to any plant category
         return self.categories.filter(name__icontains='plant').exists()
     
     def __str__(self):
         return self.P_name
-    
-class PlantNotification(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    morning_time = models.TimeField(default=time(8, 0))  # Default 8:00 AM
-    evening_time = models.TimeField(default=time(18, 0))  # Default 6:00 PM
-    is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    allow_push = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f"{self.product.P_name} reminder for {self.user.username}"
-
-    class Meta:
-        ordering = ['-created_at']
     
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

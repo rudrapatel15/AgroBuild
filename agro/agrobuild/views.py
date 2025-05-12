@@ -1,12 +1,11 @@
 # views.py
 from django.shortcuts import render, redirect
-from .models import Product, Wishlist, CartItem, Order, OrderItem, Category, UserProfile, ContactMessage, Blog, BlogComment, Feedback, PlantNotification
+from .models import Product, Wishlist, CartItem, Order, OrderItem, Category, UserProfile, ContactMessage, Blog, BlogComment, Feedback, WateringReminder, NotificationHistory
 from django.contrib.auth.models import User
 from math import ceil
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from .payment_utils import create_razorpay_order
 from django.conf import settings
@@ -14,63 +13,54 @@ import razorpay
 from django.contrib.auth import logout
 from django.contrib import messages
 from django.utils import timezone
+from django.core.mail import send_mail
 from django.db.models import Q
 from django.core.paginator import Paginator
 from .forms import FeedbackForm  
-from django.http import JsonResponse
-from .models import PushSubscription
-import json
+from django.utils import timezone
+from django.views.decorators.http import require_POST
 
-@csrf_exempt
-@login_required(login_url='/login/')
-def save_subscription(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            PushSubscription.objects.create(
-                user=request.user,
-                endpoint=data['endpoint'],
-                keys=data['keys']
-            )
-            return JsonResponse({'status': 'success'})
-        except Exception as e:
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
-    return JsonResponse({'status': 'error'}, status=405)
+from django.http import HttpResponse
 
-@csrf_exempt
-@login_required(login_url='/login/')
-def delete_subscription(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            PushSubscription.objects.filter(
-                user=request.user,
-                endpoint=data['endpoint']
-            ).delete()
-            return JsonResponse({'status': 'success'})
-        except Exception as e:
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
-    return JsonResponse({'status': 'error'}, status=405)
+def test_email(request):
+    send_mail(
+        'Test Email',
+        'This is a test email from Django.',
+        None,  # Uses DEFAULT_FROM_EMAIL from settings.py
+        ['pr32693269@gmail.com'],  # Replace with your Gmail
+    )
+    return HttpResponse("Test email sent!")
 
-@login_required(login_url='/login/')
-def view_notifications(request):
-    notifications = PlantNotification.objects.filter(user=request.user)
+@login_required
+def get_notifications(request):
+    notifications = NotificationHistory.objects.filter(user=request.user).order_by('-created_at')[:10]
+    data = [{
+        'message': n.message,
+        'product_name': n.product.P_name,
+        'product_img': n.product.P_img.url if n.product.P_img else '',
+        'timestamp': n.created_at.isoformat()
+    } for n in notifications]
+    return JsonResponse({'notifications': data})
+
+@login_required
+def view_all_notifications(request):
+    notifications = NotificationHistory.objects.filter(user=request.user).order_by('-created_at')
+    # Optionally mark as read:
+    notifications.update(is_read=True)
     return render(request, 'htmldemo.net/notifications.html', {'notifications': notifications})
 
-@csrf_exempt
-def get_notifications(request):
-    if request.user.is_authenticated:
-        notifications = PlantNotification.objects.filter(
-            user=request.user,
-            is_active=True
-        ).order_by('-created_at')[:10]
-        data = [{
-            'message': f"🌿 Time to water your {n.product.P_name}",
-            'time': n.created_at.strftime("%H:%M"),
-            'product_img': n.product.P_img.url if n.product.P_img else ''
-        } for n in notifications]
-        return JsonResponse({'notifications': data})
-    return JsonResponse({'notifications': []})
+@require_POST
+@login_required
+def delete_notification(request, id):
+    notification = get_object_or_404(NotificationHistory, id=id, user=request.user)
+    notification.delete()
+    return redirect('view_all_notifications')
+
+@require_POST
+@login_required
+def clear_notifications(request):
+    NotificationHistory.objects.filter(user=request.user).delete()
+    return redirect('view_all_notifications')
 
 @login_required(login_url='/login/')
 def feedback(request):
@@ -170,7 +160,7 @@ def search_ajax(request):
 def blog_list(request):
     blogs = Blog.objects.all().order_by('-date')
     return render(request, 'htmldemo.net/blog.html', {'blogs': blogs})
-
+    
 def blog_detail(request, id):
     blog = get_object_or_404(Blog, id=id)
     comments = blog.comments.all().order_by('-created_at')
@@ -340,18 +330,43 @@ def cart(request):
 def checkout(request):
     cart_items = CartItem.objects.filter(user=request.user)
     if not cart_items.exists():
+        messages.error(request, "Your cart is empty.")
         return redirect('cart')
-    
+
     subtotal = sum(item.product.P_price * item.quantity for item in cart_items)
     shipping = 100
     total = subtotal + shipping
+    has_plants = any(item.product.is_plant() for item in cart_items)
 
     if request.method == 'POST':
         try:
-            # Convert checkbox values to boolean
-            enable_notifications = request.POST.get('enable_notifications') == 'true'
-            allow_push = request.POST.get('allow_push') == 'true'
-            
+            # 1. Watering Reminder Logic
+           # 1. Watering Reminder Logic
+            if has_plants and request.POST.get('enable_notifications') == 'true':
+                allow_website = request.POST.get('allow_website') == 'true'
+                allow_gmail = request.POST.get('allow_gmail') == 'true'
+                gmail = request.POST.get('gmail')
+                morning_time = request.POST.get('morning_time', '08:00')
+                evening_time = request.POST.get('evening_time', '18:00')
+                # Create a reminder for each plant product in the cart
+                for item in cart_items:
+                    if item.product.is_plant():
+                        for cat in item.product.categories.filter(name__icontains='plant'):
+                            WateringReminder.objects.update_or_create(
+                                user=request.user,
+                                product=item.product,
+                                category=cat,
+                                defaults={
+                                    'morning_time': morning_time,
+                                    'evening_time': evening_time,
+                                    'allow_website': allow_website,
+                                    'allow_gmail': allow_gmail,
+                                    'gmail': gmail,
+                                    'is_active': True,
+                                }
+                            )
+
+            # 2. Create Order
             order = Order.objects.create(
                 user=request.user,
                 full_name=request.POST.get('full_name'),
@@ -365,20 +380,8 @@ def checkout(request):
                 payment_method='Online Payment' if request.POST.get('payment_method') == 'online' else 'Cash on Delivery',
                 is_paid=False
             )
-            
-            # Create plant notifications if enabled
-            if enable_notifications:
-                for item in cart_items:
-                    if item.product.is_plant():
-                        PlantNotification.objects.create(
-                            user=request.user,
-                            product=item.product,
-                            morning_time=request.POST.get('morning_time', '08:00'),
-                            evening_time=request.POST.get('evening_time', '18:00'),
-                            allow_push=allow_push
-                        )
 
-            # Create order items
+            # 3. Create Order Items
             for item in cart_items:
                 OrderItem.objects.create(
                     order=order,
@@ -386,13 +389,12 @@ def checkout(request):
                     price=item.product.P_price,
                     quantity=item.quantity
                 )
-            
-            # Handle payment
+
+            # 4. Payment Handling
             if request.POST.get('payment_method') == 'online':
                 razorpay_order = create_razorpay_order(total)
                 order.razorpay_order_id = razorpay_order['id']
                 order.save()
-                
                 context = {
                     'razorpay_order_id': razorpay_order['id'],
                     'razorpay_amount': razorpay_order['amount'],
@@ -403,23 +405,22 @@ def checkout(request):
                 }
                 return render(request, 'htmldemo.net/payment.html', context)
             else:
-                CartItem.objects.filter(user=request.user).delete()
+                # Clear cart after successful order
+                cart_items.delete()
                 return redirect('order_confirmation', order_id=order.id)
-                
+
         except Exception as e:
             messages.error(request, f"Error processing your order: {str(e)}")
             return redirect('checkout')
-    
+
     return render(request, 'htmldemo.net/checkout.html', {
         'cart_items': cart_items,
         'subtotal': subtotal,
         'shipping': shipping,
-        'total': total
+        'total': total,
+        'has_plants': has_plants,
     })
 
-def payment_verification(request):
-   
-    client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
 def payment_verification(request):
     if request.method == 'POST':
         

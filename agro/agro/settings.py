@@ -41,7 +41,9 @@ INSTALLED_APPS = [ # components
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'agrobuild', # app name
+    'agrobuild',
+    'pytz', 
+    'crontasks', 
 ]
 
 MIDDLEWARE = [
@@ -141,9 +143,11 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 # STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+NOTIFICATION_SOUND = os.path.join(BASE_DIR, 'static/sounds/notification.mp3')
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'), #creates a static folder in the same directory as manage.py
+    os.path.join(BASE_DIR, 'agrobuild/static'),
 ]
 
 MEDIA_URL = '/media/'
@@ -164,8 +168,15 @@ TIME_ZONE = 'Asia/Kolkata'
 # Use timezone-aware datetimes
 USE_TZ = True
 
-VAPID_PUBLIC_KEY = "BOvzrSdS6ObRFLCMt9FLZvh-ejM2xXzrKw8wgEX8ZYoRHb_t-dXwQCPcs5alCzphdlE9bHln81-p5GhS-zxEeeg"
-VAPID_PRIVATE_KEY = "lg52aE4lBE6bePIORE21vHwtF5nRmihShciFbBACDEw"
-VAPID_CLAIMS = {
-    "sub": "mailto:admin@example.com"
-}
+# ...existing code...
+
+# Gmail SMTP settings for sending watering reminders
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'shopmulti9859@gmail.com'         
+EMAIL_HOST_PASSWORD = 'webv rzla nzog avom'       
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# ...existing code...

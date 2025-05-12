@@ -3,7 +3,8 @@ from . import views
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth.views import LogoutView
-from django.contrib.auth import views as auth_views
+from django.conf.urls.static import static
+
 urlpatterns = [
     path('', views.blog_list, name='blog_list'),
     path('wishlist/', views.wishlist, name="wishlist"),
@@ -32,11 +33,12 @@ urlpatterns = [
     path('search/', views.search, name='search'),
     path('search/ajax/', views.search_ajax, name='search_ajax'),
     path('feedback/', views.feedback, name='feedback'),
-    path('notifications/', views.view_notifications, name='view_all_notifications'),
-    path('save-subscription/', views.save_subscription, name='save_subscription'),
-    path('delete-subscription/', views.delete_subscription, name='delete_subscription'),
+    path('notifications/', views.view_all_notifications, name='view_all_notifications'),
+    path('notifications/delete/<int:id>/', views.delete_notification, name='delete_notification'),
+    path('notifications/clear/', views.clear_notifications, name='clear_notifications'),
     path('get-notifications/', views.get_notifications, name='get_notifications'),
-]
+    path('test-email/', views.test_email, name='test_email'),
+    ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

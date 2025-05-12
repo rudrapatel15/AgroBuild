@@ -220,19 +220,10 @@
             object-fit: cover;
             margin-right: 8px;
         }
-        .notification_wrapper {
+        /* Notification Styles */
+.notification_wrapper {
     position: relative;
     margin-left: 15px;
-}
-
-.notification_wrapper a {
-    color: #333;
-    font-size: 20px;
-    position: relative;
-}
-
-.notification_wrapper a:hover {
-    color: #4CAF50;
 }
 
 .notification_dropdown {
@@ -248,41 +239,76 @@
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     z-index: 1000;
     display: none;
-    padding: 15px;
-}
-
-.notification_header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #eee;
 }
 
 .notification_item {
-    padding: 10px;
+    padding: 12px 15px;
     border-bottom: 1px solid #eee;
     display: flex;
     align-items: center;
+    transition: all 0.2s;
 }
 
-.notification_item img {
+.notification_item:hover {
+    background-color: #f8f9fa;
+}
+
+.notification_img {
     width: 40px;
     height: 40px;
-    object-fit: cover;
-    border-radius: 4px;
-    margin-right: 10px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 12px;
+    flex-shrink: 0;
 }
 
-.notification_item:last-child {
-    border-bottom: none;
+.notification_img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.notification_content {
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.notification_text {
+    margin: 0;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.notification_time {
+    color: #6c757d;
+    font-size: 12px;
 }
 
 .empty_notice {
-    padding: 10px;
+    padding: 15px;
     text-align: center;
-    color: #666;
+    color: #6c757d;
+}
+
+.notification_header {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 1;
+}
+
+.notification_footer {
+    padding: 10px 15px;
+    text-align: center;
+    border-top: 1px solid #eee;
+    position: sticky;
+    bottom: 0;
+    background: white;
+}
 }
     </style>
     <script src="{% static 'js/vendor/modernizr-3.7.1.min.js' %}"></script>
@@ -302,7 +328,7 @@
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-6 col-6">
-                           <div class="search-container">
+                            <div class="search-container">
                                 <form id="searchForm" action="{% url 'search' %}" method="GET">
                                     <div class="search-box">
                                         <input type="text" id="searchInput" name="q" placeholder="Search products..." autocomplete="off">
@@ -310,7 +336,7 @@
                                     </div>
                                     <div class="search-results" id="searchResults"></div>
                                 </form>
-                            </div> 
+                            </div>   
                         </div>
                     <div class="col-lg-3 col-md-3 col-2">
                         <div class="header_account_area">
@@ -419,20 +445,24 @@
                                 </div> 
                                     <div class="header_account_list">    
                                         <div class="header_account-list notification_wrapper">
-                                            <a href="javascript:void(0)" id="notificationIcon">
-                                                 <i class="bi bi-bell-fill"></i>
-                                                <span class="item_count" id="notificationCount">0</span>
-                                            </a>
-                                            <div class="notification_dropdown" id="notificationDropdown">
-                                                <div class="notification_header">
-                                                    <h4>Notifications</h4>
-                                                    <a href="{% url 'view_all_notifications' %}" class="view_all">View All</a>
-                                                </div>
-                                                <div class="notification_items" id="notificationItems">
-                                                    <div class="empty_notice">Loading notifications...</div>
-                                                </div>
-                                            </div>
-                                        </div> 
+    <a href="javascript:void(0)" id="notificationIcon">
+        <i class="bi bi-bell"></i>
+        <span class="item_count" id="notificationCount">0</span>
+    </a>
+    <div class="notification_dropdown" id="notificationDropdown">
+        <div class="notification_header">
+            <h4>Notifications</h4>
+        </div>
+        <div class="notification_items" id="notificationItems">
+            <div class="empty_notice">No new notifications</div>
+        </div>
+        <div class="notification_footer">
+            <a href="{% url 'view_all_notifications' %}">View All</a>
+        </div>
+    </div>
+</div>
+
+
                                     </div>
                                 </div>
                         </div>  
@@ -455,13 +485,13 @@
                                             <ul class="mega_menu_inner col-lg-6">
                                                 <li><a href="{% url 'category_products' 'wellbeing-plants' %}">Wellbeing Plants</a>
                                                     <ul>
-                                                        <li><a href="{% url 'category_products' 'peace-positivity' %}">Peace & Positivity</a></li>
-                                                        <li><a href="{% url 'category_products' 'stress-buster' %}">Stress Buster</a></li>
-                                                        <li><a href="{% url 'category_products' 'mental-health' %}">Mental Health</a></li>
-                                                        <li><a href="{% url 'category_products' 'boosts-creativity' %}">Boosts Creativity</a></li>
+                                                        <li><a href="{% url 'category_products' 'positivity-plant' %}">Positivity Plant</a></li>
+                                                        <li><a href="{% url 'category_products' 'stress-buster-plant' %}">Stress Buster Plant</a></li>
+                                                        <li><a href="{% url 'category_products' 'mental-health-plant' %}">Mental Health Plant</a></li>
+                                                        <li><a href="{% url 'category_products' 'boosts-creativity-plant' %}">Boosts Creativity Plant</a></li>
                                                         <li><a href="{% url 'category_products' 'self-care-plants' %}">Self Care Plants</a></li>
-                                                        <li><a href="{% url 'category_products' 'improves-mood' %}">Improves Mood</a></li>
-                                                        <li><a href="{% url 'category_products' 'aura-planters' %}">Aura Planters</a></li>
+                                                        <li><a href="{% url 'category_products' 'improves-mood-plant' %}">Improves Mood Plant</a></li>
+                                                        <li><a href="{% url 'category_products' 'aura-plant' %}">Aura Plant</a></li>
                                                     </ul>
                                                 </li>
                                                 <li><a href="{% url 'category_products' 'shop-by-type' %}">Shop by type</a>
@@ -690,74 +720,80 @@
     <script src="{% static 'js/plugins.js' %}"></script>
     <script src="{% static 'js/popularSearches.js' %}"></script>
     <script src="{% static 'js/main.js' %}"></script>
+  
     <script>
-// Notification dropdown toggle
+function playNotificationSound() {
+    var audio = new Audio("{% static 'sounds/notification.mp3' %}");
+    audio.play().catch(e => console.log('Audio play failed:', e));
+}
+
 $(document).ready(function() {
-    // Toggle notification dropdown
+    let lastNotificationCount = 0;
+
     $('#notificationIcon').click(function(e) {
         e.stopPropagation();
         $('#notificationDropdown').toggle();
         loadNotifications();
     });
-
-    // Close dropdown when clicking outside
     $(document).click(function() {
         $('#notificationDropdown').hide();
     });
-
-    // Prevent dropdown from closing when clicking inside
     $('#notificationDropdown').click(function(e) {
         e.stopPropagation();
     });
 
-    // Load notifications count
-    function updateNotificationCount() {
-        if ('{{ user.is_authenticated }}' === 'True') {
-            $.get('{% url "get_notifications" %}', function(data) {
-                const count = data.notifications.length;
-                $('#notificationCount').text(count);
-                $('#notificationCount').toggle(count > 0);
-            });
-        }
+    function updateNotificationCount(playSound = false) {
+        {% if user.is_authenticated %}
+        $.get('{% url "get_notifications" %}', function(data) {
+            const count = data.notifications.length;
+            $('#notificationCount').text(count);
+            $('#notificationCount').toggle(count > 0);
+            if (playSound && count > lastNotificationCount) {
+                playNotificationSound();
+            }
+            lastNotificationCount = count;
+        });
+        {% endif %}
     }
 
-    // Load notifications
+    function formatIST(date) {
+        const options = { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' };
+        return new Date(date).toLocaleString('en-IN', options);
+    }
+
     function loadNotifications() {
-        if ('{{ user.is_authenticated }}' === 'True') {
-            $.get('{% url "get_notifications" %}', function(data) {
-                const $container = $('#notificationItems');
-                $container.empty();
-
-                if (data.notifications && data.notifications.length > 0) {
-                    data.notifications.forEach(function(notification) {
-                        $container.append(`
-                            <div class="notification_item">
-                                <img src="${notification.product_img || '{% static "img/placeholder.png" %'}" alt="Plant">
-                                <div>
-                                    <p>${notification.message}</p>
-                                    <small>${notification.time}</small>
-                                </div>
-                            </div>
-                        `);
-                    });
-                } else {
-                    $container.append('<div class="empty_notice">No new notifications</div>');
-                }
-            });
-        }
-    }
-
-    // Initialize
-    updateNotificationCount();
-    setInterval(updateNotificationCount, 60000); // Update every minute
-
-    // Push notification permission
-    if ('Notification' in window) {
-        Notification.requestPermission().then(function(permission) {
-            console.log('Notification permission:', permission);
+        $.get('{% url "get_notifications" %}', function(data) {
+            const items = $('#notificationItems');
+            const count = $('#notificationCount');
+            if (data.notifications.length > 0) {
+                count.text(data.notifications.length);
+                items.empty();
+                data.notifications.forEach(function(n) {
+                    const timeIST = formatIST(n.timestamp);
+                    items.append(`
+                    <div class="notification_item">
+                        <div class="notification_img">
+                            <img src="${n.product_img || '{% static "img/plant-placeholder.png" %}'}" alt="${n.product_name}">
+                        </div>
+                        <div class="notification_content">
+                            <p class="notification_text">${n.message}</p>
+                            <small class="notification_time">${timeIST}</small>
+                        </div>
+                    </div>`);
+                });
+            } else {
+                count.text('0');
+                items.html('<div class="empty_notice">No new notifications</div>');
+            }
         });
     }
+
+    updateNotificationCount();
+    setInterval(function() { updateNotificationCount(true); }, 60000);
 });
+</script>     
+
+<script>
         //search bar start
         $(document).ready(function() {
             const searchInput = $('#searchInput');
@@ -838,5 +874,6 @@ $(document).ready(function() {
         });
         </script>
     {% block js %}{% endblock %}
+
 </body>
 </html>

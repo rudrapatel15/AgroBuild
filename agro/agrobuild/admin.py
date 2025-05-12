@@ -1,23 +1,20 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
-from .models import Product, Wishlist, CartItem, Order, OrderItem, Category, UserProfile, ContactMessage, Blog, BlogComment, Feedback, PlantNotification
+from .models import Product, Wishlist, CartItem, Order, OrderItem, Category, UserProfile, ContactMessage, Blog, BlogComment, Feedback, WateringReminder, NotificationHistory
 from django.utils import timezone
 
-@admin.register(PlantNotification)
-class PlantNotificationAdmin(admin.ModelAdmin):
-    list_display = ('user', 'product', 'is_active')
-    list_filter = ('is_active',)
-    search_fields = ('user__username', 'product__P_name')
-    
-    def get_queryset(self, request):
-        qs = super().get_queryset(request)
-        return qs.filter(product__categories__name__icontains='plant')
-    
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "product":
-            kwargs["queryset"] = Product.objects.filter(categories__name__icontains='plant')
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+@admin.register(WateringReminder)
+class WateringReminderAdmin(admin.ModelAdmin):
+    list_display = ('user', 'category', 'morning_time', 'evening_time', 'allow_website', 'allow_gmail', 'is_active')
+    list_filter = ('is_active', 'allow_website', 'allow_gmail', 'morning_time', 'evening_time')
+    search_fields = ('user__username', 'category__name')
+
+@admin.register(NotificationHistory)
+class NotificationHistoryAdmin(admin.ModelAdmin):
+    list_display = ('user', 'product', 'message', 'created_at', 'is_read')
+    list_filter = ('is_read', 'created_at')
+    search_fields = ('user__username', 'product__P_name', 'message')
 
 @admin.register(Feedback)
 class FeedbackAdmin(admin.ModelAdmin):
@@ -86,7 +83,6 @@ class ProductAdmin(admin.ModelAdmin):
     def get_fieldsets(self, request, obj=None):
         fieldsets = super().get_fieldsets(request, obj)
         if obj and not obj.is_plant():
-            # Remove watering fields for non-plant products
             return (fieldsets[0],)
         return fieldsets
 

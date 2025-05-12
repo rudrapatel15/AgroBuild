@@ -11,16 +11,15 @@ class Command(BaseCommand):
         # ==================== PLANTS ====================
         plants = Category.objects.create(name='Plants', slug='plants', menu='plants')
         
-        # Wellbeing Plants
+       # Wellbeing Plants
         wellbeing = Category.objects.create(name='Wellbeing Plants', slug='wellbeing-plants', parent=plants, menu='plants')
-        Category.objects.create(name='Peace & Positivity', slug='peace-positivity', parent=wellbeing, menu='plants')
-        Category.objects.create(name='Stress Buster', slug='stress-buster', parent=wellbeing, menu='plants')
-        Category.objects.create(name='Mental Health', slug='mental-health', parent=wellbeing, menu='plants')
-        Category.objects.create(name='Boosts Creativity', slug='boosts-creativity', parent=wellbeing, menu='plants')
+        Category.objects.create(name='Positivity Plant', slug='positivity-plant', parent=wellbeing, menu='plants')
+        Category.objects.create(name='Stress Buster Plant', slug='stress-buster-plant', parent=wellbeing, menu='plants')
+        Category.objects.create(name='Mental Health Plant', slug='mental-health-plant', parent=wellbeing, menu='plants')
+        Category.objects.create(name='Boosts Creativity Plant', slug='boosts-creativity-plant', parent=wellbeing, menu='plants')
         Category.objects.create(name='Self Care Plants', slug='self-care-plants', parent=wellbeing, menu='plants')
-        Category.objects.create(name='Improves Mood', slug='improves-mood', parent=wellbeing, menu='plants')
-        Category.objects.create(name='Aura Planters', slug='aura-planters', parent=wellbeing, menu='plants')
-        
+        Category.objects.create(name='Improves Mood Plant', slug='improves-mood-plant', parent=wellbeing, menu='plants')
+        Category.objects.create(name='Aura Plant', slug='aura-plant', parent=wellbeing, menu='plants')
         # Shop by Type
         shop_by_type = Category.objects.create(name='Shop by Type', slug='shop-by-type', parent=plants, menu='plants')
         Category.objects.create(name='Air Purifying Plants', slug='air-purifying-plants', parent=shop_by_type, menu='plants')
