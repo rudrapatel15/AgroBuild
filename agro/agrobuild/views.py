@@ -295,6 +295,8 @@ def update_account(request):
         profile.phone = request.POST.get('phone')
         profile.dob = request.POST.get('dob')
         profile.gender = request.POST.get('gender')
+        if 'profile_pic' in request.FILES:
+            profile.profile_pic = request.FILES['profile_pic']
         profile.save()
         messages.success(request, 'Account details updated successfully!')
     return redirect('my_account')
