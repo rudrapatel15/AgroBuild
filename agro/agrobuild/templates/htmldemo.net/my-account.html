@@ -41,7 +41,6 @@
                             <ul role="tablist" class="nav flex-column dashboard-list">
 
                                 <li> <a href="#orders" data-bs-toggle="tab" class="nav-link">Orders</a></li>
-                                <li><a href="#downloads" data-bs-toggle="tab" class="nav-link">Downloads</a></li>
                                 <li><a href="#account-details" data-bs-toggle="tab" class="nav-link">Account details</a> </li>
                                 <li><a href="#logouts" data-bs-toggle="tab" class="nav-link">Logout</a> </li>
                                 
@@ -51,71 +50,56 @@
                     <div class="col-sm-12 col-md-9 col-lg-9">
                         <!-- Tab panes -->
                         <div class="tab-content dashboard_content">
-                            <div class="tab-pane fade" id="orders">
-                                <h3>Orders</h3>
-                                <div class="table-responsive">
-                                    <table class="table">
-                                        <thead>
-                                            <tr>
-                                                <th>Order</th>
-                                                <th>Date</th>
-                                                <th> Payment Status</th>
-                                                <th>Total</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for order in orders %}
-                                            <tr>
-                                                <td>#{{ order.id }}</td>
-                                                <td>{{ order.created_at|date:"M d, Y" }}</td>
-                                                <td>
-                                                    <span class="{% if order.payment_status == 'paid' %}success{% else %}processing{% endif %}">
-                                                        {{ order.payment_status|capfirst }}
-                                                    </span>
-                                                </td>
-                                                <td>₹{{ order.total_amount }} for {{ order.items.count }} item{{ order.items.count|pluralize }}</td>
-                                                <td><a href="{% url 'order_confirmation' order.id %}" class="view">view</a></td>
-                                            </tr>
-                                            {% empty %}
-                                            <tr>
-                                                <td colspan="5">You haven't placed any orders yet.</td>
-                                            </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div class="tab-pane fade" id="downloads">
-                                <h3>Downloads</h3>
-                                <div class="table-responsive">
-                                    <table class="table">
-                                        <thead>
-                                            <tr>
-                                                <th>Product</th>
-                                                <th>Downloads</th>
-                                                <th>Expires</th>
-                                                <th>Download</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>Invoice of item</td>
-                                                <td>May 10, 2021</td>
-                                                <td><span class="danger">Expired</span></td>
-                                                <td><a href="#" class="view">Click Here To Download Your File</a></td>
-                                            </tr>
-                                            <tr>
-                                                <td>Invoice</td>
-                                                <td>July 22, 2024</td>
-                                                <td>Never</td>
-                                                <td><a href="#" class="view">Click Here To Download Your File</a></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                           
+<div class="tab-pane fade" id="orders">
+    <h3>Orders</h3>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Order Id</th>
+                    <th>Date</th>
+                    <th>Payment Status</th>
+                    <th>Total</th>
+                    <th>Order View</th>
+                    <th>Invoice</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.created_at|date:"M d, Y" }}</td>
+                    <td>
+                        <span class="badge {% if order.payment_status|lower == 'paid' %}bg-success{% else %}bg-warning text-dark{% endif %}">
+                            {{ order.payment_status|capfirst }}
+                        </span>
+                    </td>
+                    <td>₹{{ order.total_amount }} for {{ order.items.count }} item{{ order.items.count|pluralize }}</td>
+                    <td><a href="{% url 'order_confirmation' order.id %}" class="view">View</a></td>
+                    <td>
+                        {% if order.payment_status|lower == 'paid' %}
+                            <a href="{% url 'download_invoice' order.id %}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-file-pdf"></i> Download
+                            </a>
+                        {% else %}
+                            <span class="text-muted">Not available</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-4">
+                        <i class="fas fa-box-open fa-2x mb-2 text-muted"></i>
+                        <p class="text-muted">You haven't placed any orders yet.</p>
+                        <a href="{% url 'home' %}" class="btn btn-primary">Start Shopping</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+                                                       
                             <div class="tab-pane fade" id="account-details">
                                 <h3>Account details</h3>
                                 <div class="login">
@@ -187,9 +171,7 @@
             </div>
         </div>
     </section>
-    <!-- my account end   -->
-
-   
+    <!-- my account end   --> 
     <!-- modal area start-->
     <div class="modal fade" id="modal_box" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
@@ -314,5 +296,4 @@
         </div>
     </div>
     <!-- modal area end-->
-
    {%endblock%}

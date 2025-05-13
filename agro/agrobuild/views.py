@@ -6,19 +6,90 @@ from math import ceil
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
+from django.templatetags.static import static
 from django.http import JsonResponse
 from django.conf import settings
-import razorpay
 from django.contrib.auth import logout
 from django.contrib import messages
 from django.utils import timezone
+import os
 from django.db.models import Q
 from django.core.paginator import Paginator
 from .forms import FeedbackForm  
 from django.utils import timezone
 from django.views.decorators.http import require_POST
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+import pdfkit   
+from decimal import Decimal
 
-@login_required
+@login_required(login_url='/login/')
+def download_invoice(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    if order.payment_status.lower() != 'paid':
+        return HttpResponse("Invoice not available until payment is verified.", status=403)
+    subtotal = Decimal('0')
+    total_tax = Decimal('0')
+    total_amount = Decimal('0')
+    processed_items = []
+
+    for item in order.items.all():
+        tax_per_unit = item.price * Decimal('0.18')
+        price_without_tax = item.price - tax_per_unit
+        item_subtotal = price_without_tax * item.quantity
+        item_tax = tax_per_unit * item.quantity
+        item_total = item.price * item.quantity
+
+        subtotal += item_subtotal
+        total_tax += item_tax
+        total_amount += item_total
+
+        processed_items.append({
+            'product': item.product,
+            'quantity': item.quantity,
+            'price': round(price_without_tax, 2),
+            'subtotal': round(item_subtotal, 2),
+            'tax': round(item_tax, 2),
+            'total': round(item_total, 2),
+        })
+
+    subtotal = round(subtotal, 2)
+    total_tax = round(total_tax, 2)
+    total_amount = round(total_amount, 2)
+
+    order.subtotal = subtotal
+    order.total_tax = total_tax
+    order.total_amount = total_amount
+
+    shipping = Decimal('100.00')
+    grand_total = total_amount + shipping
+
+    if settings.DEBUG:
+        logo_path = "file://" + os.path.join(settings.BASE_DIR, 'static', 'img', 'logo', 'logo.png')
+    else:
+        logo_path = request.build_absolute_uri(static('img/logo/logo.png'))
+
+    context = {
+        'order': order,
+        'items': processed_items,
+        'logo_path': logo_path,
+        'user': request.user,
+        'shipping': shipping,
+        'grand_total': grand_total,
+    }
+
+    html = render_to_string('htmldemo.net/invoice.html', context)
+    config = pdfkit.configuration(wkhtmltopdf=r"C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\wkhtmltopdf\bin\wkhtmltopdf.exe")
+    options = {
+        'enable-local-file-access': None,
+        'encoding': 'UTF-8',
+    }
+    pdf = pdfkit.from_string(html, False, configuration=config, options=options)
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename=invoice_{order.id}.pdf'
+    return response
+
+@login_required(login_url='/login/')
 def get_notifications(request):
     notifications = NotificationHistory.objects.filter(user=request.user).order_by('-created_at')[:10]
     data = [{
@@ -29,20 +100,20 @@ def get_notifications(request):
     } for n in notifications]
     return JsonResponse({'notifications': data})
 
-@login_required
+@login_required(login_url='/login/')
 def view_all_notifications(request):
     notifications = NotificationHistory.objects.filter(user=request.user).order_by('-created_at')
     # Optionally mark as read:
     notifications.update(is_read=True)
     return render(request, 'htmldemo.net/notifications.html', {'notifications': notifications})
 
-@login_required
+@login_required(login_url='/login/')
 def delete_notification(request, id):
     notification = get_object_or_404(NotificationHistory, id=id, user=request.user)
     notification.delete()
     return redirect('view_all_notifications')
 
-@login_required
+@login_required(login_url='/login/')
 def clear_notifications(request):
     NotificationHistory.objects.filter(user=request.user).delete()
     return redirect('view_all_notifications')
@@ -401,8 +472,10 @@ def checkout(request):
 
 def order_confirmation(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
+    subtotal = sum(item.price * item.quantity for item in order.items.all())
     return render(request, 'htmldemo.net/order_confirmation.html', {
         'order': order,
+        'subtotal': round(subtotal, 2),
         'order_items': order.items.all()
     })
 
