@@ -188,7 +188,21 @@
                                             {{ order.get_status_display }}
                                         </span>
                                     </li>
-                                    <li><strong>Payment Method:</strong> {{ order.payment_method }}</li>
+                                    <li><strong>Payment Method:</strong> 
+    {% if order.payment_method == 'upi' %}
+        UPI (Manual Verification)
+    {% else %}
+        Cash on Delivery
+    {% endif %}
+</li>
+<li><strong>Payment Status:</strong>
+    <span class="{% if order.payment_status == 'paid' %}success{% else %}processing{% endif %}">
+        {{ order.payment_status|capfirst }}
+    </span>
+</li>
+{% if order.payment_method == 'upi' %}
+    <li><strong>UPI Transaction Number:</strong> {{ order.upi_transaction_number }}</li>
+{% endif %}
                                 </ul>
                             </div>
                         </div>
@@ -234,7 +248,7 @@
                     </div>
 
                     <div class="text-center mt-5">
-                        <a href="{% url 'index' %}" class="btn btn-primary">Continue Shopping</a>
+                        <a href="{% url 'home' %}" class="btn btn-primary">Continue Shopping</a>
                         <a href="{% url 'my_account' %}" class="btn btn-secondary ml-3">View All Orders</a>
                     </div>
                 </div>

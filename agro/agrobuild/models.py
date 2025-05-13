@@ -171,43 +171,50 @@ class UserProfile(models.Model):
     def __str__(self):
         return self.user.email
 
+from django.db import models
+from django.contrib.auth.models import User
+
 class Order(models.Model):
-    STATUS_CHOICES = (
+    PAYMENT_METHOD_CHOICES = [
+        ('cod', 'Cash on Delivery'),
+        ('upi', 'UPI'),
+    ]
+
+    STATUS_CHOICES = [
         ('pending', 'Pending'),
         ('processing', 'Processing'),
         ('shipped', 'Shipped'),
         ('delivered', 'Delivered'),
+        ('cancelled', 'Cancelled'),  
+    ]
+
+    PAYMENT_STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('processing', 'Processing'),
+        ('paid', 'Paid'),
+        ('failed', 'Failed'),
         ('cancelled', 'Cancelled'),
-    )
-    
+    ]
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     full_name = models.CharField(max_length=100)
     email = models.EmailField()
     address = models.TextField()
     city = models.CharField(max_length=100)
     state = models.CharField(max_length=100)
-    zip_code = models.CharField(max_length=20)
-    mobile_number = models.CharField(max_length=20)
-    created_at = models.DateTimeField(auto_now_add=True)
+    zip_code = models.CharField(max_length=10)
+    mobile_number = models.CharField(max_length=15)
+    payment_method = models.CharField(max_length=10, choices=PAYMENT_METHOD_CHOICES)
+    upi_transaction_number = models.CharField(max_length=100, blank=True, null=True)
+    payment_status = models.CharField(max_length=20,choices=PAYMENT_STATUS_CHOICES, default="Pending")
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    tracking_number = models.CharField(max_length=50, blank=True, null=True)
-    payment_method = models.CharField(max_length=50, default='Cash on Delivery')
-    razorpay_order_id = models.CharField(max_length=100, blank=True, null=True)
-    razorpay_payment_id = models.CharField(max_length=100, blank=True, null=True)
-    razorpay_signature = models.CharField(max_length=100, blank=True, null=True)
-    is_paid = models.BooleanField(default=False)
+    tracking_number = models.CharField(max_length=100, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Order #{self.id} - {self.user.username}"
-
-    def get_status_class(self):
-        if self.status == 'delivered':
-            return 'success'
-        elif self.status == 'cancelled':
-            return 'danger'
-        return ''
-
+        return f"Order #{self.id} by {self.user.username}"
+   
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)

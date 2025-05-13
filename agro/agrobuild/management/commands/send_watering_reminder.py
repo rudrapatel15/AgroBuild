@@ -14,11 +14,7 @@ def get_season():
         return 'summer'
     else:
         return 'winter'
-
-# ...existing imports...
-from agrobuild.models import WateringReminder, Order, NotificationHistory
-# ...existing code...
-
+# always turn on window task scheduler to run notification or  .\run_watering_reminder.bat in terminal
 class Command(BaseCommand):
     help = 'Send watering reminders to users based on season and user-selected time'
 
@@ -59,7 +55,7 @@ class Command(BaseCommand):
             elif season == 'summer':
                 for t in [reminder.morning_time, reminder.evening_time]:
                     if abs((now.time().hour * 60 + now.time().minute) - (t.hour * 60 + t.minute)) < 5:
-                        if not reminder.last_sent or (now - reminder.last_sent) > timedelta(hours=11):
+                        if not reminder.last_sent or (now - reminder.last_sent) > timedelta(hours=10):
                             send = True
                             break
 

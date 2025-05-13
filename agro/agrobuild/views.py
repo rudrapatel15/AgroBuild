@@ -7,29 +7,16 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
-from .payment_utils import create_razorpay_order
 from django.conf import settings
 import razorpay
 from django.contrib.auth import logout
 from django.contrib import messages
 from django.utils import timezone
-from django.core.mail import send_mail
 from django.db.models import Q
 from django.core.paginator import Paginator
 from .forms import FeedbackForm  
 from django.utils import timezone
 from django.views.decorators.http import require_POST
-
-from django.http import HttpResponse
-
-def test_email(request):
-    send_mail(
-        'Test Email',
-        'This is a test email from Django.',
-        None,  # Uses DEFAULT_FROM_EMAIL from settings.py
-        ['pr32693269@gmail.com'],  # Replace with your Gmail
-    )
-    return HttpResponse("Test email sent!")
 
 @login_required
 def get_notifications(request):
@@ -49,14 +36,12 @@ def view_all_notifications(request):
     notifications.update(is_read=True)
     return render(request, 'htmldemo.net/notifications.html', {'notifications': notifications})
 
-@require_POST
 @login_required
 def delete_notification(request, id):
     notification = get_object_or_404(NotificationHistory, id=id, user=request.user)
     notification.delete()
     return redirect('view_all_notifications')
 
-@require_POST
 @login_required
 def clear_notifications(request):
     NotificationHistory.objects.filter(user=request.user).delete()
@@ -340,15 +325,22 @@ def checkout(request):
 
     if request.method == 'POST':
         try:
-            # 1. Watering Reminder Logic
-           # 1. Watering Reminder Logic
+            payment_method = request.POST.get('payment_method')
+            upi_txn = request.POST.get('upi_txn', '').strip()
+
+            # Validate UPI payment
+            if payment_method == 'upi' and not upi_txn:
+                messages.error(request, "Please provide UPI transaction ID for UPI payments")
+                return redirect('checkout')
+
+            # Watering Reminder Logic
             if has_plants and request.POST.get('enable_notifications') == 'true':
                 allow_website = request.POST.get('allow_website') == 'true'
                 allow_gmail = request.POST.get('allow_gmail') == 'true'
                 gmail = request.POST.get('gmail')
                 morning_time = request.POST.get('morning_time', '08:00')
                 evening_time = request.POST.get('evening_time', '18:00')
-                # Create a reminder for each plant product in the cart
+
                 for item in cart_items:
                     if item.product.is_plant():
                         for cat in item.product.categories.filter(name__icontains='plant'):
@@ -366,7 +358,7 @@ def checkout(request):
                                 }
                             )
 
-            # 2. Create Order
+            # Create Order
             order = Order.objects.create(
                 user=request.user,
                 full_name=request.POST.get('full_name'),
@@ -377,11 +369,12 @@ def checkout(request):
                 zip_code=request.POST.get('zip_code'),
                 mobile_number=request.POST.get('mobile_number'),
                 total_amount=total,
-                payment_method='Online Payment' if request.POST.get('payment_method') == 'online' else 'Cash on Delivery',
-                is_paid=False
+                payment_method=payment_method,
+                upi_transaction_number=upi_txn if payment_method == 'upi' else None,
+                payment_status='Paid' if payment_method == 'upi' else 'Pending',
             )
 
-            # 3. Create Order Items
+            # Create Order Items
             for item in cart_items:
                 OrderItem.objects.create(
                     order=order,
@@ -390,24 +383,9 @@ def checkout(request):
                     quantity=item.quantity
                 )
 
-            # 4. Payment Handling
-            if request.POST.get('payment_method') == 'online':
-                razorpay_order = create_razorpay_order(total)
-                order.razorpay_order_id = razorpay_order['id']
-                order.save()
-                context = {
-                    'razorpay_order_id': razorpay_order['id'],
-                    'razorpay_amount': razorpay_order['amount'],
-                    'currency': 'INR',
-                    'key_id': settings.RAZORPAY_KEY_ID,
-                    'order': order,
-                    'user': request.user
-                }
-                return render(request, 'htmldemo.net/payment.html', context)
-            else:
-                # Clear cart after successful order
-                cart_items.delete()
-                return redirect('order_confirmation', order_id=order.id)
+            # Clear cart and redirect to confirmation
+            cart_items.delete()
+            return redirect('order_confirmation', order_id=order.id)
 
         except Exception as e:
             messages.error(request, f"Error processing your order: {str(e)}")
@@ -421,44 +399,13 @@ def checkout(request):
         'has_plants': has_plants,
     })
 
-def payment_verification(request):
-    if request.method == 'POST':
-        
-        client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
-        
-        razorpay_payment_id = request.POST.get('razorpay_payment_id')
-        razorpay_order_id = request.POST.get('razorpay_order_id')
-        razorpay_signature = request.POST.get('razorpay_signature')
-        
-        
-        params_dict = {
-            'razorpay_order_id': razorpay_order_id,
-            'razorpay_payment_id': razorpay_payment_id,
-            'razorpay_signature': razorpay_signature
-        }
-        
-        try:
-            client.utility.verify_payment_signature(params_dict)
-            order = Order.objects.get(razorpay_order_id=razorpay_order_id)
-            order.is_paid = True
-            order.razorpay_payment_id = razorpay_payment_id
-            order.razorpay_signature = razorpay_signature
-            order.status = 'processing'
-            order.save()
-            
-            CartItem.objects.filter(user=request.user).delete()
-            
-            return redirect('order_confirmation', order_id=order.id)
-        except:
-           
-            return render(request, 'htmldemo.net/payment_failed.html')
-
 def order_confirmation(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
     return render(request, 'htmldemo.net/order_confirmation.html', {
         'order': order,
         'order_items': order.items.all()
     })
+
 def blog(request): return render(request, 'htmldemo.net/blog-details.html')
 def aboutus(request): return render(request, 'htmldemo.net/about.html')
 def contactus(request): return render(request, 'htmldemo.net/contact.html')

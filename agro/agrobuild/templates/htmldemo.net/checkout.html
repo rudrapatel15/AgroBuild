@@ -24,7 +24,7 @@
 <div class="Checkout_section mt-100" id="accordion">
     <div class="container">
         <div class="checkout_form">
-            <form method="post" action="{% url 'checkout' %}">
+            <form id="checkout-form" method="post" action="{% url 'checkout' %}">
                 {% csrf_token %}
                 <div class="row">
                     <!-- Billing Details -->
@@ -115,12 +115,13 @@
                                     <option value="19:00">7:00 PM</option>
                                 </select>
                                 <div class="form-check mt-2">
-                                    <input type="checkbox" name="allow_website" id="allow_website" value="true" class="form-check-input" />
+                                    <input type="checkbox" name="allow_website" id="allow_website" value="true" />
                                     <label for="allow_website" class="form-check-label">Allow website notification</label>
                                 </div>
                                 <div class="form-check mt-2">
-                                    <input type="checkbox" name="allow_gmail" id="allow_gmail" value="true" class="form-check-input" />
+                                    <input type="checkbox" name="allow_gmail" id="allow_gmail" value="true" />
                                     <label for="allow_gmail" class="form-check-label">Allow Gmail notification</label>
+                                    
                                     <input type="email" name="gmail" value="{{ user.email }}" placeholder="Enter your Gmail" class="form-control mt-2" required />
                                 </div>
                             </div>
@@ -133,13 +134,15 @@
                                 <label for="payment_cod">Cash on Delivery</label>
                             </div>
                             <div class="panel-default">
-                                <input id="payment_online" name="payment_method" type="radio" value="online" />
-                                <label for="payment_online">Online Payment (Credit/Debit Card, UPI, NetBanking)</label>
+                                <input id="payment_upi" name="payment_method" type="radio" value="upi" />
+                                <label for="payment_upi">Pay via UPI Or Online Payment(QR) </label>
                             </div>
                             <div class="order_button">
                                 <button type="submit">Place Order</button>
                             </div>
                         </div>
+                        <!-- Hidden field for UPI transaction number -->
+                        <input type="hidden" name="upi_txn" id="upi_txn_field">
                     </div>
                 </div>
             </form>
@@ -147,4 +150,59 @@
     </div>
 </div>
 <!--Checkout page section end-->
+
+<!-- UPI Payment Modal -->
+<div id="upiModal" class="modal" tabindex="-1" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:9999;">
+    <div style="background:#fff; max-width:400px; margin:60px auto; padding:30px; border-radius:8px; position:relative;">
+        <span id="closeUpiModal" style="position:absolute; top:10px; right:15px; cursor:pointer; font-size:22px;">&times;</span>
+        <h4>Pay via UPI Or Online Payment(QR)</h4>
+        <img src="{% static 'img/upi-qr.jpg' %}" alt="UPI QR Code" style="width:200px; display:block; margin:15px auto;">
+        <p class="text-center">UPI ID: <strong>8128383935@ybl</strong></p>
+        <label for="upi_txn_input">Enter Transaction Id Number:</label>
+        <input type="text" id="upi_txn_input" class="form-control" placeholder="Transaction Number" required>
+        <button type="button" id="confirm_upi_btn" class="btn btn-success mt-3" style="width:100%;">Place Order</button>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const checkoutForm = document.getElementById('checkout-form');
+    const upiRadio = document.getElementById('payment_upi');
+    const codRadio = document.getElementById('payment_cod');
+    const upiModal = document.getElementById('upiModal');
+    const closeUpiModal = document.getElementById('closeUpiModal');
+    const confirmUpiBtn = document.getElementById('confirm_upi_btn');
+    const upiTxnInput = document.getElementById('upi_txn_input');
+    const upiTxnField = document.getElementById('upi_txn_field');
+
+    checkoutForm.addEventListener('submit', function (e) {
+        if (upiRadio.checked) {
+            e.preventDefault();
+            upiModal.style.display = 'block';
+        }
+    });
+
+    confirmUpiBtn.addEventListener('click', function () {
+        const txnValue = upiTxnInput.value.trim();
+        if (!txnValue) {
+            alert('Please enter UPI transaction number');
+            return;
+        }
+        upiTxnField.value = txnValue;
+        upiModal.style.display = 'none';
+        checkoutForm.submit();
+    });
+
+    closeUpiModal.addEventListener('click', function() {
+        upiModal.style.display = 'none';
+    });
+
+    window.addEventListener('click', function(event) {
+        if (event.target === upiModal) {
+            upiModal.style.display = 'none';
+        }
+    });
+});
+</script>
+
 {% endblock %}

@@ -88,12 +88,16 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'full_name', 'email', 'total_amount', 'status', 'tracking_number', 'created_at', 'is_paid')
-    list_filter = ('status', 'created_at', 'is_paid')
-    search_fields = ('id', 'user__username', 'email', 'tracking_number')
-    list_editable = ('status', 'tracking_number')
+    list_display = (
+        'id', 'user', 'full_name', 'email', 'total_amount', 'payment_method',
+        'upi_transaction_number', 'payment_status', 'status',
+        'tracking_number', 'created_at'
+    )
+    list_filter = ('status', 'created_at', 'payment_method', 'payment_status')
+    search_fields = ('id', 'user__username', 'email', 'tracking_number', 'upi_transaction_number')
+    list_editable = ('status', 'tracking_number', 'payment_status')
     readonly_fields = ('created_at', 'total_amount')
-
+    
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
     list_display = ('order', 'product', 'price', 'quantity')

@@ -70,11 +70,9 @@
                                                 <td>#{{ order.id }}</td>
                                                 <td>{{ order.created_at|date:"M d, Y" }}</td>
                                                 <td>
-                                                    {% if order.is_paid %}
-                                                        <span class="success">Completed</span>
-                                                    {% else %}
-                                                        Processing
-                                                    {% endif %}
+                                                    <span class="{% if order.payment_status == 'paid' %}success{% else %}processing{% endif %}">
+                                                        {{ order.payment_status|capfirst }}
+                                                    </span>
                                                 </td>
                                                 <td>₹{{ order.total_amount }} for {{ order.items.count }} item{{ order.items.count|pluralize }}</td>
                                                 <td><a href="{% url 'order_confirmation' order.id %}" class="view">view</a></td>

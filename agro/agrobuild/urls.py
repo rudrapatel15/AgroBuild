@@ -20,7 +20,6 @@ urlpatterns = [
     path('add_to_cart/<int:product_id>/', views.add_to_cart, name='add_to_cart'),
     path('add-to-cart/<int:product_id>/', views.add_to_cart_from_wishlist, name='add_to_cart'),
     path('checkout/', views.checkout, name='checkout'),
-    path('payment/verify/', views.payment_verification, name='payment_verification'),
     path('order-confirmation/<int:order_id>/', views.order_confirmation, name='order_confirmation'),
     path('home/', views.index, name='home'),
     path('blog/<int:id>/', views.blog_detail, name='blog_detail'),
@@ -37,7 +36,6 @@ urlpatterns = [
     path('notifications/delete/<int:id>/', views.delete_notification, name='delete_notification'),
     path('notifications/clear/', views.clear_notifications, name='clear_notifications'),
     path('get-notifications/', views.get_notifications, name='get_notifications'),
-    path('test-email/', views.test_email, name='test_email'),
     ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:
