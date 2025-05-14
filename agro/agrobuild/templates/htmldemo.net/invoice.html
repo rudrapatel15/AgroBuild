@@ -19,14 +19,12 @@
             --border-color: #e0e0e0;
             --text-muted: #6c757d;
         }
-        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f5f7fa;
             color: var(--dark-color);
             line-height: 1.6;
         }
-        
         .invoice-container {
             max-width: 900px;
             margin: 30px auto;
@@ -38,7 +36,6 @@
             position: relative;
             overflow: hidden;
         }
-        
         .invoice-container::before {
             content: "";
             position: absolute;
@@ -48,7 +45,6 @@
             height: 4px;
             background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
         }
-        
         .header {
             text-align: center;
             margin-bottom: 40px;
@@ -56,7 +52,6 @@
             border-bottom: 1px solid var(--border-color);
             position: relative;
         }
-        
         .header::after {
             content: "";
             position: absolute;
@@ -68,13 +63,11 @@
             background: var(--secondary-color);
             border-radius: 3px;
         }
-        
         .logo {
             max-height: 80px;
             margin-bottom: 15px;
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
         }
-        
         .invoice-title {
             color: var(--primary-color);
             margin-bottom: 5px;
@@ -82,13 +75,11 @@
             text-transform: uppercase;
             letter-spacing: 1px;
         }
-        
         .invoice-number {
             color: var(--text-muted);
             font-size: 1.1rem;
             font-weight: 500;
         }
-        
         .info-card {
             border-radius: 8px;
             border: 1px solid rgba(0,0,0,0.05);
@@ -98,12 +89,10 @@
             background: #fff;
             transition: all 0.3s ease;
         }
-        
         .info-card:hover {
             transform: translateY(-3px);
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
-        
         .info-card h5 {
             color: var(--primary-color);
             border-bottom: 2px solid var(--border-color);
@@ -111,27 +100,22 @@
             margin-bottom: 15px;
             font-weight: 600;
         }
-        
         .info-table {
             width: 100%;
             margin-bottom: 0;
         }
-        
         .info-table tr:not(:last-child) {
             border-bottom: 1px dashed var(--border-color);
         }
-        
         .info-table td {
             padding: 10px 0;
             vertical-align: top;
         }
-        
         .info-table .label {
             font-weight: 600;
             color: var(--primary-color);
             width: 150px;
         }
-        
         .items-table {
             width: 100%;
             margin-bottom: 20px;
@@ -140,7 +124,6 @@
             border-radius: 8px;
             overflow: hidden;
         }
-        
         .items-table thead th {
             background-color: var(--primary-color);
             color: white;
@@ -150,7 +133,6 @@
             border: none;
             position: relative;
         }
-        
         .items-table thead th:not(:last-child)::after {
             content: "";
             position: absolute;
@@ -161,49 +143,39 @@
             width: 1px;
             background: rgba(255,255,255,0.2);
         }
-        
         .items-table tbody tr:nth-child(even) {
             background-color: rgba(0,0,0,0.02);
         }
-        
         .items-table td {
             padding: 15px;
             border-bottom: 1px solid var(--border-color);
             vertical-align: middle;
         }
-        
         .items-table tbody tr:last-child td {
             border-bottom: none;
         }
-        
         .total-row {
             font-weight: 600;
             background-color: rgba(0,0,0,0.03);
         }
-        
         .total-row td {
             border-top: 2px solid var(--border-color);
             border-bottom: none !important;
         }
-        
         .grand-total-row {
             font-weight: 700;
             background-color: var(--primary-color);
             color: white;
         }
-        
         .grand-total-row td {
             border: none;
         }
-        
         .text-right {
             text-align: right;
         }
-        
         .text-center {
             text-align: center;
         }
-        
         .status {
             display: inline-block;
             padding: 5px 12px;
@@ -213,17 +185,14 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        
         .status-paid {
             background-color: rgba(40, 167, 69, 0.1);
             color: var(--success-color);
         }
-        
         .status-pending {
             background-color: rgba(255, 193, 7, 0.1);
             color: var(--warning-color);
         }
-        
         .footer {
             margin-top: 40px;
             padding-top: 20px;
@@ -232,16 +201,13 @@
             color: var(--text-muted);
             font-size: 0.9rem;
         }
-        
         .footer p {
             margin-bottom: 5px;
         }
-        
         .company-stamp {
             margin-top: 30px;
             text-align: right;
         }
-        
         .stamp {
             display: inline-block;
             padding: 15px 25px;
@@ -252,7 +218,6 @@
             transform: rotate(5deg);
             opacity: 0.8;
         }
-        
         .watermark {
             position: absolute;
             top: 50%;
@@ -265,71 +230,67 @@
             pointer-events: none;
             user-select: none;
         }
-        
        @media print {
-    body {
-        background: none;
-    }
-
-    .invoice-container {
-        box-shadow: none;
-        padding: 0;
-    }
-
-    .no-print {
-        display: none !important;
-    }
-
-    thead {
-        display: table-header-group !important;
-    }
-
-    tfoot {
-        display: table-footer-group !important;
-    }
-
-    .grand-total-row {
-        background-color: #2c3e50 !important;
-        color: white !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-
-    .items-table thead th {
-        background-color: #2c3e50 !important;
-        color: white !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-
-    .info-card, .footer, .header {
-        page-break-inside: avoid;
-    }
-}
-
+            body {
+                background: none;
+            }
+            .invoice-container {
+                box-shadow: none;
+                padding: 0;
+            }
+            .no-print {
+                display: none !important;
+            }
+            thead {
+                display: table-header-group !important;
+            }
+            tfoot {
+                display: table-footer-group !important;
+            }
+            .grand-total-row {
+                background-color: #2c3e50 !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .items-table thead th {
+                background-color: #2c3e50 !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .info-card, .footer, .header {
+                page-break-inside: avoid;
+            }
         }
     </style>
 </head>
 <body ng-controller="InvoiceController">
     <div class="invoice-container">
-            
-        <div class="header">
-            <h2 class="invoice-title mb-1">AGRO BUILD</h2>
-            <h3 class="invoice-title mb-3">TAX INVOICE</h3>
-            <p class="invoice-number">INVOICE ID {{ order.id }}</p>
+        <div style="display: flex; align-items: flex-start; justify-content: space-between;">
+            <div>
+                {% if logo_base64 %}
+                    <img src="data:image/png;base64,{{ logo_base64 }}" alt="Logo"
+                         style="height: 90px; max-width: 240px; margin-bottom: 1px; margin-left: 0;">
+                {% endif %}
+            </div>
+            <div style="flex:1;">
+                <div class="header">
+                    <h2 class="invoice-title mb-3">TAX INVOICE</h2>
+                    <p class="invoice-number">INVOICE ID {{ order.id }}</p>
+                </div>
+            </div>
         </div>
-
         <div class="row mb-4">
             <div class="col-md-6">
                 <div class="info-card">
                     <h5><i class="bi bi-building"></i> Company Details</h5>
-                    <p class="mb-1"><strong>AGRO BUILD Pvt Ltd</strong></p>
+                    <p class="mb-1"><strong>AGRO BUILD Private Limited</strong></p>
                     <p class="mb-1">B-42 AKRITI GARDEN, NEHRUNAGAR</p>
                     <p class="mb-1">AHMEDABAD, 380015</p>
                     <p class="mb-1"><i class="bi bi-telephone"></i> 8128383925</p>
                     <p class="mb-0"><i class="bi bi-file-text"></i> GST: 24AABCA1234C1Z5</p>
                 </div>
-                
                 <div class="info-card">
                     <h5><i class="bi bi-person-circle"></i> Billed To</h5>
                     <p class="mb-1"><strong>{{ order.full_name }}</strong></p>
@@ -339,7 +300,6 @@
                     <p class="mb-0"><i class="bi bi-phone"></i> {{ order.mobile_number }}</p>
                 </div>
             </div>
-            
             <div class="col-md-6">
                 <div class="info-card h-100">
                     <h5><i class="bi bi-receipt"></i> Invoice Details</h5>
@@ -360,15 +320,8 @@
                                 </span>
                             </td>
                         </tr>
-                        {% if order.upi_transaction_number %}
-                        <tr>
-                            <td class="label">Transaction ID:</td>
-                            <td>{{ order.upi_transaction_number }}</td>
-                        </tr>
-                        {% endif %}
                     </table>
                 </div>
-                
                 <div class="info-card mt-3">
                     <h5><i class="bi bi-calendar-check"></i> Order Summary</h5>
                     <table class="info-table">
@@ -392,8 +345,6 @@
                 </div>
             </div>
         </div>
-<br>
-<br>
         <h5 class="mb-3"><i class="bi bi-cart-check"></i> Order Details</h5>
         <div class="table-responsive">
             <table class="items-table table mb-4">
@@ -407,7 +358,6 @@
                         <th style="width: 15%;" class="text-center">Tax Amount</th>
                         <th style="width: 15%;" class="text-center">Total</th>
                     </tr>
-                            
                     {% for item in items %}
                     <tr>
                         <td>{{ forloop.counter }}</td>
@@ -419,8 +369,6 @@
                         <td class="text-center">₹{{ item.total|floatformat:2 }}</td>
                     </tr>
                     {% endfor %}
-               
-                
                     <tr class="total-row">
                         <td colspan="4" class="text-right"><strong>Subtotal</strong></td>
                         <td class="text-center">₹{{ order.subtotal|floatformat:2 }}</td>
@@ -435,17 +383,30 @@
                         <td colspan="6" class="text-right"><strong>Grand Total</strong></td>
                         <td class="text-center">₹{{ grand_total|floatformat:2 }}</td>
                     </tr>
-                 </tbody>
+                </tbody>
             </table>
         </div>
-
+        <div class="company-stamp" style="margin-top: 30px; text-align: right;">
+            <div style="display: inline-block; text-align: right; min-width: 220px;">
+                <p style="margin-bottom: 7px; font-weight: 700; font-size: 1.1rem; letter-spacing: 1px; color: #2c3e50;">
+                    AGRO BUILD Private Limited
+                </p>
+                <div style="margin-bottom: 8px;">
+                    <img src="data:image/jpeg;base64,{{ signature_base64 }}"
+                         style="height: 90px; max-width: 190px; display: block; margin-left: auto; margin-right: 40px; padding-bottom: 1px;"
+                         alt="Signature">
+                </div>
+                <p style="font-size: 1rem; font-weight: 500; color: #444; margin-top: 8px; border-top: 1px solid #000; padding-top: 4px; display: inline-block;">
+                   <strong> Authorized Signatory </strong>  
+                </p>
+            </div>
+        </div>
         <div class="footer">
             <p>Thank you for your business!</p>
             <p>If you have any questions about this invoice, please contact our customer service.</p>
-            <p class="mt-3"><strong>AGRO BUILD Pvt Ltd</strong> | www.agrobuild.com | shopmulti9859@gmail.com</p>
+            <p class="mt-3"><strong>AGRO BUILD Private Limited</strong> | www.agrobuild.com | shopmulti9859@gmail.com</p>
         </div>
     </div>
-
     <script>
         angular.module('invoiceApp', [])
             .controller('InvoiceController', ['$scope', function($scope) {

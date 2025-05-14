@@ -12,6 +12,8 @@ from django.conf import settings
 from django.contrib.auth import logout
 from django.contrib import messages
 from django.utils import timezone
+from django.contrib.staticfiles import finders
+import base64
 import os
 from django.db.models import Q
 from django.core.paginator import Paginator
@@ -64,20 +66,29 @@ def download_invoice(request, order_id):
     shipping = Decimal('100.00')
     grand_total = total_amount + shipping
 
-    if settings.DEBUG:
-        logo_path = "file://" + os.path.join(settings.BASE_DIR, 'static', 'img', 'logo', 'logo.png')
-    else:
-        logo_path = request.build_absolute_uri(static('img/logo/logo.png'))
 
     context = {
         'order': order,
         'items': processed_items,
-        'logo_path': logo_path,
         'user': request.user,
         'shipping': shipping,
         'grand_total': grand_total,
     }
+   
+    logo_path = finders.find('img/logo/logo.png')  # Adjust path as needed
+    if logo_path:
+       with open(logo_path, "rb") as img_file:
+        context['logo_base64'] = base64.b64encode(img_file.read()).decode('utf-8')
+    else:
+        context['logo_base64'] = ''
 
+    signature_path = finders.find('img/signatures.jpg')
+    if signature_path:
+       with open(signature_path, "rb") as img_file:
+        context['signature_base64'] = base64.b64encode(img_file.read()).decode('utf-8')
+    else:
+       context['signature_base64'] = ''
+        
     html = render_to_string('htmldemo.net/invoice.html', context)
     config = pdfkit.configuration(wkhtmltopdf=r"C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\wkhtmltopdf\bin\wkhtmltopdf.exe")
     options = {
