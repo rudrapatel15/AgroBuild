@@ -278,3 +278,359 @@ Watering Reminder Command Loaded
 Watering Reminder Command Loaded
 Watering Reminder Command Loaded
 Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Traceback (most recent call last):
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\manage.py", line 22, in <module>
+    main()
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\__init__.py", line 436, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\base.py", line 416, in run_from_argv
+    self.execute(*args, **cmd_options)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\base.py", line 460, in execute
+    output = self.handle(*args, **options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\agrobuild\management\commands\send_watering_reminder.py", line 96, in handle
+    f"<b>Dear {customer_name},</b><br><br>"
+               ^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'customer_name' where it is not associated with a value
+Watering Reminder Command Loaded
+Traceback (most recent call last):
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\manage.py", line 22, in <module>
+    main()
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\__init__.py", line 436, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\base.py", line 416, in run_from_argv
+    self.execute(*args, **cmd_options)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\base.py", line 460, in execute
+    output = self.handle(*args, **options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\agrobuild\management\commands\send_watering_reminder.py", line 96, in handle
+    f"<b>Dear {customer_name},</b><br><br>"
+               ^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'customer_name' where it is not associated with a value
+Watering Reminder Command Loaded
+Traceback (most recent call last):
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\manage.py", line 22, in <module>
+    main()
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\__init__.py", line 436, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\base.py", line 416, in run_from_argv
+    self.execute(*args, **cmd_options)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\base.py", line 460, in execute
+    output = self.handle(*args, **options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\agrobuild\management\commands\send_watering_reminder.py", line 96, in handle
+    f"<b>Dear {customer_name},</b><br><br>"
+               ^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'customer_name' where it is not associated with a value
+Watering Reminder Command Loaded
+Traceback (most recent call last):
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\manage.py", line 22, in <module>
+    main()
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\__init__.py", line 436, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\base.py", line 416, in run_from_argv
+    self.execute(*args, **cmd_options)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\base.py", line 460, in execute
+    output = self.handle(*args, **options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\agrobuild\management\commands\send_watering_reminder.py", line 96, in handle
+    f"<b>Dear {customer_name},</b><br><br>"
+               ^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'customer_name' where it is not associated with a value
+Watering Reminder Command Loaded
+Traceback (most recent call last):
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\manage.py", line 22, in <module>
+    main()
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\__init__.py", line 436, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\base.py", line 416, in run_from_argv
+    self.execute(*args, **cmd_options)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\base.py", line 460, in execute
+    output = self.handle(*args, **options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\agrobuild\management\commands\send_watering_reminder.py", line 96, in handle
+    f"<b>Dear {customer_name},</b><br><br>"
+               ^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'customer_name' where it is not associated with a value
+Watering Reminder Command Loaded
+Traceback (most recent call last):
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\manage.py", line 22, in <module>
+    main()
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\__init__.py", line 436, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\base.py", line 416, in run_from_argv
+    self.execute(*args, **cmd_options)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\base.py", line 460, in execute
+    output = self.handle(*args, **options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\agrobuild\management\commands\send_watering_reminder.py", line 96, in handle
+    f"<b>Dear {customer_name},</b><br><br>"
+               ^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'customer_name' where it is not associated with a value
+Watering Reminder Command Loaded
+Traceback (most recent call last):
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\manage.py", line 22, in <module>
+    main()
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\__init__.py", line 436, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\base.py", line 416, in run_from_argv
+    self.execute(*args, **cmd_options)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\base.py", line 460, in execute
+    output = self.handle(*args, **options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\agrobuild\management\commands\send_watering_reminder.py", line 97, in handle
+    f"<b>Dear {customer_name},</b><br><br>"
+               ^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'customer_name' where it is not associated with a value
+Watering Reminder Command Loaded
+Traceback (most recent call last):
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\manage.py", line 22, in <module>
+    main()
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\__init__.py", line 436, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\base.py", line 416, in run_from_argv
+    self.execute(*args, **cmd_options)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\base.py", line 460, in execute
+    output = self.handle(*args, **options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\agrobuild\management\commands\send_watering_reminder.py", line 97, in handle
+    f"<b>Dear {customer_name},</b><br><br>"
+               ^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'customer_name' where it is not associated with a value
+Watering Reminder Command Loaded
+Traceback (most recent call last):
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\manage.py", line 22, in <module>
+    main()
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\__init__.py", line 436, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\base.py", line 416, in run_from_argv
+    self.execute(*args, **cmd_options)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\base.py", line 460, in execute
+    output = self.handle(*args, **options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\agrobuild\management\commands\send_watering_reminder.py", line 97, in handle
+    f"<b>Dear {customer_name},</b><br><br>"
+               ^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'customer_name' where it is not associated with a value
+Watering Reminder Command Loaded
+Traceback (most recent call last):
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\manage.py", line 22, in <module>
+    main()
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\__init__.py", line 436, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\base.py", line 416, in run_from_argv
+    self.execute(*args, **cmd_options)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\base.py", line 460, in execute
+    output = self.handle(*args, **options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\agrobuild\management\commands\send_watering_reminder.py", line 97, in handle
+    f"<b>Dear {customer_name},</b><br><br>"
+               ^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'customer_name' where it is not associated with a value
+Watering Reminder Command Loaded
+Traceback (most recent call last):
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\manage.py", line 22, in <module>
+    main()
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\__init__.py", line 436, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\base.py", line 416, in run_from_argv
+    self.execute(*args, **cmd_options)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\base.py", line 460, in execute
+    output = self.handle(*args, **options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\agrobuild\management\commands\send_watering_reminder.py", line 97, in handle
+    f"<b>Dear {customer_name},</b><br><br>"
+               ^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'customer_name' where it is not associated with a value
+Watering Reminder Command Loaded
+Traceback (most recent call last):
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\manage.py", line 22, in <module>
+    main()
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\__init__.py", line 436, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\base.py", line 416, in run_from_argv
+    self.execute(*args, **cmd_options)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\base.py", line 460, in execute
+    output = self.handle(*args, **options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\agrobuild\management\commands\send_watering_reminder.py", line 97, in handle
+    f"<b>Dear {customer_name},</b><br><br>"
+               ^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'customer_name' where it is not associated with a value
+Watering Reminder Command Loaded
+Traceback (most recent call last):
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\manage.py", line 22, in <module>
+    main()
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\__init__.py", line 436, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\base.py", line 416, in run_from_argv
+    self.execute(*args, **cmd_options)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\base.py", line 460, in execute
+    output = self.handle(*args, **options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\agrobuild\management\commands\send_watering_reminder.py", line 97, in handle
+    f"<b>Dear {customer_name},</b><br><br>"
+               ^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'customer_name' where it is not associated with a value
+Watering Reminder Command Loaded
+Traceback (most recent call last):
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\manage.py", line 22, in <module>
+    main()
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\__init__.py", line 436, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\base.py", line 416, in run_from_argv
+    self.execute(*args, **cmd_options)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\base.py", line 460, in execute
+    output = self.handle(*args, **options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\agrobuild\management\commands\send_watering_reminder.py", line 97, in handle
+    f"<b>Dear {customer_name},</b><br><br>"
+               ^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'customer_name' where it is not associated with a value
+Watering Reminder Command Loaded
+Traceback (most recent call last):
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\manage.py", line 22, in <module>
+    main()
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\__init__.py", line 436, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\base.py", line 416, in run_from_argv
+    self.execute(*args, **cmd_options)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\base.py", line 460, in execute
+    output = self.handle(*args, **options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\agrobuild\management\commands\send_watering_reminder.py", line 97, in handle
+    f"<b>Dear {customer_name},</b><br><br>"
+               ^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'customer_name' where it is not associated with a value
+Watering Reminder Command Loaded
+Traceback (most recent call last):
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\manage.py", line 22, in <module>
+    main()
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\__init__.py", line 436, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\base.py", line 416, in run_from_argv
+    self.execute(*args, **cmd_options)
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\venv\Lib\site-packages\django\core\management\base.py", line 460, in execute
+    output = self.handle(*args, **options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\agrobuild\management\commands\send_watering_reminder.py", line 97, in handle
+    f"<b>Dear {customer_name},</b><br><br>"
+               ^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'customer_name' where it is not associated with a value
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
+Watering Reminder Command Loaded
