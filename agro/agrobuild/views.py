@@ -14,7 +14,6 @@ from django.contrib import messages
 from django.utils import timezone
 from django.contrib.staticfiles import finders
 import base64
-import os
 from django.db.models import Q
 from django.core.paginator import Paginator
 from .forms import FeedbackForm  
@@ -349,14 +348,48 @@ def update_cart(request):
     return redirect('cart')
 
 @login_required(login_url='/login/')
-def my_account(request):
+def my_account(request, order_id=None):
+    # Fetch user profile
     profile, created = UserProfile.objects.get_or_create(user=request.user)
+    
+    # Fetch all user orders
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
     
+    # Paginate orders
+    paginator = Paginator(orders, 10)  # Show 10 orders per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    order = None
+    subtotal = Decimal('0.00')
+    shipping = Decimal('0.00')
+    total = Decimal('0.00')
+
+    if order_id:
+        # Fetch specific order
+        order = get_object_or_404(Order, id=order_id, user=request.user)
+        # Calculate subtotal from order items
+        subtotal = sum(Decimal(str(item.price)) * Decimal(item.quantity) for item in order.items.all())
+        shipping = Decimal('100.00')
+        total = subtotal + shipping
+
+        # Validate and fix total_amount if incorrect
+        if order.total_amount != total:
+            print(f"Warning: Order {order.id} total_amount mismatch. Expected: {total}, Stored: {order.total_amount}")
+            order.total_amount = total
+            order.save()
+
+        # Debug values
+        print(f"My Account Order Debug: order_id={order_id}, subtotal={subtotal}, shipping={shipping}, total={total}, items={[(item.product.P_name, item.quantity, item.price) for item in order.items.all()]}")
+
     return render(request, 'htmldemo.net/my-account.html', {
         'user': request.user,
         'profile': profile,
-        'orders': orders,
+        'orders': page_obj,  # Paginated orders
+        'order': order,
+        'subtotal': float(subtotal),
+        'shipping': float(shipping),
+        'total': float(total),
     })
 
 @login_required(login_url='/login/')
@@ -438,14 +471,13 @@ def remove_from_wishlist(request, product_id):
 
 @login_required(login_url='/login/')
 def add_to_cart(request, product_id):
-    product = Product.objects.get(P_id=product_id)
-    product = get_object_or_404(Product, pk=product_id)
+    product = get_object_or_404(Product, P_id=product_id)
     quantity = int(request.POST.get('quantity', 1))
     cart_item, created = CartItem.objects.get_or_create(user=request.user, product=product, defaults={'quantity': quantity})
     if not created:
         cart_item.quantity += quantity
         cart_item.save()
-    return redirect('cart') 
+    return redirect('cart')
 
 def basic(request): return render(request, 'htmldemo.net/basic.html')
 
@@ -453,7 +485,7 @@ def basic(request): return render(request, 'htmldemo.net/basic.html')
 def cart(request):
     cart_items = CartItem.objects.filter(user=request.user).select_related('product')
     subtotal = sum(item.product.P_price * item.quantity for item in cart_items)
-    shipping = 60
+    shipping = 100
     total = subtotal + shipping
     return render(request, 'htmldemo.net/cart.html', {
         'cart_items': cart_items,
@@ -464,50 +496,79 @@ def cart(request):
 
 @login_required(login_url='/login/')
 def checkout(request):
-    cart_items = CartItem.objects.filter(user=request.user)
-    if not cart_items.exists():
-        messages.error(request, "Your cart is empty.")
-        return redirect('cart')
+    # Initialize variables
+    items = []
+    subtotal = Decimal('0.00')
+    has_plants = False
+    is_buy_now = False
+    buy_now_product = None
+    buy_now_quantity = 1
 
-    subtotal = sum(item.product.P_price * item.quantity for item in cart_items)
-    shipping = 100
+    # Handle GET request (initial page load)
+    if request.method == 'GET':
+        product_id = request.GET.get('product_id')
+        quantity = request.GET.get('quantity')
+
+        if product_id and quantity:  # Buy Now flow
+            try:
+                is_buy_now = True
+                buy_now_product = Product.objects.get(P_id=product_id)
+                buy_now_quantity = int(quantity)
+                if buy_now_quantity < 1:
+                    raise ValueError("Quantity must be at least 1")
+                # Validate product price
+                if buy_now_product.P_price is None or buy_now_product.P_price <= 0:
+                    raise ValueError(f"Invalid price for product {buy_now_product.P_name}")
+                subtotal = Decimal(str(buy_now_product.P_price)) * Decimal(buy_now_quantity)
+                items = [{
+                    'product': buy_now_product,
+                    'quantity': buy_now_quantity,
+                    'subtotal': subtotal,
+                }]
+                has_plants = hasattr(buy_now_product, 'is_plant') and buy_now_product.is_plant()
+            except Product.DoesNotExist:
+                messages.error(request, "Product not found.")
+                return redirect('home')
+            except ValueError as e:
+                messages.error(request, f"Invalid quantity or price: {str(e)}")
+                return redirect('home')
+        else:  # Cart Buy flow
+            cart_items = CartItem.objects.filter(user=request.user).select_related('product')
+            if not cart_items.exists():
+                messages.error(request, "Your cart is empty.")
+                return redirect('cart')
+            for item in cart_items:
+                # Validate product price
+                if item.product.P_price is None or item.product.P_price <= 0:
+                    messages.error(request, f"Invalid price for product {item.product.P_name}")
+                    return redirect('cart')
+                item_subtotal = Decimal(str(item.product.P_price)) * Decimal(item.quantity)
+                items.append({
+                    'product': item.product,
+                    'quantity': item.quantity,
+                    'subtotal': item_subtotal,
+                })
+                subtotal += item_subtotal
+            has_plants = any(hasattr(item.product, 'is_plant') and item.product.is_plant() for item in cart_items)
+
+    # Calculate total
+    shipping = Decimal('100.00')
     total = subtotal + shipping
-    has_plants = any(item.product.is_plant() for item in cart_items)
 
+    # Debug values
+    print(f"Checkout Debug: subtotal={subtotal}, shipping={shipping}, total={total}, items={[(item['product'].P_name, item['quantity'], item['subtotal']) for item in items]}")
+
+    # Handle POST request (form submission)
     if request.method == 'POST':
         try:
             payment_method = request.POST.get('payment_method')
             upi_txn = request.POST.get('upi_txn', '').strip()
+            is_buy_now = request.POST.get('is_buy_now') == 'true'
 
             # Validate UPI payment
             if payment_method == 'upi' and not upi_txn:
                 messages.error(request, "Please provide UPI transaction ID for UPI payments")
                 return redirect('checkout')
-
-            # Watering Reminder Logic
-            if has_plants and request.POST.get('enable_notifications') == 'true':
-                allow_website = request.POST.get('allow_website') == 'true'
-                allow_gmail = request.POST.get('allow_gmail') == 'true'
-                gmail = request.POST.get('gmail')
-                morning_time = request.POST.get('morning_time', '08:00')
-                evening_time = request.POST.get('evening_time', '18:00')
-
-                for item in cart_items:
-                    if item.product.is_plant():
-                        for cat in item.product.categories.filter(name__icontains='plant'):
-                            WateringReminder.objects.update_or_create(
-                                user=request.user,
-                                product=item.product,
-                                category=cat,
-                                defaults={
-                                    'morning_time': morning_time,
-                                    'evening_time': evening_time,
-                                    'allow_website': allow_website,
-                                    'allow_gmail': allow_gmail,
-                                    'gmail': gmail,
-                                    'is_active': True,
-                                }
-                            )
 
             # Create Order
             order = Order.objects.create(
@@ -525,17 +586,89 @@ def checkout(request):
                 payment_status='Paid' if payment_method == 'upi' else 'Pending',
             )
 
-            # Create Order Items
-            for item in cart_items:
-                OrderItem.objects.create(
-                    order=order,
-                    product=item.product,
-                    price=item.product.P_price,
-                    quantity=item.quantity
-                )
+            # Handle Buy Now order
+            if is_buy_now:
+                product_id = request.POST.get('buy_now_product_id')
+                quantity = request.POST.get('buy_now_quantity')
+                try:
+                    product = Product.objects.get(P_id=product_id)
+                    quantity = int(quantity)
+                    if quantity < 1:
+                        raise ValueError("Quantity must be at least 1")
+                    if product.P_price is None or product.P_price <= 0:
+                        raise ValueError(f"Invalid price for product {product.P_name}")
+                    OrderItem.objects.create(
+                        order=order,
+                        product=product,
+                        price=product.P_price,
+                        quantity=quantity
+                    )
+                    # Watering Reminder for Buy Now
+                    if hasattr(product, 'is_plant') and product.is_plant() and request.POST.get('enable_notifications') == 'true':
+                        allow_website = request.POST.get('allow_website') == 'true'
+                        allow_gmail = request.POST.get('allow_gmail') == 'true'
+                        gmail = request.POST.get('gmail')
+                        morning_time = request.POST.get('morning_time', '08:00')
+                        evening_time = request.POST.get('evening_time', '18:00')
+                        for cat in product.categories.filter(name__icontains='plant'):
+                            WateringReminder.objects.update_or_create(
+                                user=request.user,
+                                product=product,
+                                category=cat,
+                                defaults={
+                                    'morning_time': morning_time,
+                                    'evening_time': evening_time,
+                                    'allow_website': allow_website,
+                                    'allow_gmail': allow_gmail,
+                                    'gmail': gmail,
+                                    'is_active': True,
+                                }
+                            )
+                except Product.DoesNotExist:
+                    messages.error(request, "Selected product not found.")
+                    return redirect('checkout')
+                except ValueError as e:
+                    messages.error(request, f"Invalid quantity or price: {str(e)}")
+                    return redirect('checkout')
+            else:
+                # Handle Cart Buy order
+                cart_items = CartItem.objects.filter(user=request.user).select_related('product')
+                if not cart_items.exists():
+                    messages.error(request, "Your cart is empty.")
+                    return redirect('cart')
+                for item in cart_items:
+                    if item.product.P_price is None or item.product.P_price <= 0:
+                        messages.error(request, f"Invalid price for product {item.product.P_name}")
+                        return redirect('cart')
+                    OrderItem.objects.create(
+                        order=order,
+                        product=item.product,
+                        price=item.product.P_price,
+                        quantity=item.quantity
+                    )
+                    # Watering Reminder for Cart Items
+                    if hasattr(item.product, 'is_plant') and item.product.is_plant() and request.POST.get('enable_notifications') == 'true':
+                        allow_website = request.POST.get('allow_website') == 'true'
+                        allow_gmail = request.POST.get('allow_gmail') == 'true'
+                        gmail = request.POST.get('gmail')
+                        morning_time = request.POST.get('morning_time', '08:00')
+                        evening_time = request.POST.get('evening_time', '18:00')
+                        for cat in item.product.categories.filter(name__icontains='plant'):
+                            WateringReminder.objects.update_or_create(
+                                user=request.user,
+                                product=item.product,
+                                category=cat,
+                                defaults={
+                                    'morning_time': morning_time,
+                                    'evening_time': evening_time,
+                                    'allow_website': allow_website,
+                                    'allow_gmail': allow_gmail,
+                                    'gmail': gmail,
+                                    'is_active': True,
+                                }
+                            )
+                cart_items.delete()  # Clear cart only for Cart Buy
 
-            # Clear cart and redirect to confirmation
-            cart_items.delete()
             return redirect('order_confirmation', order_id=order.id)
 
         except Exception as e:
@@ -543,19 +676,36 @@ def checkout(request):
             return redirect('checkout')
 
     return render(request, 'htmldemo.net/checkout.html', {
-        'cart_items': cart_items,
-        'subtotal': subtotal,
-        'shipping': shipping,
-        'total': total,
+        'items': items,
+        'subtotal': float(subtotal),
+        'shipping': float(shipping),
+        'total': float(total),
         'has_plants': has_plants,
+        'is_buy_now': is_buy_now,
     })
 
+@login_required(login_url='/login/')
 def order_confirmation(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
-    subtotal = sum(item.price * item.quantity for item in order.items.all())
+    # Calculate subtotal from order items
+    subtotal = sum(Decimal(str(item.price)) * Decimal(item.quantity) for item in order.items.all())
+    shipping = Decimal('100.00')
+    total = subtotal + shipping
+
+    # Validate total_amount
+    if order.total_amount != total:
+        print(f"Warning: Order {order.id} total_amount mismatch. Expected: {total}, Stored: {order.total_amount}")
+        order.total_amount = total
+        order.save()
+
+    # Debug values
+    print(f"Order Confirmation Debug: order_id={order_id}, subtotal={subtotal}, shipping={shipping}, total={total}, items={[(item.product.P_name, item.quantity, item.price) for item in order.items.all()]}")
+
     return render(request, 'htmldemo.net/order_confirmation.html', {
         'order': order,
-        'subtotal': round(subtotal, 2),
+        'subtotal': float(subtotal),
+        'shipping': float(shipping),
+        'total': float(total),
         'order_items': order.items.all()
     })
 

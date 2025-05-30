@@ -1,5 +1,7 @@
 {% extends 'htmldemo.net/basic.html' %}
 {% block title %} My Account {% endblock %}
+{% load static math_filters %}
+
 {% block body %}
 {% if messages %}
 <div class="container">
@@ -11,7 +13,7 @@
     {% endfor %}
 </div>
 {% endif %}
-{% load static %}
+
 <!--breadcrumbs area start-->
 <div class="breadcrumbs_area">
     <div class="container">
@@ -21,7 +23,10 @@
                     <h3>My Account</h3>
                     <ul>
                         <li><a href="{% url 'index' %}">Home</a></li>
-                        <li>My account</li>
+                        <li>My Account</li>
+                        {% if order %}
+                        <li>Order #{{ order.id }}</li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>
@@ -39,8 +44,8 @@
                     <!-- Nav tabs -->
                     <div class="dashboard_tab_button">
                         <ul role="tablist" class="nav flex-column dashboard-list">
-                            <li><a href="#orders" data-bs-toggle="tab" class="nav-link">Orders</a></li>
-                            <li><a href="#account-details" data-bs-toggle="tab" class="nav-link">Account details</a></li>
+                            <li><a href="#orders" data-bs-toggle="tab" class="nav-link active">Orders</a></li>
+                            <li><a href="#account-details" data-bs-toggle="tab" class="nav-link">Account Details</a></li>
                             <li><a href="#logouts" data-bs-toggle="tab" class="nav-link">Logout</a></li>
                         </ul>
                     </div>
@@ -48,7 +53,91 @@
                 <div class="col-sm-12 col-md-9 col-lg-9">
                     <!-- Tab panes -->
                     <div class="tab-content dashboard_content">
-                        <div class="tab-pane fade" id="orders">
+                        <div class="tab-pane fade show active" id="orders">
+                            {% if order %}
+                            <!-- Detailed Order View -->
+                            <h3 class="mb-4">Order Details #{{ order.id }}</h3>
+                            <div class="order-details mb-5">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h5>Billing Information</h5>
+                                        <ul class="list-unstyled">
+                                            <li><strong>Name:</strong> {{ order.full_name }}</li>
+                                            <li><strong>Email:</strong> {{ order.email }}</li>
+                                            <li><strong>Phone:</strong> {{ order.mobile_number }}</li>
+                                            <li><strong>Address:</strong> {{ order.address }}, {{ order.city }}, {{ order.state }} {{ order.zip_code }}</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h5>Order Information</h5>
+                                        <ul class="list-unstyled">
+                                            <li><strong>Order Date:</strong> {{ order.created_at|date:"M d, Y" }}</li>
+                                            <li><strong>Status:</strong> 
+                                                <span class="badge rounded-pill {% if order.payment_status|lower == 'paid' %}bg-success{% else %}bg-warning text-dark{% endif %} p-2">
+                                                    {{ order.payment_status|capfirst }}
+                                                </span>
+                                            </li>
+                                            <li><strong>Payment Method:</strong> 
+                                                {% if order.payment_method == 'upi' %}UPI{% else %}Cash on Delivery{% endif %}
+                                            </li>
+                                            {% if order.payment_method == 'upi' %}
+                                            <li><strong>UPI Transaction:</strong> {{ order.upi_transaction_number }}</li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="order-items mt-4">
+                                    <h5>Order Items</h5>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Product</th>
+                                                    <th class="text-center">Price</th>
+                                                    <th class="text-center">Quantity</th>
+                                                    <th class="text-center">Total</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for item in order.items.all %}
+                                                <tr>
+                                                    <td>{{ item.product.P_name }}</td>
+                                                    <td class="text-center">₹{{ item.price|floatformat:2 }}</td>
+                                                    <td class="text-center">{{ item.quantity }}</td>
+                                                    <td class="text-center">₹{{ item.price|floatformat:2|multiply:item.quantity|floatformat:2 }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                            <tfoot>
+                                                <tr>
+                                                    <th colspan="3" class="text-right">Subtotal:</th>
+                                                    <td class="text-center">₹{{ subtotal|floatformat:2 }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th colspan="3" class="text-right">Shipping:</th>
+                                                    <td class="text-center">₹{{ shipping|floatformat:2 }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th colspan="3" class="text-right">Total:</th>
+                                                    <td class="text-center">₹{{ total|floatformat:2 }}</td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="mt-4">
+                                    <a href="{% url 'my_account' %}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-arrow-left me-1"></i> Back to Orders
+                                    </a>
+                                    {% if order.payment_status|lower == 'paid' %}
+                                    <a href="{% url 'view_invoice' order.id %}" class="btn btn-outline-info ms-2">
+                                        <i class="fas fa-file-invoice me-1"></i> View Invoice
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% else %}
+                            <!-- Orders List View -->
                             <h3 class="mb-4">Your Order History</h3>
                             <div class="table-responsive">
                                 <table class="table table-hover table-bordered">
@@ -75,7 +164,11 @@
                                             </td>
                                             <td class="text-center">
                                                 <span class="fw-bold">₹{{ order.total_amount|floatformat:2 }}</span>
-                                                <small class="d-block text-muted">{{ order.items.count }} item{{ order.items.count|pluralize }}</small>
+                                                <small class="d-block text-muted">
+                                                    {% for item in order.items.all %}
+                                                        {{ item.quantity }} x {{ item.product.P_name }}{% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                </small>
                                             </td>
                                             <td class="text-center">
                                                 <a href="{% url 'order_confirmation' order.id %}" class="btn btn-sm btn-outline-primary">
@@ -83,16 +176,16 @@
                                                 </a>
                                             </td>
                                             <td class="text-center">
-    {% if order.payment_status|lower == 'paid' %}
-        <a href="{% url 'view_invoice' order.id %}" class="btn btn-sm btn-outline-info">
-            <i class="fas fa-file-invoice me-1"></i> View Invoice
-        </a>
-    {% else %}
-        <span class="badge bg-light text-muted p-2">
-            <i class="fas fa-lock me-1"></i> Pending Payment
-        </span>
-    {% endif %}
-</td>
+                                                {% if order.payment_status|lower == 'paid' %}
+                                                    <a href="{% url 'view_invoice' order.id %}" class="btn btn-sm btn-outline-info">
+                                                        <i class="fas fa-file-invoice me-1"></i> View Invoice
+                                                    </a>
+                                                {% else %}
+                                                    <span class="badge bg-light text-muted p-2">
+                                                        <i class="fas fa-lock me-1"></i> Pending Payment
+                                                    </span>
+                                                {% endif %}
+                                            </td>
                                         </tr>
                                         {% empty %}
                                         <tr>
@@ -101,7 +194,7 @@
                                                     <i class="fas fa-box-open fa-3x mb-3 text-muted"></i>
                                                     <h5 class="text-muted mb-3">No Orders Found</h5>
                                                     <p class="text-muted mb-4">You haven't placed any orders yet.</p>
-                                                    <a href="{% url 'home' %}" class="btn btn-primary px-4">
+                                                    <a href="{% url 'index' %}" class="btn btn-primary px-4">
                                                         <i class="fas fa-shopping-bag me-2"></i> Start Shopping
                                                     </a>
                                                 </div>
@@ -116,24 +209,43 @@
                                 <div class="text-muted">
                                     Showing {{ orders|length }} order{{ orders|length|pluralize }}
                                 </div>
+                                {% if orders.has_other_pages %}
                                 <nav aria-label="Page navigation">
                                     <ul class="pagination justify-content-end mb-0">
-                                        <li class="page-item disabled">
-                                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
-                                        </li>
-                                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                        <li class="page-item">
-                                            <a class="page-link" href="#">Next</a>
-                                        </li>
+                                        {% if orders.has_previous %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ orders.previous_page_number }}" tabindex="-1">Previous</a>
+                                            </li>
+                                        {% else %}
+                                            <li class="page-item disabled">
+                                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                                            </li>
+                                        {% endif %}
+                                        {% for num in orders.paginator.page_range %}
+                                            {% if orders.number == num %}
+                                                <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+                                            {% elif num > orders.number|add:-3 and num < orders.number|add:3 %}
+                                                <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% if orders.has_next %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ orders.next_page_number }}">Next</a>
+                                            </li>
+                                        {% else %}
+                                            <li class="page-item disabled">
+                                                <a class="page-link" href="#" aria-disabled="true">Next</a>
+                                            </li>
+                                        {% endif %}
                                     </ul>
                                 </nav>
+                                {% endif %}
                             </div>
+                            {% endif %}
                             {% endif %}
                         </div>
                         <div class="tab-pane fade" id="account-details">
-                            <h3>Account details</h3>
+                            <h3>Account Details</h3>
                             <div class="login">
                                 <div class="login_form_container">
                                     <div class="account_login_form">

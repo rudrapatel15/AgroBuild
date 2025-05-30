@@ -9,29 +9,29 @@
             <div class="col-lg-6 col-md-6">
                 <div class="product-details-tab">
                     <div id="img-1" class="zoomWrapper single-zoom">
-                        <img id="zoom1" src="/media/{{ product.P_img }}" data-zoom-image="/media/{{ product.P_img }}" alt="{{ product.P_name }}" style="height:400px; width:400px; object-fit:cover;">
+                        <img id="zoom1" src="/media/{{ product.P_img }}" data-zoom-image="/media/{{ product.P_img }}" alt="{{ product.P_name }}" style="height:560px; width:560px; object-fit:cover;">
                     </div>
                 </div>
             </div>
             <div class="col-lg-6 col-md-6">
                 <div class="product_d_right">
-                    <!-- Add to Cart Form -->
-                    <form method="POST" action="{% url 'add_to_cart' product.P_id %}">
+                    <!-- Add to Cart and Buy Now Form -->
+                    <form method="POST" action="{% url 'add_to_cart' product.P_id %}" id="cart-form">
                         {% csrf_token %}
                         <h1>{{ product.P_name }}</h1>
-                        
                         <div class="price_box">
                             <span class="current_price">₹{{ product.P_price }}</span>
                         </div>
                         <div class="product_desc">
                             <p>{{ product.P_Description }}</p>
                         </div>
-                        <div class="product_variant quantity">
-                            
-                            <button class="button" type="submit">Add To Cart</button>
+                        <div class="product_variant quantity d-flex align-items-center mb-3">
+                            <label for="quantity" class="me-2 mb-0">Quantity:</label>
+                            <input type="number" id="quantity" name="quantity" value="1" min="1" max="99" style="width:70px;" class="form-control me-3">
+                            <button class="button btn btn-success me-2" type="submit">Add To Cart</button>
+                            <button class="button btn btn-primary" type="button" id="buy-now-btn">Buy Now</button>
                         </div>
                     </form>
-
                     <!-- Add to Wishlist Form -->
                     <form method="POST" action="{% url 'add_to_wishlist' product.P_id %}">
                         {% csrf_token %}
@@ -41,11 +41,9 @@
                             </ul>
                         </div>
                     </form>
-
                     <div class="product_meta">
                         <span>Category: <a href="#">{{ product.category }}</a></span>
                     </div>
-
                     <div class="priduct_social mt-4">
                         <ul>
                             <li><a class="facebook" href="https://www.facebook.com" title="facebook"><i class="fa fa-facebook"></i> Facebook</a></li>
@@ -57,5 +55,14 @@
         </div>
     </div>
 </div>
-
+<script>
+document.getElementById('buy-now-btn').addEventListener('click', function() {
+    const quantity = document.getElementById('quantity').value;
+    if (quantity < 1) {
+        alert('Please select a valid quantity.');
+        return;
+    }
+    window.location.href = "{% url 'checkout' %}?product_id={{ product.P_id }}&quantity=" + quantity;
+});
+</script>
 {% endblock %}

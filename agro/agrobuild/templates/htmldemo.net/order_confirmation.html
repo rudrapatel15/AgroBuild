@@ -1,8 +1,8 @@
 {% extends 'htmldemo.net/basic.html' %}
 {% block title %} Order Confirmation {% endblock %}
-{% block body %}
-{%load static%}
+{% load static math_filters %}
 
+{% block body %}
 <style>
     /* Order Tracking CSS */
     .tracking-steps {
@@ -180,29 +180,25 @@
                                     <li><strong>Order Number:</strong> #{{ order.id }}</li>
                                     <li><strong>Order Date:</strong> {{ order.created_at|date:"F d, Y" }}</li>
                                     <li><strong>Order Status:</strong> 
-                                        <span class="
-                                            {% if order.status == 'delivered' %}success
-                                            {% elif order.status == 'cancelled' %}danger
-                                            {% else %}processing
-                                            {% endif %}">
+                                        <span class="{% if order.status == 'delivered' %}success{% elif order.status == 'cancelled' %}danger{% else %}processing{% endif %}">
                                             {{ order.get_status_display }}
                                         </span>
                                     </li>
                                     <li><strong>Payment Method:</strong> 
-    {% if order.payment_method == 'upi' %}
-        UPI (Manual Verification)
-    {% else %}
-        Cash on Delivery
-    {% endif %}
-</li>
-<li><strong>Payment Status:</strong>
-    <span class="{% if order.payment_status == 'paid' %}success{% else %}processing{% endif %}">
-        {{ order.payment_status|capfirst }}
-    </span>
-</li>
-{% if order.payment_method == 'upi' %}
-    <li><strong>UPI Transaction Number:</strong> {{ order.upi_transaction_number }}</li>
-{% endif %}
+                                        {% if order.payment_method == 'upi' %}
+                                            UPI (Manual Verification)
+                                        {% else %}
+                                            Cash on Delivery
+                                        {% endif %}
+                                    </li>
+                                    <li><strong>Payment Status:</strong>
+                                        <span class="{% if order.payment_status == 'paid' %}success{% else %}processing{% endif %}">
+                                            {{ order.payment_status|capfirst }}
+                                        </span>
+                                    </li>
+                                    {% if order.payment_method == 'upi' %}
+                                        <li><strong>UPI Transaction Number:</strong> {{ order.upi_transaction_number }}</li>
+                                    {% endif %}
                                 </ul>
                             </div>
                         </div>
@@ -221,35 +217,40 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for item in order.items.all %}
+                                {% for item in order_items %}
                                 <tr>
                                     <td>{{ item.product.P_name }}</td>
-                                    <td>₹{{ item.price }}</td>
+                                    <td>₹{{ item.price|floatformat:2 }}</td>
                                     <td>{{ item.quantity }}</td>
-                                    <td>₹{% widthratio item.price 1 item.quantity %}</td>
+                                    <td>₹{{ item.price|floatformat:2|multiply:item.quantity|floatformat:2 }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                             <tfoot>
                                 <tr>
                                     <th colspan="3" class="text-right">Subtotal:</th>
-                                    <td>₹{{ subtotal }}</td>
+                                    <td>₹{{ subtotal|floatformat:2 }}</td>
                                 </tr>
                                 <tr>
                                     <th colspan="3" class="text-right">Shipping:</th>
-                                    <td>₹100</td>
+                                    <td>₹{{ shipping|floatformat:2 }}</td>
                                 </tr>
                                 <tr>
                                     <th colspan="3" class="text-right">Total:</th>
-                                    <td>₹{{ order.total_amount }}</td>
+                                    <td>₹{{ total|floatformat:2 }}</td>
                                 </tr>
                             </tfoot>
                         </table>
                     </div>
 
                     <div class="text-center mt-5">
-                        <a href="{% url 'home' %}" class="btn btn-primary">Continue Shopping</a>
+                        <a href="{% url 'index' %}" class="btn btn-primary">Continue Shopping</a>
                         <a href="{% url 'my_account' %}" class="btn btn-secondary ml-3">View All Orders</a>
+                        {% if order.payment_status|lower == 'paid' %}
+                                    <a href="{% url 'view_invoice' order.id %}" class="btn btn-outline-info ms-2">
+                                        <i class="fas fa-file-invoice me-1"></i> View Invoice
+                                    </a>
+                                    {% endif %}
                     </div>
                 </div>
             </div>
