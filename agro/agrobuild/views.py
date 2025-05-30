@@ -26,6 +26,73 @@ import pdfkit
 from decimal import Decimal
 
 @login_required(login_url='/login/')
+def view_invoice(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    
+    # Calculate invoice values same as in download_invoice
+    subtotal = Decimal('0')
+    total_tax = Decimal('0')
+    total_amount = Decimal('0')
+    processed_items = []
+
+    for item in order.items.all():
+        tax_per_unit = item.price * Decimal('0.18')
+        price_without_tax = item.price - tax_per_unit
+        item_subtotal = price_without_tax * item.quantity
+        item_tax = tax_per_unit * item.quantity
+        item_total = item.price * item.quantity
+
+        subtotal += item_subtotal
+        total_tax += item_tax
+        total_amount += item_total
+
+        processed_items.append({
+            'product': item.product,
+            'quantity': item.quantity,
+            'price': round(price_without_tax, 2),
+            'subtotal': round(item_subtotal, 2),
+            'tax': round(item_tax, 2),
+            'total': round(item_total, 2),
+        })
+
+    subtotal = round(subtotal, 2)
+    total_tax = round(total_tax, 2)
+    total_amount = round(total_amount, 2)
+
+    order.subtotal = subtotal
+    order.total_tax = total_tax
+    order.total_amount = total_amount
+
+    shipping = Decimal('100.00')
+    grand_total = total_amount + shipping
+
+    context = {
+        'order': order,
+        'items': processed_items,
+        'user': request.user,
+        'shipping': shipping,
+        'grand_total': grand_total,
+        'show_download': True,
+    }
+    
+    # Add logo and signature same as in download_invoice
+    logo_path = finders.find('img/logo/logo.png')
+    if logo_path:
+        with open(logo_path, "rb") as img_file:
+            context['logo_base64'] = base64.b64encode(img_file.read()).decode('utf-8')
+    else:
+        context['logo_base64'] = ''
+
+    signature_path = finders.find('img/signatures.jpg')
+    if signature_path:
+        with open(signature_path, "rb") as img_file:
+            context['signature_base64'] = base64.b64encode(img_file.read()).decode('utf-8')
+    else:
+        context['signature_base64'] = ''
+
+    return render(request, 'htmldemo.net/invoice.html', context)
+
+@login_required(login_url='/login/')
 def download_invoice(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
     if order.payment_status.lower() != 'paid':

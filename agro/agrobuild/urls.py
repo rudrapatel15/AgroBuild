@@ -37,6 +37,7 @@ urlpatterns = [
     path('notifications/clear/', views.clear_notifications, name='clear_notifications'),
     path('get-notifications/', views.get_notifications, name='get_notifications'),
     path('invoice/<int:order_id>/', views.download_invoice, name='download_invoice'),
+    path('invoice/view/<int:order_id>/', views.view_invoice, name='view_invoice'),
     ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:

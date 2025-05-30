@@ -24,28 +24,25 @@ def register_view(request):
         
         if password1 == password2:
             try:
-                
                 if User.objects.filter(username=username).exists():
                     return render(request, 'htmldemo.net/registration.html', {'error': 'Username is already taken!'})
                 if User.objects.filter(email=email).exists():
                     return render(request, 'htmldemo.net/registration.html', {'error': 'Email is already registered!'})
-                
                 
                 user = User.objects.create_user(
                     username=username,
                     email=email,
                     password=password1
                 )
-                auth.login(request, user)
-                messages.success(request, "Registration successful!")
-                return redirect('index')
+                # Do NOT log in the user here
+                messages.success(request, "Registration successful! Please log in.")
+                return redirect('login')  # Redirect to login page
             except Exception as e:
                 return render(request, 'htmldemo.net/registration.html', {'error': str(e)})
         else:
             return render(request, 'htmldemo.net/registration.html', {'error': 'Passwords do not match!'})
     else:
         return render(request, 'htmldemo.net/registration.html')
-
 
 def login_view(request):
     if request.method == 'POST':
