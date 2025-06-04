@@ -23,11 +23,11 @@ from django.http import HttpResponse
 from django.template.loader import render_to_string
 import pdfkit   
 from decimal import Decimal
+from urllib.parse import unquote
 
 @login_required(login_url='/login/')
 def view_invoice(request, order_id):
-    order = get_object_or_404(Order, id=order_id, user=request.user)
-    
+    order = get_object_or_404(Order, id=order_id, user=request.user) 
     # Calculate invoice values same as in download_invoice
     subtotal = Decimal('0')
     total_tax = Decimal('0')
@@ -131,7 +131,6 @@ def download_invoice(request, order_id):
 
     shipping = Decimal('100.00')
     grand_total = total_amount + shipping
-
 
     context = {
         'order': order,
@@ -434,8 +433,14 @@ def remove_from_cart(request):
     return redirect('cart')
 
 def index(request):
+    if request.user.is_authenticated:
+        wishlist_ids = set(Wishlist.objects.filter(user=request.user).values_list('product__P_id', flat=True))
+        cart_ids = set(CartItem.objects.filter(user=request.user).values_list('product__P_id', flat=True))
+    else:
+        wishlist_ids = set()
+        cart_ids = set()
+    
     allProds = []
-   
     categories_to_show = ['indoor plants', 'Fruit Seeds', 'Garden Tools']
     
     for category_name in categories_to_show:
@@ -447,7 +452,8 @@ def index(request):
                 nSlides = n // 4 + ceil((n / 4) - (n // 4))
                 allProds.append([prod, range(1, nSlides), nSlides, category_name])
     
-    return render(request, 'htmldemo.net/index.html', {'allProds': allProds})
+    cart_message = request.session.pop('cart_message', None)
+    return render(request, 'htmldemo.net/index.html', {'allProds': allProds, 'wishlist_ids': wishlist_ids, 'cart_ids': cart_ids, 'cart_message': cart_message})
 
 def account(request): return render(request, 'htmldemo.net/my-account.html')
 
@@ -458,10 +464,16 @@ def wishlist(request):
 
 @login_required(login_url='/login/')
 def add_to_wishlist(request, product_id):
-    product = Product.objects.get(P_id=product_id)
-    product = get_object_or_404(Product, pk=product_id)
-    Wishlist.objects.get_or_create(user=request.user, product=product)
-    return redirect('wishlist') 
+    product = get_object_or_404(Product, P_id=product_id)
+    wishlist_item, created = Wishlist.objects.get_or_create(user=request.user, product=product)
+    if not created:
+        wishlist_item.delete()
+        status = 'removed'
+    else:
+        status = 'added'
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'status': status})
+    return redirect('wishlist')
 
 @login_required(login_url='/login/')
 def remove_from_wishlist(request, product_id):
@@ -472,12 +484,26 @@ def remove_from_wishlist(request, product_id):
 @login_required(login_url='/login/')
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, P_id=product_id)
-    quantity = int(request.POST.get('quantity', 1))
-    cart_item, created = CartItem.objects.get_or_create(user=request.user, product=product, defaults={'quantity': quantity})
-    if not created:
-        cart_item.quantity += quantity
-        cart_item.save()
-    return redirect('cart')
+    cart_item = CartItem.objects.filter(user=request.user, product=product).first()
+
+    if request.method == 'POST':
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            if cart_item:
+                cart_item.delete()
+                return JsonResponse({'status': 'removed', 'message': f"{product.P_name} removed from cart"})
+            else:
+                CartItem.objects.create(user=request.user, product=product, quantity=1)
+                return JsonResponse({'status': 'added', 'message': f"{product.P_name} added to cart"})
+        # fallback for normal POST (not AJAX)
+        if cart_item:
+            cart_item.delete()
+            messages.success(request, f"{product.P_name} removed from cart")
+        else:
+            CartItem.objects.create(user=request.user, product=product, quantity=1)
+            messages.success(request, f"{product.P_name} added to cart")
+        return redirect(request.POST.get('return_url', 'index'))
+
+    return redirect('index')
 
 def basic(request): return render(request, 'htmldemo.net/basic.html')
 
@@ -541,7 +567,6 @@ def checkout(request):
                 # Validate product price
                 if item.product.P_price is None or item.product.P_price <= 0:
                     messages.error(request, f"Invalid price for product {item.product.P_name}")
-                    return redirect('cart')
                 item_subtotal = Decimal(str(item.product.P_price)) * Decimal(item.quantity)
                 items.append({
                     'product': item.product,
@@ -716,18 +741,28 @@ def faq(request): return render(request, 'htmldemo.net/faq.html')
 
 def prod_view(request):
     prod_id = request.GET.get('myid')
-    product = Product.objects.filter(P_id=prod_id).first()
-    return render(request, 'htmldemo.net/prod_View.html', {'product': product})
+    product = get_object_or_404(Product, P_id=prod_id)
+    cart_ids = set(CartItem.objects.filter(user=request.user).values_list('product__P_id', flat=True)) if request.user.is_authenticated else set()
+    wishlist_ids = set(Wishlist.objects.filter(user=request.user).values_list('product__P_id', flat=True)) if request.user.is_authenticated else set()
+    return render(request, 'htmldemo.net/prod_view.html', {'product': product, 'cart_ids': cart_ids, 'wishlist_ids': wishlist_ids})
 
 def category_products(request, slug):
     category = get_object_or_404(Category, slug=slug)
     products = Product.objects.filter(categories=category)
     subcategories = category.children.all()
+    if request.user.is_authenticated:
+        wishlist_ids = set(Wishlist.objects.filter(user=request.user).values_list('product__P_id', flat=True))
+        cart_ids = set(CartItem.objects.filter(user=request.user).values_list('product__P_id', flat=True))
+    else:
+        wishlist_ids = set()
+        cart_ids = set()
     
     context = {
         'category': category,
         'products': products,
         'subcategories': subcategories,
-        'is_main_category': category.parent is None
+        'is_main_category': category.parent is None,
+        'wishlist_ids': wishlist_ids,
+        'cart_ids': cart_ids,
     }
     return render(request, 'htmldemo.net/category_products.html', context)
