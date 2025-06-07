@@ -72,6 +72,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'agrobuild.context_processors.cart_data',
+                'agrobuild.context_processors.cart_items_processor',
             ],
         },
     },

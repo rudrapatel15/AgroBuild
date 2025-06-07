@@ -12,3 +12,10 @@ def cart_data(request):
         'mini_cart_items': [],
         'mini_cart_total': 0
     }
+
+def cart_items_processor(request):
+    if request.user.is_authenticated:
+        cart_items = CartItem.objects.filter(user=request.user)
+    else:
+        cart_items = []
+    return {'cart_items': cart_items}
