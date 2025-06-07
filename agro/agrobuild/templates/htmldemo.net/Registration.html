@@ -28,6 +28,9 @@
 </head>
 <body>
     <div class="container">
+        {% if error %}
+  <div class="alert alert-danger" style="color: red; margin-bottom: 10px;">{{ error }}</div>
+{% endif %}
         <div class="form">
             <span class="title">Registration</span>
             <form method="post" action="{% url 'registration' %}">

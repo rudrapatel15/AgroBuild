@@ -30,7 +30,9 @@ from django.utils.decorators import method_decorator
 from django.db.models import Count
 from django.db.models import Sum, Count, F
 import datetime
-   
+from django.core.mail import send_mail
+import random 
+
 @method_decorator(staff_member_required, name='dispatch')
 class AdminDashboardView(TemplateView):
     template_name = 'admin/black_dashboard.html'
@@ -481,23 +483,118 @@ def my_account(request, order_id=None):
 
 @login_required(login_url='/login/')
 def update_account(request):
-    if request.method == 'POST':
-        user = request.user
-        profile, created = UserProfile.objects.get_or_create(user=user)
-       
-        user.email = request.POST.get('email')
-        user.first_name = request.POST.get('first_name')
-        user.last_name = request.POST.get('last_name')
-        user.save()
+    user = request.user
+    profile, created = UserProfile.objects.get_or_create(user=user)
 
-        profile.phone = request.POST.get('phone')
-        profile.dob = request.POST.get('dob')
-        profile.gender = request.POST.get('gender')
-        if 'profile_pic' in request.FILES:
-            profile.profile_pic = request.FILES['profile_pic']
+    if request.method == 'POST':
+        new_email = (request.POST.get('email') or '').strip()
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        phone = request.POST.get('phone')
+        dob = (request.POST.get('dob') or '').strip()
+        gender = request.POST.get('gender') or 'Male'  
+        profile_pic = request.FILES.get('profile_pic')
+
+    # If email is changed, check if already registered
+    if new_email and new_email != user.email:
+        if User.objects.filter(email=new_email).exclude(pk=user.pk).exists():
+            messages.error(request, "This email is already registered with another account.")
+            return redirect('my_account')
+        otp = random.randint(1000, 9999)
+        request.session['pending_email_change'] = {
+            'new_email': new_email,
+            'otp': str(otp),
+            'first_name': first_name,
+            'last_name': last_name,
+            'phone': phone,
+            'dob': dob,
+            'gender': gender,  # <-- Always set
+            'profile_pic': profile_pic.name if profile_pic else None,
+        }
+        subject = f"Verify Your AgroBuild Account, {user.get_full_name() or user.username}!"
+        message = (
+            f"Dear {user.get_full_name() or user.username},\n\n"
+            f"Welcome to AgroBuild! 🌱 Thank you for joining our mission to grow a greener future.\n "
+            f"To complete your email change, please use the following One-Time Password (OTP):\n\n"
+            f"OTP: {otp}\n\n"
+            f"This OTP is valid for 10 minutes. Do not share it with anyone to keep your account secure.\n\n"
+            f"With Green Regards,\n"
+            f"The AgroBuild Team\n"
+            f"AGROBUILD Private Limited\n"
+            f"B-42 Akruti Garden, Nehrunagar\n"
+            f"Ahmedabad, 380015\n"
+            f"📞 8128383925\n"
+            f"✉️ shopmulti9859@gmail.com"
+        )
+        send_mail(
+            subject,
+            message,
+            None,
+            [new_email],
+            fail_silently=False,
+        )
+        # Save profile changes except email, wait for OTP
+        profile.phone = phone
+        profile.gender = gender  # <-- Always set
+        if dob:
+            profile.dob = dob
+        else:
+            profile.dob = None
+        if profile_pic:
+            profile.profile_pic = profile_pic
         profile.save()
-        messages.success(request, 'Account details updated successfully!')
+        messages.info(request, f"An OTP has been sent to {new_email}. Please verify to change your email.")
+        return render(request, 'htmldemo.net/email_otp_verify.html', {'new_email': new_email})
+    # If email not changed, update other fields directly
+    user.first_name = first_name
+    user.last_name = last_name
+    user.save()
+    profile.phone = phone
+    profile.gender = gender  # <-- Always set
+    if dob:
+        profile.dob = dob
+    else:
+        profile.dob = None
+    if profile_pic:
+        profile.profile_pic = profile_pic
+    profile.save()
+    messages.success(request, 'Account details updated successfully!')
     return redirect('my_account')
+
+@login_required(login_url='/login/')
+def email_otp_verify(request):
+    if request.method == 'POST':
+        otp_input = request.POST.get('otp')
+        pending = request.session.get('pending_email_change')
+        if not pending:
+            messages.error(request, "No pending email change found.")
+            return redirect('my_account')
+        if otp_input == pending['otp']:
+            user = request.user
+            user.email = pending['new_email']
+            user.first_name = pending.get('first_name', user.first_name)
+            user.last_name = pending.get('last_name', user.last_name)
+            user.save()
+            profile, _ = UserProfile.objects.get_or_create(user=user)
+            profile.phone = pending.get('phone', profile.phone)
+            profile.gender = pending.get('gender', profile.gender)
+            dob = pending.get('dob', '')
+            if dob:
+                profile.dob = dob
+            else:
+                profile.dob = None
+            # Profile pic is handled in the previous step due to file upload limitations
+            profile.save()
+            del request.session['pending_email_change']
+            messages.success(request, "Email changed and account updated successfully!")
+            return redirect('my_account')
+        else:
+            return render(request, 'htmldemo.net/email_otp_verify.html', {
+                'new_email': pending['new_email'],
+                'error': 'Invalid OTP!'
+            })
+    else:
+        return redirect('my_account')
 
 @login_required(login_url='/login/')
 def logout_view(request):

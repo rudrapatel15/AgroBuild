@@ -11,6 +11,7 @@ urlpatterns = [
     path('login/', views.login_view, name="login"),
     path('logout/', views.logout_view, name="logout"),
     path('registration/', views.register_view, name="registration"),
+    path('otp-verify/', views.otp_verify_view, name='otp_verify'),
     
 ] 
 if settings.DEBUG:

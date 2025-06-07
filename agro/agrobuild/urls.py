@@ -41,6 +41,7 @@ urlpatterns = [
     path('invoice/<int:order_id>/', views.download_invoice, name='download_invoice'),
     path('invoice/view/<int:order_id>/', views.view_invoice, name='view_invoice'),
     path('admin/dashboard/', AdminDashboardView.as_view(), name='admin_dashboard'),
+    path('email-otp-verify/', views.email_otp_verify, name='email_otp_verify'),
     ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:
