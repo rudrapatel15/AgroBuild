@@ -1,0 +1,50 @@
+/* static/css/admin-table-style.css */
+table.simple-admin-table {
+    background: hsl(220, 20%, 94%);
+    color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+table.simple-admin-table thead {
+    background: #dfdfe3;
+    color: #f4f3ef;
+    font-weight: 600;
+}
+table.simple-admin-table th,
+table.simple-admin-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e6e6e9;
+    vertical-align: middle;
+}
+table.simple-admin-table tr:last-child td {
+    border-bottom: none;
+}
+table.simple-admin-table tr:hover {
+    background: #2d3748;
+}
+
+table.table {
+    background: #ecedf0;
+    color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+table.table thead {
+    background: #d6d6e3;
+    color: #f4f3ef;
+    font-weight: 600;
+}
+table.table th,
+table.table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f4f4f9;
+    vertical-align: middle;
+}
+table.table tr:last-child td {
+    border-bottom: none;
+}
+table.table tr:hover {
+    background: #e6e8eb;
+}

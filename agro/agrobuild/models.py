@@ -116,10 +116,11 @@ class Category(models.Model):
     
 class Product(models.Model):
     P_id = models.AutoField(primary_key=True)
-    P_name = models.CharField(max_length=255)
-    P_Description = models.TextField()
-    P_img = models.ImageField(upload_to='image/img',default="")
-    P_price = models.DecimalField(max_digits=10, default=Decimal('0.00'), decimal_places=2)
+    P_name = models.CharField("Product Name", max_length=255, help_text="Enter the product name.")
+    P_Description = models.TextField("Description", help_text="Detailed description of the product.")
+    P_img = models.ImageField("Product Image",upload_to='image/img',default="", help_text="Upload a clear product image.")
+    P_price = models.DecimalField("Price",max_digits=10, default=Decimal('0.00'), decimal_places=2, help_text="Set the product price.")
+    stock = models.PositiveIntegerField(default=5, help_text="Available stock for the product.")
     categories = models.ManyToManyField(Category)
 
     summer_watering = models.CharField(

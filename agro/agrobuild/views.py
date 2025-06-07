@@ -23,7 +23,95 @@ from django.http import HttpResponse
 from django.template.loader import render_to_string
 import pdfkit   
 from decimal import Decimal
-from urllib.parse import unquote
+from django.views.generic import TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.admin.views.decorators import staff_member_required
+from django.utils.decorators import method_decorator
+from django.db.models import Count
+from django.db.models import Sum, Count, F
+import datetime
+   
+@method_decorator(staff_member_required, name='dispatch')
+class AdminDashboardView(TemplateView):
+    template_name = 'admin/black_dashboard.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        from .models import Product, Order, UserProfile, Category, OrderItem
+        
+         # Stock of all products
+        stock_labels = list(Product.objects.values_list('P_name', flat=True))
+        stock_counts = list(Product.objects.values_list('stock', flat=True))
+        context['stock_labels'] = stock_labels
+        context['stock_counts'] = stock_counts
+
+        # High sales products (top 5 by quantity sold)
+        top_products = (
+            OrderItem.objects.values('product__P_name')
+            .annotate(total_sold=Sum('quantity'))
+            .order_by('-total_sold')[:5]
+        )
+        context['top_product_labels'] = [p['product__P_name'] for p in top_products]
+        context['top_product_sales'] = [p['total_sold'] for p in top_products]
+
+        # Profit per month for the current year (assume profit = total_amount * 0.2 for demo)
+        now = timezone.now()
+        months = []
+        profits = []
+        for i in range(1, 13):
+            month_label = timezone.datetime(now.year, i, 1).strftime('%b')
+            months.append(month_label)
+            orders = Order.objects.filter(created_at__year=now.year, created_at__month=i)
+            total = orders.aggregate(total=Sum('total_amount'))['total'] or 0
+            profit = float(total) * 0.2  # Example: 20% profit margin
+            profits.append(round(profit, 2))
+        context['profit_month_labels'] = months
+        context['profit_month_data'] = profits
+
+        # Products per category
+        category_data = (
+            Category.objects.annotate(count=Count('product'))
+            .order_by('-count')
+        )
+        context['category_labels'] = [cat.name for cat in category_data]
+        context['category_counts'] = [cat.count for cat in category_data]
+
+        # Users per month (last 6 months)
+        months = []
+        user_counts = []
+        now = timezone.now()
+        for i in range(5, -1, -1):
+            month = (now - timezone.timedelta(days=30*i)).strftime('%b %Y')
+            months.append(month)
+            user_counts.append(
+                UserProfile.objects.filter(
+                    user__date_joined__year=(now - timezone.timedelta(days=30*i)).year,
+                    user__date_joined__month=(now - timezone.timedelta(days=30*i)).month
+                ).count()
+            )
+        context['user_month_labels'] = months
+        context['user_month_counts'] = user_counts
+
+        # Orders per month (last 6 months)
+        order_counts = []
+        for i in range(5, -1, -1):
+            order_counts.append(
+                Order.objects.filter(
+                    created_at__year=(now - timezone.timedelta(days=30*i)).year,
+                    created_at__month=(now - timezone.timedelta(days=30*i)).month
+                ).count()
+            )
+        context['order_month_counts'] = order_counts
+        context['product_count'] = Product.objects.count()
+        context['order_count'] = Order.objects.count()
+        context['user_count'] = UserProfile.objects.count()
+        context['feedback_count'] = Feedback.objects.count()
+        context['recent_orders'] = Order.objects.order_by('-created_at')[:5]
+        context['recent_users'] = UserProfile.objects.order_by('-id')[:5]
+        context['feedback_list'] = Feedback.objects.order_by('-created_at')[:10]  # latest 10 feedbacks
+        context['all_orders'] = Order.objects.all().order_by('-created_at') 
+        context['now'] = datetime.datetime.now()   
+        return context
 
 @login_required(login_url='/login/')
 def view_invoice(request, order_id):
