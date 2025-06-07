@@ -43,9 +43,7 @@ INSTALLED_APPS = [ # components
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'agrobuild',
-    'pytz', 
-    # 'crontasks', 
-    #'crontasks', 
+    'pytz',  
 ]
 
 MIDDLEWARE = [

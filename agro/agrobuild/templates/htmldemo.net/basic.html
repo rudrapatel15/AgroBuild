@@ -333,9 +333,9 @@
                                                             <form method="post" action="{% url 'remove_from_cart' %}" style="display:inline;">
                                                                 {% csrf_token %}
                                                                 <input type="hidden" name="item_id" value="{{ item.id }}">
-                                                                <button type="submit" style="background: none; border: none; padding: 0;">
-                                                                    <i class="icon-x"></i>
-                                                                </button>
+                                                              <button type="button" class="remove-cart-item-btn" data-item-id="{{ item.id }}" style="background: none; border: none; padding: 0;">
+    <i class="icon-x"></i>
+</button>
                                                             </form>
                                                         </div>
                                                     </div>
@@ -646,7 +646,32 @@
     <script src="{% static 'js/plugins.js' %}"></script>
     <script src="{% static 'js/popularSearches.js' %}"></script>
     <script src="{% static 'js/main.js' %}"></script>
-    
+    <script>
+$(document).on('click', '.remove-cart-item-btn', function() {
+    var itemId = $(this).data('item-id');
+    var btn = $(this);
+    $.ajax({
+        url: "{% url 'remove_from_cart' %}",
+        type: "POST",
+        data: {
+            'item_id': itemId,
+            'csrfmiddlewaretoken': '{{ csrf_token }}'
+        },
+        success: function(response) {
+            btn.closest('.cart_item').remove();
+            $('#cart-json-response').text(JSON.stringify(response, null, 2));
+            var count = $('.cart_item').length;
+            $('.item_count').text(count);
+            if (count === 0) {
+                $('.cart_gallery').html('<div class="cart_item"><p style="padding: 10px;">Your cart is empty.</p></div>');
+            }
+        },
+        error: function() {
+            alert('Failed to remove item from cart.');
+        }
+    });
+});
+</script>
 <script>
 function playNotificationSound() {
     var audio = new Audio("{% static 'sounds/notification.mp3' %}");
