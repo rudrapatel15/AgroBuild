@@ -2,6 +2,122 @@
 {% block title %} {{ product.P_name }} - Agro Build {% endblock %}
 {% block body %}
 {% load static %}
+<iframe name="hiddenFrame" style="display:none;"></iframe>
+<style>
+/* Button styles */
+.btn-custom {
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: 500;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    min-width: 120px;
+    text-align: center;
+}
+
+/* Add to Cart and Wishlist buttons (green) */
+.btn-add-to-cart, .btn-wishlist {
+    background-color: #79a206;
+    border-color: #79a206;
+    color: white;
+}
+
+/* Buy Now button (blue) */
+.btn-buy-now {
+    background-color: #79a206;
+    border-color: #79a206;
+    color: white;
+}
+
+/* Hover effects */
+.btn-add-to-cart:hover, .btn-wishlist:hover, .btn-buy-now:hover {
+    color: white;
+    filter: brightness(90%); /* Slight darken effect */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+    transform: translateY(-1px); /* Slight lift */
+}
+
+/* Ensure no color change on hover */
+.btn-add-to-cart:hover {
+    background-color: #79a206;
+    border-color: #79a206;
+}
+.btn-wishlist:hover {
+    background-color: #79a206;
+    border-color: #79a206;
+}
+.btn-buy-now:hover {
+    background-color: #79a206;
+    border-color: #79a206;
+}
+
+/* Cart and Wishlist icon styling */
+.add_to_carted {
+    color: #79a206 !important;
+}
+.icon-shopping-bag.add_to_carted {
+    color: #79a206 !important;
+}
+.icon-shopping-bag:not(.add_to_carted) {
+    color: white;
+}
+.wishlisted {
+    color: #79a206 !important;
+}
+.fa-heart.wishlisted {
+    color: #79a206 !important;
+}
+.fa-heart:not(.wishlisted) {
+    color: white;
+}
+
+/* Quantity input styling */
+.quantity-input {
+    width: 80px;
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 5px;
+}
+
+/* Popup styling */
+.add_to_cart-popup, .wishlist-popup {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #79a206;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    z-index: 1000;
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+.add_to_cart-popup.show, .wishlist-popup.show {
+    opacity: 1;
+}
+
+/* Layout adjustments */
+.product_d_right .action-buttons {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.product_d_right .quantity-buy-now {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.product_d_right .product_meta {
+    margin-top: 20px;
+}
+.product_d_right .priduct_social ul {
+    display: flex;
+    gap: 15px;
+}
+</style>
 
 <div class="product_details mt-100 mb-100">
     <div class="container">
@@ -15,39 +131,58 @@
             </div>
             <div class="col-lg-6 col-md-6">
                 <div class="product_d_right">
-                    <!-- Add to Cart and Buy Now Form -->
-                    <form method="POST" action="{% url 'add_to_cart' product.P_id %}" id="cart-form">
-                        {% csrf_token %}
-                        <h1>{{ product.P_name }}</h1>
-                        <div class="price_box">
-                            <span class="current_price">₹{{ product.P_price }}</span>
-                        </div>
-                        <div class="product_desc">
-                            <p>{{ product.P_Description }}</p>
-                        </div>
-                        <div class="product_variant quantity d-flex align-items-center mb-3">
-                            <label for="quantity" class="me-2 mb-0">Quantity:</label>
-                            <input type="number" id="quantity" name="quantity" value="1" min="1" max="99" style="width:70px;" class="form-control me-3">
-                            <button class="button btn btn-success me-2" type="submit">Add To Cart</button>
-                            <button class="button btn btn-primary" type="button" id="buy-now-btn">Buy Now</button>
-                        </div>
-                    </form>
-                    <!-- Add to Wishlist Form -->
-                    <form method="POST" action="{% url 'add_to_wishlist' product.P_id %}">
-                        {% csrf_token %}
-                        <div class="product_d_action mt-3">
-                            <ul>
-                                <li><button type="submit" style="border:none; background:none; padding:0; color:#27ae60; font-weight:bold; cursor:pointer;">+ Add to Wishlist</button></li>
-                            </ul>
-                        </div>
-                    </form>
+                    <h1>{{ product.P_name }}</h1>
+                    <div class="price_box">
+                        <span class="current_price">₹{{ product.P_price }}</span>
+                    </div>
+                    <div class="product_desc">
+                        <p>{{ product.P_Description }}</p>
+                    </div>
+                    <!-- Add to Cart and Wishlist buttons -->
+                    <div class="action-buttons">
+<form method="POST"
+      action="{% url 'add_to_cart' product.P_id %}"
+      target="hiddenFrame"
+      id="cart-form-{{ product.P_id }}">
+  {% csrf_token %}
+  <input type="hidden" name="from_index" value="false">
+  <input type="hidden" name="return_url" value="{{ request.get_full_path }}">
+
+  <button type="submit"
+          class="btn btn-custom btn-add-to-cart"
+          id="cart-btn-{{ product.P_id }}"
+          data-product-name="{{ product.P_name }}"
+          onclick="handleAddToCart(event, '{{ product.P_id }}')">
+    <span id="btn-text-{{ product.P_id }}">
+      {% if product.P_id in cart_ids %}Go to Cart{% else %}Add to Cart{% endif %}
+    </span>
+  </button>
+</form>                  
+
+                        <form id="wishlist-form" class="wishlist-form">
+                            {% csrf_token %}
+                            <button class="btn btn-custom btn-wishlist" type="button" data-product-id="{{ product.P_id }}" data-product-name="{{ product.P_name }}">
+                                {% if product.P_id in wishlist_ids %} Wishlisted {% else %} Wishlist {% endif %}
+                            </button>
+                        </form>
+                    </div>
+                    <!-- Quantity and Buy Now -->
+                     <div id="cart-popup" style="display: none; position: fixed; top: 600px; right: 20px; background: #79a206; color: white; padding: 10px 20px; border-radius: 8px; z-index: 1000;">
+  <span id="popup-message"></span>
+</div>
+
+                    <div class="quantity-buy-now">
+                        <label for="quantity" class="me-2 mb-0">Quantity:</label>
+                        <input type="number" id="quantity" name="quantity" value="1" min="1" max="99" class="form-control quantity-input">
+                        <button class="btn btn-custom btn-buy-now" type="button" id="buy-now-btn">Buy Now</button>
+                    </div>
                     <div class="product_meta">
-                        <span>Category: <a href="#">{{ product.category }}</a></span>
+                        <span>Category: {% for cat in product.categories.all %}<a href="{% url 'category_products' cat.slug %}">{{ cat.name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</span>
                     </div>
                     <div class="priduct_social mt-4">
                         <ul>
-                            <li><a class="facebook" href="https://www.facebook.com" title="facebook"><i class="fa fa-facebook"></i> Facebook</a></li>
-                            <li><a class="pinterest" href="https://www.pinterest.com/" title="pinterest" target="_blank"><i class="fa fa-pinterest"></i> Pinterest</a></li>
+                            <li><a class="facebook" href="https://www.facebook.com" title="Facebook" target="_blank"><i class="fa fa-facebook"></i> Facebook</a></li>
+                            <li><a class="pinterest" href="https://www.pinterest.com/" title="Pinterest" target="_blank"><i class="fa fa-pinterest"></i> Pinterest</a></li>
                         </ul>
                     </div>
                 </div>
@@ -55,6 +190,7 @@
         </div>
     </div>
 </div>
+
 <script>
 document.getElementById('buy-now-btn').addEventListener('click', function() {
     const quantity = document.getElementById('quantity').value;
@@ -64,5 +200,156 @@ document.getElementById('buy-now-btn').addEventListener('click', function() {
     }
     window.location.href = "{% url 'checkout' %}?product_id={{ product.P_id }}&quantity=" + quantity;
 });
+
+// Wishlist AJAX handling
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.btn-wishlist').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            var productId = this.getAttribute('data-product-id');
+            var productName = this.getAttribute('data-product-name');
+            var isWishlisted = this.textContent.trim() === 'Wishlisted';
+            var button = this;
+
+            if (isWishlisted) {
+                // Redirect to wishlist page
+                window.location.href = "{% url 'wishlist' %}";
+                return;
+            }
+
+            // AJAX request to add to wishlist
+            fetch("{% url 'add_to_wishlist' 0 %}".replace('0', productId), {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': "{{ csrf_token }}",
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        showWishlistPopup('Please log in to add to wishlist');
+                        setTimeout(() => {
+                            window.location.href = '/login/';
+                        }, 2000);
+                        return null;
+                    }
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data) return;
+                if (data.status === 'added') {
+                    button.textContent = 'Wishlisted';
+                    showWishlistPopup(`${productName} added to wishlist`);
+                } else if (data.status === 'removed') {
+                    button.textContent = 'Wishlist';
+                    showWishlistPopup(`${productName} removed from wishlist`);
+                }
+            })
+            .catch(error => {
+                console.error('Wishlist fetch error:', error);
+                showWishlistPopup('Error adding to wishlist');
+            });
+        });
+    });
+
+    function showWishlistPopup(message) {
+        var existingPopup = document.querySelector('.wishlist-popup');
+        if (existingPopup) {
+            existingPopup.remove();
+        }
+        var popup = document.createElement('div');
+        popup.className = 'wishlist-popup';
+        popup.textContent = message;
+        document.body.appendChild(popup);
+        setTimeout(() => {
+            popup.classList.add('show');
+        }, 10);
+        setTimeout(() => {
+            popup.classList.remove('show');
+            setTimeout(() => {
+                popup.remove();
+            }, 300);
+        }, 2000);
+    }
+
+    // Handle iframe response for cart
+    var cartIframe = document.getElementById('cart-iframe');
+    cartIframe.onload = function() {
+        try {
+            var responseText = cartIframe.contentDocument.body.innerText;
+            var response = JSON.parse(responseText);
+            if (response.status === 'added') {
+                var cartButton = document.getElementById('cart-button');
+                cartButton.textContent = 'Go to Cart';
+                showCartPopup(response.message);
+            } else if (response.status === 'removed') {
+                var cartButton = document.getElementById('cart-button');
+                cartButton.textContent = 'Add to Cart';
+                showCartPopup(response.message);
+            }
+        } catch (e) {
+            console.error('Error parsing iframe response:', e);
+        }
+    };
+
+    function showCartPopup(message) {
+        var existingPopup = document.querySelector('.add_to_cart-popup');
+        if (existingPopup) {
+            existingPopup.remove();
+        }
+        var popup = document.createElement('div');
+        popup.className = 'add_to_cart-popup';
+        popup.textContent = message;
+        document.body.appendChild(popup);
+        setTimeout(() => {
+            popup.classList.add('show');
+        }, 10);
+        setTimeout(() => {
+            popup.classList.remove('show');
+            setTimeout(() => {
+                popup.remove();
+            }, 300);
+        }, 2000);
+    }
+});
 </script>
+
+<script>
+function handleAddToCart(event, productId) {
+  const btn = document.getElementById('cart-btn-' + productId);
+  const btnText = document.getElementById('btn-text-' + productId);
+  const productName = btn.getAttribute('data-product-name').trim();
+
+  if (btnText.textContent.trim().toLowerCase() === 'go to cart') {
+    // Redirect to cart page
+    window.location.href = "{% url 'cart' %}";
+    event.preventDefault();
+    return;
+  }
+
+  // Show custom popup instead of alert
+  setTimeout(() => {
+    showPopup(`${productName} added to cart`);
+    btnText.textContent = "Go to Cart";
+    btn.title = "Go to Cart";
+  }, 500); // Wait for iframe submission
+}
+
+function showPopup(message) {
+  const popup = document.getElementById('cart-popup');
+  const msg = document.getElementById('popup-message');
+  msg.textContent = message;
+  popup.style.display = 'block';
+
+  setTimeout(() => {
+    popup.style.display = 'none';
+  }, 2000); // Hide after 2 seconds
+}
+</script>
+
+
+
 {% endblock %}

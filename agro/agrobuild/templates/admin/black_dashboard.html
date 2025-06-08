@@ -1,0 +1,742 @@
+
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="apple-touch-icon" sizes="76x76" href="{% static 'black-dashboard/img/apple-icon.png' %}">
+  <title>
+    AGROBUILD Dashboard 
+  </title>
+  <!--     Fonts and icons     -->
+  <link href="https://fonts.googleapis.com/css?family=Poppins:200,300,400,600,700,800" rel="stylesheet" />
+  <link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
+  <!-- Nucleo Icons -->
+  <link href="{% static 'black-dashboard/css/nucleo-icons.css' %}" rel="stylesheet" />
+  <!-- CSS Files -->
+  <link href="{% static 'black-dashboard/css/black-dashboard.css' %}" rel="stylesheet" />
+  <!-- CSS Just for demo purpose, don't include it in your project -->
+  <link href="{% static 'black-dashboard/demo/demo.css' %}" rel="stylesheet" />
+</head>
+
+<body class="">
+  <div class="wrapper">
+    <div class="sidebar">
+      <!--
+        Tip 1: You can change the color of the sidebar using: data-color="blue | green | orange | red"
+    -->
+      <div class="sidebar-wrapper">
+        <div class="logo">
+          <a href="javascript:void(0)" class="simple-text logo-mini">
+            
+          </a>
+          <a href="javascript:void(0)" class="simple-text logo-normal">
+            🌱 AGROBUILD
+          </a>
+        </div>
+        <ul class="nav">
+  
+  <li>
+    <a href="/admin/agrobuild/userprofile/">
+      <i class="tim-icons icon-single-02"></i>
+      <p>User Profiles</p>
+    </a>
+  </li>
+  <li>
+    <a href="/admin/agrobuild/blog/">
+      <i class="tim-icons icon-notes"></i>
+      <p>Blogs</p>
+    </a>
+  </li>
+  <li>
+    <a href="/admin/agrobuild/blogcomment/">
+      <i class="tim-icons icon-chat-33"></i>
+      <p>Blog Comments</p>
+    </a>
+  </li>
+  <li>
+    <a href="/admin/agrobuild/cartitem/">
+      <i class="tim-icons icon-cart"></i>
+      <p>Cart Items</p>
+    </a>
+  </li>
+  <li>
+    <a href="/admin/agrobuild/category/">
+      <i class="tim-icons icon-tag"></i>
+      <p>Categories</p>
+    </a>
+  </li>
+  <li>
+    <a href="/admin/agrobuild/contactmessage/">
+      <i class="tim-icons icon-email-85"></i>
+      <p>Contact Messages</p>
+    </a>
+  </li>
+  <li>
+    <a href="/admin/agrobuild/feedback/">
+      <i class="tim-icons icon-chat-33"></i>
+      <p>Feedbacks</p>
+    </a>
+  </li>
+  <li>
+    <a href="/admin/agrobuild/notificationhistory/">
+      <i class="tim-icons icon-bell-55"></i>
+      <p>Notification Historys</p>
+    </a>
+  </li>
+  <li>
+    <a href="/admin/agrobuild/orderitem/">
+      <i class="tim-icons icon-basket-simple"></i>
+      <p>Order Items</p>
+    </a>
+  </li>
+  
+  <li>
+    <a href="/admin/agrobuild/wishlist/">
+      <i class="tim-icons icon-heart-2"></i>
+      <p>Wishlists</p>
+    </a>
+  </li>
+  <li>
+    <a href="/admin/agrobuild/wateringreminder/">
+      <i class="tim-icons icon-tint"></i>
+      <p>Watering Reminders</p>
+    </a>
+  </li>
+  <li>
+    <a href="/admin/agrobuild/product/">
+      <i class="tim-icons icon-leaf"></i>
+      <p>Products</p>
+    </a>
+  </li>
+  <li>
+    <a href="/admin/agrobuild/order/">
+      <i class="tim-icons icon-shopping-bag-16"></i>
+      <p>Orders</p>
+    </a>
+  </li>
+</ul>
+      </div>
+    </div>
+    <div class="main-panel">
+      <!-- Navbar -->
+      <nav class="navbar navbar-expand-lg navbar-absolute navbar-transparent">
+        <div class="container-fluid">
+          <div class="navbar-wrapper">
+            <div class="navbar-toggle d-inline">
+              <button type="button" class="navbar-toggler">
+                <span class="navbar-toggler-bar bar1"></span>
+                <span class="navbar-toggler-bar bar2"></span>
+                <span class="navbar-toggler-bar bar3"></span>
+              </button>
+            </div>
+            <a class="navbar-brand" href="javascript:void(0)">Dashboard</a>
+          </div>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navigation" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-bar navbar-kebab"></span>
+            <span class="navbar-toggler-bar navbar-kebab"></span>
+            <span class="navbar-toggler-bar navbar-kebab"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navigation">
+            <ul class="navbar-nav ml-auto">
+              
+              <li class="dropdown nav-item">
+                <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
+                  <div class="photo">
+                    <img src="{% static 'black-dashboard//img/anime3.png' %}" alt="Profile Photo">
+                  </div>
+                  <b class="caret d-none d-lg-block d-xl-block"></b>
+                  <p class="d-lg-none">
+                    Log out
+                  </p>
+                </a>
+                <ul class="dropdown-menu dropdown-navbar">
+                 
+                  <li class="dropdown-divider"></li>
+                  <li class="nav-link"><a href="javascript:void(0)" class="nav-item dropdown-item">Log out</a></li>
+                </ul>
+              </li>
+              <li class="separator d-lg-none"></li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+      <div class="modal modal-search fade" id="searchModal" tabindex="-1" role="dialog" aria-labelledby="searchModal" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <input type="text" class="form-control" id="inlineFormInputGroup" placeholder="SEARCH">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <i class="tim-icons icon-simple-remove"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- End Navbar -->
+      <div class="content">
+<div class="col-12">
+  <div class="card card-chart">
+    <div class="card-header">
+      <div class="row">
+        <div class="col-sm-6 text-left">
+         <h5 class="card-category" id="main-chart-category">Company Profit ({{ now.year }})</h5>
+         <h2 class="card-title" id="main-chart-title">Yearly Profit</h2>
+        </div>
+        <div class="col-sm-6">
+          <div class="btn-group btn-group-toggle float-right" data-toggle="buttons">
+          <label class="btn btn-sm btn-primary btn-simple active" id="btn-profit">
+  <input type="radio" name="options">
+  <span class="d-none d-sm-block d-md-block d-lg-block d-xl-block">Profit</span>
+  <span class="d-block d-sm-none">
+    <i class="tim-icons icon-coins"></i>
+  </span>
+</label>
+<label class="btn btn-sm btn-primary btn-simple" id="btn-stock">
+  <input type="radio" name="options">
+  <span class="d-none d-sm-block d-md-block d-lg-block d-xl-block">Stock</span>
+  <span class="d-block d-sm-none">
+    <i class="tim-icons icon-box-2"></i>
+  </span>
+</label>
+<label class="btn btn-sm btn-primary btn-simple" id="btn-products">
+  <input type="radio" name="options">
+  <span class="d-none d-sm-block d-md-block d-lg-block d-xl-block">Total Products</span>
+  <span class="d-block d-sm-none">
+    <i class="tim-icons icon-leaf"></i>
+  </span>
+</label>             
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="chart-area" style="height: 350px; position: relative;">
+  <canvas id="stockChartBig" style="width:100%;height:350px;position:absolute;top:0;left:0;"></canvas>
+  <canvas id="productsCategoryChartBig" style="width:100%;height:350px;position:absolute;top:0;left:0;"></canvas>
+  <canvas id="profitChartBig" style="width:100%;height:350px;position:absolute;top:0;left:0;"></canvas>
+</div>
+    </div>
+  </div>
+</div>
+       <!-- ...existing code... -->
+<div class="row">
+  
+  <div class="col-lg-4">
+    <div class="card card-chart">
+      <div class="card-header">
+        <h5 class="card-category">Top Selling Products</h5>
+        <h3 class="card-title"><i class="tim-icons icon-trophy text-success"></i> High Sales</h3>
+      </div>
+      <div class="card-body">
+        <div class="chart-area" style="height: 250px;">
+          <canvas id="topSalesChart" style="height: 100% !important; width: 100% !important; min-height: 200px;"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card card-chart">
+      <div class="card-header">
+        <h5 class="card-category">Total Orders</h5>
+        <h3 class="card-title"><i class="tim-icons icon-bell-55 text-primary"></i> {{ order_count }}</h3>
+      </div>
+      <div class="card-body">
+        <div class="chart-area" style="height: 250px;">
+          <canvas id="ordersMonthChart" style="height: 100% !important; width: 100% !important; min-height: 200px;"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card card-chart">
+      <div class="card-header">
+        <h5 class="card-category">Total Users</h5>
+        <h3 class="card-title"><i class="tim-icons icon-single-02 text-info"></i> {{ user_count }}</h3>
+      </div>
+      <div class="card-body">
+        <div class="chart-area" style="height: 250px;">
+          <canvas id="usersMonthChart" style="height: 100% !important; width: 100% !important; min-height: 200px;"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <!-- Feedback as Tasks -->
+  <div class="col-lg-6 col-md-12">
+    <div class="card card-tasks">
+      <div class="card-header ">
+        <h6 class="title d-inline">User Feedback ({{ feedback_count }})</h6>
+        <p class="card-category d-inline">latest</p>
+        <div class="dropdown float-right">
+          <a href="/admin/agrobuild/feedback/" class="btn btn-sm btn-primary">Show All</a>
+        </div>
+      </div>
+      <div class="card-body ">
+        <div class="table-full-width table-responsive" style="max-height: 350px; overflow-y: auto;">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Category</th>
+                <th>Feedback</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for fb in feedback_list %}
+              <tr>
+                <td>
+                  <strong>{{ fb.name }}</strong>
+                  {% if fb.user %}<br><small>{{ fb.user.username }}</small>{% endif %}
+                </td>
+                <td>{{ fb.category }}</td>
+                <td style="max-width: 200px; white-space: normal;">{{ fb.review|truncatechars:60 }}</td>
+                <td>{{ fb.created_at|date:"Y-m-d" }}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="4">No feedback yet.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Orders Table (show only 7, with Show All) -->
+  <div class="col-lg-6 col-md-12">
+    <div class="card ">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="card-title mb-0">Recent Orders</h4>
+        <a href="/admin/agrobuild/order/" class="btn btn-sm btn-primary">Show All</a>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
+          <table class="table tablesorter">
+            <thead class=" text-primary">
+              <tr>
+                <th>Order ID</th>
+                <th>User</th>
+                <th>Status</th>
+                <th class="text-center">Amount</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for order in all_orders|slice:":8" %}
+              <tr>
+                <td>{{ order.id }}</td>
+                <td>{{ order.user.username }}</td>
+                <td>{{ order.status }}</td>
+                <td class="text-center">₹{{ order.total_amount }}</td>
+                <td>{{ order.created_at|date:"Y-m-d" }}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5">No orders found.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      <footer class="footer">
+        <div class="container-fluid">
+          <div class="copyright">
+            ©
+            <script>
+              document.write(new Date().getFullYear())
+            </script> made with <i class="tim-icons icon-heart-2"></i> by
+            <a href="javascript:void(0)" target="_blank">AGROBUILD PVT LTD</a> for a better web.
+          </div>
+        </div>
+      </footer>
+    </div>
+  </div>
+  <div class="fixed-plugin">
+    <div class="dropdown show-dropdown">
+      <a href="#" data-toggle="dropdown">
+        <i class="fa fa-cog fa-2x"> </i>
+      </a>
+      <ul class="dropdown-menu">
+        <li class="header-title"> Sidebar Background</li>
+        <li class="adjustments-line">
+          <a href="javascript:void(0)" class="switch-trigger background-color">
+            <div class="badge-colors text-center">
+              <span class="badge filter badge-primary active" data-color="primary"></span>
+              <span class="badge filter badge-info" data-color="blue"></span>
+              <span class="badge filter badge-success" data-color="green"></span>
+            </div>
+            <div class="clearfix"></div>
+          </a>
+        </li>
+        <li class="adjustments-line text-center color-change">
+          <span class="color-label">LIGHT MODE</span>
+          <span class="badge light-badge mr-2"></span>
+          <span class="badge dark-badge ml-2"></span>
+          <span class="color-label">DARK MODE</span>
+        </li>
+        
+      </ul>
+    </div>
+  </div>
+  <!--   Core JS Files   -->
+  <script src="{% static 'black-dashboard/js/core/jquery.min.js' %}"></script>
+  <script src="{% static 'black-dashboard/js/core/popper.min.js' %}"></script>
+  <script src="{% static 'black-dashboard/js/core/bootstrap.min.js' %}"></script>
+  <script src="{% static 'black-dashboard/js/plugins/perfect-scrollbar.jquery.min.js' %}"></script>
+  <!--  Google Maps Plugin    -->
+  <!-- Place this tag in your head or just before your close body tag. -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY_HERE"></script>
+  <!-- Chart JS -->
+  <script src="{% static 'black-dashboard/js/plugins/chartjs.min.js' %}"></script>
+  <!--  Notifications Plugin    -->
+  <script src="{% static 'black-dashboard/js/plugins/bootstrap-notify.js' %}"></script>
+  <!-- Control Center for Black Dashboard: parallax effects, scripts for the example pages etc -->
+  <script src="{% static 'black-dashboard/js/black-dashboard.min.js' %}"></script><!-- Black Dashboard DEMO methods, don't include it in your project! -->
+  <script src="{% static 'black-dashboard/demo/demo.js' %}"></script>
+  <script>
+    $(document).ready(function() {
+      $().ready(function() {
+        $sidebar = $('.sidebar');
+        $navbar = $('.navbar');
+        $main_panel = $('.main-panel');
+
+        $full_page = $('.full-page');
+
+        $sidebar_responsive = $('body > .navbar-collapse');
+        sidebar_mini_active = true;
+        white_color = false;
+
+        window_width = $(window).width();
+
+        fixed_plugin_open = $('.sidebar .sidebar-wrapper .nav li.active a p').html();
+
+
+
+        $('.fixed-plugin a').click(function(event) {
+          if ($(this).hasClass('switch-trigger')) {
+            if (event.stopPropagation) {
+              event.stopPropagation();
+            } else if (window.event) {
+              window.event.cancelBubble = true;
+            }
+          }
+        });
+
+        $('.fixed-plugin .background-color span').click(function() {
+          $(this).siblings().removeClass('active');
+          $(this).addClass('active');
+
+          var new_color = $(this).data('color');
+
+          if ($sidebar.length != 0) {
+            $sidebar.attr('data', new_color);
+          }
+
+          if ($main_panel.length != 0) {
+            $main_panel.attr('data', new_color);
+          }
+
+          if ($full_page.length != 0) {
+            $full_page.attr('filter-color', new_color);
+          }
+
+          if ($sidebar_responsive.length != 0) {
+            $sidebar_responsive.attr('data', new_color);
+          }
+        });
+
+        $('.switch-sidebar-mini input').on("switchChange.bootstrapSwitch", function() {
+          var $btn = $(this);
+
+          if (sidebar_mini_active == true) {
+            $('body').removeClass('sidebar-mini');
+            sidebar_mini_active = false;
+            blackDashboard.showSidebarMessage('Sidebar mini deactivated...');
+          } else {
+            $('body').addClass('sidebar-mini');
+            sidebar_mini_active = true;
+            blackDashboard.showSidebarMessage('Sidebar mini activated...');
+          }
+
+          // we simulate the window Resize so the charts will get updated in realtime.
+          var simulateWindowResize = setInterval(function() {
+            window.dispatchEvent(new Event('resize'));
+          }, 180);
+
+          // we stop the simulation of Window Resize after the animations are completed
+          setTimeout(function() {
+            clearInterval(simulateWindowResize);
+          }, 1000);
+        });
+
+        $('.switch-change-color input').on("switchChange.bootstrapSwitch", function() {
+          var $btn = $(this);
+
+          if (white_color == true) {
+
+            $('body').addClass('change-background');
+            setTimeout(function() {
+              $('body').removeClass('change-background');
+              $('body').removeClass('white-content');
+            }, 900);
+            white_color = false;
+          } else {
+
+            $('body').addClass('change-background');
+            setTimeout(function() {
+              $('body').removeClass('change-background');
+              $('body').addClass('white-content');
+            }, 900);
+
+            white_color = true;
+          }
+
+
+        });
+
+        $('.light-badge').click(function() {
+          $('body').addClass('white-content');
+        });
+
+        $('.dark-badge').click(function() {
+          $('body').removeClass('white-content');
+        });
+      });
+    });
+  </script>
+  <script>
+    $(document).ready(function() {
+      // Javascript method's body can be found in assets/js/demos.js
+      demo.initDashboardPageCharts();
+
+    });
+  </script>
+  <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
+  <script>
+    window.TrackJS &&
+      TrackJS.install({
+        token: "ee6fab19c5a04ac1a32a645abde4613a",
+        application: "black-dashboard-free"
+      });
+  </script>
+
+  <script>
+ 
+// High Sales Products Chart
+  var ctxTopSales = document.getElementById('topSalesChart').getContext('2d');
+  var topSalesChart = new Chart(ctxTopSales, {
+    type: 'bar',
+    data: {
+      labels: {{ top_product_labels|safe }},
+      datasets: [{
+        label: 'Units Sold',
+        data: {{ top_product_sales|safe }},
+        backgroundColor: 'rgba(44, 206, 153, 0.7)',
+        borderColor: 'rgba(44, 206, 153, 1)',
+        borderWidth: 2
+      }]
+    },
+    options: {
+  responsive: true,
+  legend: { display: false },
+  scales: {
+    xAxes: [{
+      display: false // Hides the x-axis labels and ticks
+    }],
+    yAxes: [{
+      display: true,
+      ticks: {
+        beginAtZero: true,
+        
+      },
+      gridLines: {
+        color: "rgba(255,255,255,0.1)"
+      }
+    }]
+  }
+}
+  });
+  // Users per Month (Line Chart)
+  var ctx2 = document.getElementById('usersMonthChart').getContext('2d');
+  var usersMonthChart = new Chart(ctx2, {
+    type: 'line',
+    data: {
+      labels: {{ user_month_labels|safe }},
+      datasets: [{
+        label: 'Users',
+        data: {{ user_month_counts|safe }},
+        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 2,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      legend: { display: false }
+    }
+  });
+
+  // Orders per Month (Line Chart)
+  var ctx3 = document.getElementById('ordersMonthChart').getContext('2d');
+  var ordersMonthChart = new Chart(ctx3, {
+    type: 'line',
+    data: {
+      labels: {{ user_month_labels|safe }},
+      datasets: [{
+        label: 'Orders',
+        data: {{ order_month_counts|safe }},
+        backgroundColor: 'rgba(156, 39, 176, 0.2)',
+        borderColor: 'rgba(156, 39, 176, 1)',
+        borderWidth: 2,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      legend: { display: false }
+    }
+  });
+</script>
+<script>
+  // Product Stock Chart
+  var ctxStockBig = document.getElementById('stockChartBig').getContext('2d');
+  var stockChartBig = new Chart(ctxStockBig, {
+    type: 'bar',
+    data: {
+      labels: {{ stock_labels|safe }},
+      datasets: [{
+        label: 'Stock',
+        data: {{ stock_counts|safe }},
+        backgroundColor: 'rgba(255, 193, 7, 0.7)',
+        borderColor: 'rgba(255, 193, 7, 1)',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      legend: { display: false },
+      scales: {
+        xAxes: [{ display: false }],
+        yAxes: [{
+          display: true,
+          ticks: { beginAtZero: true, fontSize: 14 },
+          gridLines: { color: "rgba(255,255,255,0.1)" }
+        }]
+      }
+    }
+  });
+
+  // Products per Category Chart
+  var ctxProductsBig = document.getElementById('productsCategoryChartBig').getContext('2d');
+  var productsCategoryChartBig = new Chart(ctxProductsBig, {
+    type: 'bar',
+    data: {
+      labels: {{ category_labels|safe }},
+      datasets: [{
+        label: 'Products',
+        data: {{ category_counts|safe }},
+        backgroundColor: 'rgba(44, 206, 153, 0.7)',
+        borderColor: 'rgba(44, 206, 153, 1)',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      legend: { display: false },
+      scales: {
+        xAxes: [{ display: false }],
+        yAxes: [{
+          display: true,
+          ticks: { beginAtZero: true, fontSize: 14 },
+          gridLines: { color: "rgba(255,255,255,0.1)" }
+        }]
+      }
+    }
+  });
+
+  // Company Profit Chart (Yearly)
+  var ctxProfitBig = document.getElementById('profitChartBig').getContext('2d');
+  var profitChartBig = new Chart(ctxProfitBig, {
+    type: 'line',
+    data: {
+      labels: {{ profit_month_labels|safe }},
+      datasets: [{
+        label: 'Profit (₹)',
+        data: {{ profit_month_data|safe }},
+        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 2,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      legend: { display: false },
+      scales: {
+        xAxes: [{ display: true }],
+        yAxes: [{
+          display: true,
+          ticks: { beginAtZero: true, fontSize: 14 },
+          gridLines: { color: "rgba(255,255,255,0.1)" }
+        }]
+      }
+    }
+  });
+
+  function showChart(chartId) {
+  // Hide all charts but keep them in the DOM for correct sizing
+  $('#stockChartBig, #productsCategoryChartBig, #profitChartBig').css({
+    visibility: 'hidden',
+    position: 'absolute',
+    zIndex: 0
+  });
+  $('#' + chartId).css({
+    visibility: 'visible',
+    position: 'relative',
+    zIndex: 1
+  });
+}
+
+$('#btn-stock').click(function() {
+  showChart('stockChartBig');
+  $('#main-chart-category').text('Product Stock');
+  $('#main-chart-title').text('Stock Overview');
+  $('.btn-group-toggle .btn').removeClass('active');
+  $(this).addClass('active');
+});
+$('#btn-products').click(function() {
+  showChart('productsCategoryChartBig');
+  $('#main-chart-category').text('Total Products');
+  $('#main-chart-title').text('Products per Category');
+  $('.btn-group-toggle .btn').removeClass('active');
+  $(this).addClass('active');
+});
+$('#btn-profit').click(function() {
+  showChart('profitChartBig');
+  $('#main-chart-category').text('Company Profit ({{ now.year }})');
+  $('#main-chart-title').text('Yearly Profit');
+  $('.btn-group-toggle .btn').removeClass('active');
+  $(this).addClass('active');
+});
+
+// On page load, show only the profit chart
+$(function() {
+  showChart('profitChartBig');
+  $('#main-chart-category').text('Company Profit ({{ now.year }})');
+  $('#main-chart-title').text('Yearly Profit');
+  $('.btn-group-toggle .btn').removeClass('active');
+  $('#btn-profit').addClass('active');
+});
+</script>
+</body>
+</html>

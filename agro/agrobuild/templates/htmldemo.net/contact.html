@@ -1,7 +1,12 @@
 {% extends 'htmldemo.net/basic.html' %}
 {% block title %} Contact Us {% endblock %}
 {% block body %}
-{%load static%}
+{% load static %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.fullscreen@2.4.0/Control.FullScreen.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.fullscreen@2.4.0/Control.FullScreen.js"></script>
+
 <!--breadcrumbs area start-->
 <div class="breadcrumbs_area">
     <div class="container">
@@ -20,13 +25,61 @@
 </div>
 <!--breadcrumbs area end-->
 
-<!--contact map start-->
+<style>
+    .leaflet-control.custom-nav {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        padding: 6px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+    }
+    .leaflet-control.custom-nav .nav-row {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        width: 100%;
+        gap: 2px;
+    }
+    .leaflet-control.custom-nav button {
+        background: #27ae60;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        margin: 2px 0;
+        width: 32px;
+        height: 32px;
+        font-size: 18px;
+        cursor: pointer;
+        transition: background 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .leaflet-control.custom-nav button:hover {
+        background: #219150;
+    }
+    .leaflet-bottom.leaflet-right .leaflet-control.custom-nav {
+        margin-bottom: 20px;
+        margin-right: 10px;
+    }
+    .leaflet-control-fullscreen {
+        top: 10px !important;
+        right: 10px !important;
+    }
+    @media (max-width: 768px) {
+        .map-area, #googleMap { height: 220px; min-height: 150px; }
+    }
+</style>
+
+
 <div class="contact_map mt-100">
     <div class="map-area">
         <div id="googleMap"></div>
     </div>
 </div>
-<!--contact map end-->
 
 <!--contact area start-->
 <div class="contact_area">
@@ -34,18 +87,18 @@
         <div class="row">
             <div class="col-lg-6 col-md-12">
                 <div class="contact_message content">
-                    <h3>contact us</h3>
-                    <p>Whether you have a question about plant care, need advice on selecting the perfect plants for your space, or want to inquire about your order, we're here to Aid and assist you.We strive to provide excellent customer service and are happy to assist you with any inquiries. Choose the most convenient way to contact us below:</p>
+                    <h3>Contact Us</h3>
+                    <p>Whether you have a question about plant care, need advice on selecting the perfect plants for your space, or want to inquire about your order, we're here to aid and assist you. We strive to provide excellent customer service and are happy to assist you with any inquiries. Choose the most convenient way to contact us below:</p>
                     <ul>
-                        <li><i class="fa fa-fax"></i>Address: A/16, Diamond Earth Corporate Park AB Rd, Ahmedabad, Gujarat 380081</li>
+                        <li><i class="fa fa-fax"></i> Address: B-42 AKRITI GARDEN, NEHRUNAGAR, AHMEDABAD, 380015</li>
                         <li><i class="fa fa-envelope-o"></i> <a href="mailto:info@agrobuild.co">info@agrobuild.co</a></li>
-                        <li><i class="fa fa-phone"></i><a href="tel:+91 1234567891">+91 1234567891</a> </li>
+                        <li><i class="fa fa-phone"></i> <a href="tel:+91 1234567891">+91 8128383925</a></li>
                     </ul>
                 </div>
             </div>
             <div class="col-lg-6 col-md-12">
                 <div class="contact_message form">
-                    <h3>Leave a comments</h3>
+                    <h3>Leave a comment</h3>
                     {% if messages %}
                         <div class="alert alert-success">
                             {% for message in messages %}
@@ -53,28 +106,27 @@
                             {% endfor %}
                         </div>
                     {% endif %}
-                    
                     {% if not form_submitted %}
                         {% if user.is_authenticated %}
                             <form id="contact-form" method="POST" action="{% url 'save_contact' %}">
                                 {% csrf_token %}
                                 <p>
-                                    <label> Your Name (required)</label>
+                                    <label>Your Name (required)</label>
                                     <input name="name" placeholder="Name *" type="text" value="{{ user.first_name }} {{ user.last_name }}" required>
                                 </p>
                                 <p>
-                                    <label> Your Email (required)</label>
+                                    <label>Your Email (required)</label>
                                     <input name="email" placeholder="Email *" type="email" value="{{ user.email }}" required>
                                 </p>
                                 <p>
-                                    <label> Subject</label>
+                                    <label>Subject</label>
                                     <input name="subject" placeholder="Subject *" type="text" required>
                                 </p>
                                 <div class="contact_textarea">
-                                    <label> Your Comments</label>
+                                    <label>Your Comments</label>
                                     <textarea placeholder="Comments *" name="message" class="form-control2" required></textarea>
                                 </div>
-                                <button type="submit"> Send</button>
+                                <button type="submit">Send</button>
                             </form>
                         {% else %}
                             <div class="alert alert-info">
@@ -89,4 +141,55 @@
 </div>
 <!--contact area end-->
 
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var companyLocation = [23.0262, 72.5293]; // Nehrunagar, Ahmedabad, Gujarat
+    var map = L.map('googleMap', {
+        fullscreenControl: true,
+        fullscreenControlOptions: {
+            position: 'topright'
+        }
+    }).setView(companyLocation, 15);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    L.marker(companyLocation).addTo(map)
+        .bindPopup('<b>Agro Build Pvt Ltd</b><br>B-42 AKRITI GARDEN, NEHRUNAGAR,<br>AHMEDABAD, 380015')
+        .openPopup();
+
+    // Custom navigation control
+    var CustomNav = L.Control.extend({
+        options: { position: 'bottomright' },
+        onAdd: function(map) {
+            var container = L.DomUtil.create('div', 'leaflet-control custom-nav');
+            container.innerHTML = `
+                <button title="Up" id="nav-up">&#8593;</button>
+                <div class="nav-row">
+                    <button title="Left" id="nav-left">&#8592;</button>
+                    <button title="Right" id="nav-right">&#8594;</button>
+                </div>
+                <button title="Down" id="nav-down">&#8595;</button>
+            `;
+            return container;
+        }
+    });
+    map.addControl(new CustomNav());
+
+    // Pan map on nav button click
+    function pan(dx, dy) {
+        var panOffset = 100; // pixels
+        var point = map.latLngToContainerPoint(map.getCenter());
+        point.x += dx * panOffset;
+        point.y += dy * panOffset;
+        var latlng = map.containerPointToLatLng(point);
+        map.panTo(latlng);
+    }
+    document.getElementById('nav-up').onclick = function() { pan(0, -1); };
+    document.getElementById('nav-down').onclick = function() { pan(0, 1); };
+    document.getElementById('nav-left').onclick = function() { pan(-1, 0); };
+    document.getElementById('nav-right').onclick = function() { pan(1, 0); };
+});
+</script>
 {% endblock %}
