@@ -33,10 +33,10 @@
             {% endif %}
             <form method="post" action="{% url 'login' %}">
                 {% csrf_token %}
-                <div class="form-outline">
+                {% comment %} <div class="form-outline">
                     <input type="text" name="username" id="username" required>
                     <label for="username">Your Name</label>
-                </div>
+                </div> {% endcomment %}
                 <div class="form-outline mb-4">
                     <input type="email" name="email" id="email" required>
                     <label for="email">Your Email</label>

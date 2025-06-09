@@ -44,21 +44,49 @@ def register_view(request):
     else:
         return render(request, 'htmldemo.net/registration.html')
 
+# def login_view(request):
+#     if request.method == 'POST':
+#         # username = request.POST['username']
+#         email = request.POST['email']
+#         password = request.POST['password']
+        
+#         try:
+#             validate_email(email)
+#         except ValidationError:
+#             return render(request, 'htmldemo.net/login.html', 
+#                         {'error': 'Please enter a valid email address!'})
+#         try:
+#             user = User.objects.get(username=username, email=email)
+#             authenticated_user = authenticate(username=username, password=password)
+            
+#             if authenticated_user is not None:
+#                 auth_login(request, authenticated_user)
+#                 messages.success(request, "You have successfully logged in!")
+#                 return redirect('index')
+#             else:
+#                 return render(request, 'htmldemo.net/login.html', 
+#                             {'error': 'Invalid password!'})
+#         except User.DoesNotExist:
+#             return render(request, 'htmldemo.net/login.html', 
+#                         {'error': 'Username and email combination not found!'})
+#     else:
+#         return render(request, 'htmldemo.net/login.html')
+
+
 def login_view(request):
     if request.method == 'POST':
-        username = request.POST['username']
         email = request.POST['email']
         password = request.POST['password']
-        
+
         try:
             validate_email(email)
         except ValidationError:
             return render(request, 'htmldemo.net/login.html', 
                         {'error': 'Please enter a valid email address!'})
+
         try:
-            user = User.objects.get(username=username, email=email)
-            authenticated_user = authenticate(username=username, password=password)
-            
+            user = User.objects.get(email=email)
+            authenticated_user = authenticate(username=user.username, password=password)
             if authenticated_user is not None:
                 auth_login(request, authenticated_user)
                 messages.success(request, "You have successfully logged in!")
@@ -68,7 +96,7 @@ def login_view(request):
                             {'error': 'Invalid password!'})
         except User.DoesNotExist:
             return render(request, 'htmldemo.net/login.html', 
-                        {'error': 'Username and email combination not found!'})
+                        {'error': 'Email not found!'})
     else:
         return render(request, 'htmldemo.net/login.html')
 
