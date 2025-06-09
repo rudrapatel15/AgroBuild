@@ -14,8 +14,9 @@ def cart_data(request):
     }
 
 def cart_items_processor(request):
+    cart_items = []
+    cart_total = 0
     if request.user.is_authenticated:
         cart_items = CartItem.objects.filter(user=request.user)
-    else:
-        cart_items = []
-    return {'cart_items': cart_items}
+        cart_total = sum(item.product.P_price * item.quantity for item in cart_items)
+    return {'cart_items': cart_items, 'cart_total': cart_total}

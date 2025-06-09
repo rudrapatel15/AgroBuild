@@ -202,7 +202,7 @@
             position: absolute;
             top: -8px;
             right: -8px;
-            background: #e74c3c;
+            background:#79a206 ;
             color: white;
             border-radius: 50%;
             width: 20px;
@@ -424,7 +424,7 @@
                                                 <div class="cart_table_border">
                                                     <div class="cart_subtotal mt-10">
                                                         <p>Total</p>
-                                                        <p class="cart_amount">₹<span id="cart_total">0</span></p>
+                                                        <p class="cart_amount">₹<span id="cart_total">{{ cart_total }}</span></p>
                                                     </div>
                                                 
                                                 </div>
@@ -731,14 +731,25 @@ $(document).on('click', '.remove-cart-item-btn', function() {
             'csrfmiddlewaretoken': '{{ csrf_token }}'
         },
         success: function(response) {
-            btn.closest('.cart_item').remove();
-            $('#cart-json-response').text(JSON.stringify(response, null, 2));
-            var count = $('.cart_item').length;
-            $('.item_count').text(count);
-            if (count === 0) {
-                $('.cart_gallery').html('<div class="cart_item"><p style="padding: 10px;">Your cart is empty.</p></div>');
-            }
-        },
+    btn.closest('.cart_item').remove();
+    $('#cart-json-response').text(JSON.stringify(response, null, 2));
+    // Recalculate total
+    var total = 0;
+    $('.cart_item').each(function() {
+        var priceText = $(this).find('.cart_info span').text().replace(/[^\d.]/g, '');
+        var quantityText = $(this).find('.cart_info').text().match(/(\d+)\s*x/);
+        var price = parseFloat(priceText) || 0;
+        var quantity = quantityText ? parseInt(quantityText[1]) : 1;
+        total += price * quantity;
+    });
+    $('#cart_total').text(total);
+    var count = $('.cart_item').length;
+    $('.item_count').text(count);
+    if (count === 0) {
+        $('.cart_gallery').html('<div class="cart_item"><p style="padding: 10px;">Your cart is empty.</p></div>');
+        $('#cart_total').text(0);
+    }
+},
         error: function() {
             alert('Failed to remove item from cart.');
         }
