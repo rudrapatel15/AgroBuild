@@ -195,15 +195,20 @@
         }
         
         .mini_cart_wrapper a:hover {
+<<<<<<< HEAD
             color:#000000;
         }*/
+=======
+            color: #4CAF50;
+        }
+>>>>>>> c4d9d64eaf868c038fd92bd9f29c6ef057123c70
         
 
         .item_count {
             position: absolute;
             top: -8px;
             right: -8px;
-            background: #e74c3c;
+            background:#79a206 ;
             color: white;
             border-radius: 50%;
             width: 20px;
@@ -378,7 +383,7 @@
                                     <div class="header_account-list mini_cart_wrapper">
                                         <a href="javascript:void(0)"><i class="icon-shopping-bag"></i><span class="item_count">{{ cart_items.count|default:0 }}</span></a>
                                         <!--mini cart-->
-                                        <div class="mini_cart" style="width: 350px; max-height: 500px; overflow-y: auto; padding: 15px;">
+                                        <div class="mini_cart" style="width: 350px; max-height: 100vh; scrollbar-width: none; overflow-y: auto; padding: 15px;">
                                             <div class="cart_gallery">
                                                 <div class="cart_close" style="display: flex; justify-content: space-between; align-items: center;">
                                                     <div class="cart_text">
@@ -407,9 +412,9 @@
                                                             <form method="post" action="{% url 'remove_from_cart' %}" style="display:inline;">
                                                                 {% csrf_token %}
                                                                 <input type="hidden" name="item_id" value="{{ item.id }}">
-                                                                <button type="submit" style="background: none; border: none; padding: 0;">
-                                                                    <i class="icon-x"></i>
-                                                                </button>
+                                                                <button type="button" class="remove-cart-item-btn" data-item-id="{{ item.id }}" style="background: none; border: none; padding: 0;">
+    <i class="icon-x"></i>
+</button>
                                                             </form>
                                                         </div>
                                                     </div>
@@ -425,7 +430,7 @@
                                                 <div class="cart_table_border">
                                                     <div class="cart_subtotal mt-10">
                                                         <p>Total</p>
-                                                        <p class="cart_amount">₹<span id="cart_total">0</span></p>
+                                                        <p class="cart_amount">₹<span id="cart_total">{{ cart_total }}</span></p>
                                                     </div>
                                                 
                                                 </div>
@@ -699,7 +704,7 @@
             </div>
         </div>
         <div class="copyright">
-            <p>Copyright © 2024 <a href="{% url 'index' %}">Agro_Build.co</a></p>
+            <p>Copyright © 2025 <a href="{% url 'index' %}">Agro_Build.co</a></p>
         </div>
     </footer>
     <!--footer area end-->
@@ -720,7 +725,43 @@
     <script src="{% static 'js/plugins.js' %}"></script>
     <script src="{% static 'js/popularSearches.js' %}"></script>
     <script src="{% static 'js/main.js' %}"></script>
-  
+  <script>
+$(document).on('click', '.remove-cart-item-btn', function() {
+    var itemId = $(this).data('item-id');
+    var btn = $(this);
+    $.ajax({
+        url: "{% url 'remove_from_cart' %}",
+        type: "POST",
+        data: {
+            'item_id': itemId,
+            'csrfmiddlewaretoken': '{{ csrf_token }}'
+        },
+        success: function(response) {
+    btn.closest('.cart_item').remove();
+    $('#cart-json-response').text(JSON.stringify(response, null, 2));
+    // Recalculate total
+    var total = 0;
+    $('.cart_item').each(function() {
+        var priceText = $(this).find('.cart_info span').text().replace(/[^\d.]/g, '');
+        var quantityText = $(this).find('.cart_info').text().match(/(\d+)\s*x/);
+        var price = parseFloat(priceText) || 0;
+        var quantity = quantityText ? parseInt(quantityText[1]) : 1;
+        total += price * quantity;
+    });
+    $('#cart_total').text(total);
+    var count = $('.cart_item').length;
+    $('.item_count').text(count);
+    if (count === 0) {
+        $('.cart_gallery').html('<div class="cart_item"><p style="padding: 10px;">Your cart is empty.</p></div>');
+        $('#cart_total').text(0);
+    }
+},
+        error: function() {
+            alert('Failed to remove item from cart.');
+        }
+    });
+});
+</script>
     <script>
 function playNotificationSound() {
     var audio = new Audio("{% static 'sounds/notification.mp3' %}");

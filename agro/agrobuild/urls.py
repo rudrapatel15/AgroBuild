@@ -4,6 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth.views import LogoutView
 from django.conf.urls.static import static
+from .views import AdminDashboardView  # Add this import
 
 urlpatterns = [
     path('', views.blog_list, name='blog_list'),
@@ -39,6 +40,8 @@ urlpatterns = [
     path('get-notifications/', views.get_notifications, name='get_notifications'),
     path('invoice/<int:order_id>/', views.download_invoice, name='download_invoice'),
     path('invoice/view/<int:order_id>/', views.view_invoice, name='view_invoice'),
+    path('admin/dashboard/', AdminDashboardView.as_view(), name='admin_dashboard'),
+    path('email-otp-verify/', views.email_otp_verify, name='email_otp_verify'),
     ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:

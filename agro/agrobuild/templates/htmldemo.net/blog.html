@@ -4,16 +4,22 @@
 {% load static %}
 
 <!-- Hero Section with Updated Styling -->
-<div class="blog-hero-section">
-    <div class="container">
-        <div class="blog-hero-content">
-            <div class="hero-text-container">
-                <h1>Learning<br>about house<br>plant care<br>is a lifelong<br>pursuit.</h1>
-                <p class="hero-subtext">We care about house plants</p>
+<section class="slider_section">
+    <div class="slider_area owl-carousel">
+        <div class="blog-hero-section d-flex align-items-center" data-bgimg="{% static 'img/blog/blog-big5.jpg' %}">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="slider_content">
+                            <h1 style="font-weight : lighter;">Learning about house<br>plant care<br>is a lifelong<br>pursuit.</h1>  
+                            <p>We, <span>care about </span> house plants.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
+</section>    
 
 <!-- Blog List Section -->
 <div class="blog-list-section">
@@ -22,9 +28,13 @@
             {% for blog in blogs %}
             <div class="blog-card">
                 <div class="blog-list-image">
-                    <img src="{{ blog.image.url }}" alt="{{ blog.title }}">
+                    <a href="{% url 'blog_detail' blog.id %}">
+                        <img src="{{ blog.image.url }}" alt="{{ blog.title }}">
+                    </a>
                 </div>
-                <h2>{{ blog.title }}</h2>
+                <h2>
+                    <a href="{% url 'blog_detail' blog.id %}">{{ blog.title }}</a>
+                </h2>
                 <p>{{ blog.description|truncatewords:30 }}</p>
                 <a href="{% url 'blog_detail' blog.id %}" class="read-more">Read More</a>
             </div>
@@ -36,16 +46,15 @@
 <style>
     /* Hero Section with Image Styling */
     .blog-hero-section {
-        background-image: url('{% static "img/blog/blog-big5.jpg" %}');
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
-        padding: 120px 0 150px;
+        padding: 40px 0 40px;
         color: #2a2a2a;
-        margin-bottom: 60px;
+        margin-bottom: 40px;
         position: relative;
         width: 100%;
-        min-height: 70vh;
+        min-height: 60vh;
         display: flex;
         align-items: center;
     }
@@ -101,7 +110,7 @@
         gap: 20px;
         justify-content: center;
         max-width: 1200px;
-        margin: 0 auto;
+        margin-bottom: 40px;
     }
     
     .blog-card {
@@ -142,7 +151,8 @@
     }
     
     .read-more:hover {
-        background-color: #2ecc71;
+        background-color: black;
+        color: white;
     }
     
     .blog-list-image {

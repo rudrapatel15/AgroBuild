@@ -1,0 +1,41 @@
+<!-- filepath: c:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\agrobuild\templates\htmldemo.net\otp_verify.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Verify OTP</title>
+    {% load static %}
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { height: 100vh; display: flex; align-items: center; justify-content: center; background-image: url("{% static 'img/Login_Bg/BGImg.jpg' %}"); background-size: cover; }
+        .container { max-width: 430px; width: 100%; background: #fff; border-radius: 20px; box-shadow: 0 5px 10px rgba(0,0,0,0.1); padding: 30px; }
+        .form .title { font-size: 27px; font-weight: 600; margin-bottom: 20px; }
+        .form-outline { margin-bottom: 20px; }
+        .form-outline input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        .btn { width: 100%; padding: 10px; background-color: #4070f4; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .btn:hover { background-color: #305bbf; }
+        .error { color: red; margin-bottom: 10px; }
+        .info { margin-bottom: 15px; color: #4070f4; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form">
+            <span class="title">Verify OTP</span>
+            <div class="info">An OTP has been sent to your email: <b>{{ email }}</b></div>
+            {% if error %}
+                <div class="error">{{ error }}</div>
+            {% endif %}
+            <form method="post" action="{% url 'otp_verify' %}">
+                {% csrf_token %}
+                <div class="form-outline">
+                    <input type="text" name="otp" maxlength="4" required placeholder="Enter 4-digit OTP">
+                </div>
+                <button type="submit" class="btn">Verify</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

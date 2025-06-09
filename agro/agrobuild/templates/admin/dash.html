@@ -1,0 +1,388 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AGROBUILD Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        :root {
+            --primary-green: #2e7d32;
+            --secondary-green: #4caf50;
+            --light-green: #e8f5e9;
+            --text-dark: #1a3c34;
+            --sidebar-bg: #1a3c34;
+            --card-bg: #ffffff;
+            --card-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--light-green);
+            color: var(--text-dark);
+        }
+        
+        .sidebar {
+            background-color: var(--sidebar-bg);
+            height: 100vh;
+            position: fixed;
+            width: 250px;
+            padding-top: 20px;
+            transition: all 0.3s;
+        }
+        
+        .sidebar .nav-link {
+            color: #ffffff;
+            padding: 12px 20px;
+            border-radius: 5px;
+            margin: 5px 10px;
+            transition: all 0.3s;
+        }
+        
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background-color: var(--primary-green);
+            color: #ffffff;
+        }
+        
+        .sidebar .nav-link i {
+            margin-right: 10px;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            border: none;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            background-color: var(--primary-green);
+            color: #ffffff;
+            border-radius: 10px 10px 0 0;
+            padding: 15px;
+        }
+        
+        .table {
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .table th {
+            background-color: var(--light-green);
+            color: var(--text-dark);
+        }
+        
+        .theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--primary-green) !important;
+            font-size: 1.5rem;
+        }
+        
+        .stat-card {
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+            background: linear-gradient(145deg, #ffffff, #f5f5f5);
+        }
+        
+        .stat-card i {
+            font-size: 2rem;
+            color: var(--primary-green);
+            margin-bottom: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+                transform: translateX(-200px);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .navbar-toggler {
+                display: block !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="text-center mb-4">
+                <a class="navbar-brand" href="#">
+                    <i class="fas fa-leaf me-2"></i>AGROBUILD
+                </a>
+            </div>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fas fa-users"></i> User Profiles</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fas fa-blog"></i> Blogs</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fas fa-comments"></i> Blog Comments</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fas fa-shopping-cart"></i> Cart Items</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fas fa-th-list"></i> Categories</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fas fa-envelope"></i> Contact Messages</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fas fa-star"></i> Feedbacks</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fas fa-bell"></i> Notification Historys</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fas fa-box"></i> Order Items</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fas fa-heart"></i> Wishlists</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fas fa-tint"></i> Watering Reminders</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fas fa-seedling"></i> Products</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fas fa-shopping-bag"></i> Orders</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fas fa-sign-out-alt"></i> Log out</a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <nav class="navbar navbar-expand-lg bg-white shadow-sm mb-4">
+                <div class="container-fluid">
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav ms-auto">
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-user-circle"></i>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a href="#" class="dropdown-item">Profile</a></li>
+                                    <li><a href="#" class="dropdown-item">Log out</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Stats Section -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-4">
+                    <div class="card stat-card">
+                        <i class="fas fa-dollar-sign"></i>
+                        <h5>Profit</h5>
+                        <h3>Company Profit ({{ now.year }})</h3>
+                        <p>Yearly Profit</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card stat-card">
+                        <i class="fas fa-boxes"></i>
+                        <h5>Stock</h5>
+                        <h3>Total Products</h3>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card stat-card">
+                        <i class="fas fa-shopping-bag"></i>
+                        <h5>Orders</h5>
+                        <h3>{{ order_count }}</h3>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card stat-card">
+                        <i class="fas fa-users"></i>
+                        <h5>Users</h5>
+                        <h3>{{ user_count }}</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feedback Section -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5>User Feedback ({{ feedback_count }})</h5>
+                    <a href="#" class="btn btn-sm btn-outline-light">Show All</a>
+                </div>
+                <div class="card-body">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Category</th>
+                                <th>Feedback</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for fb in feedback_list %}
+                            <tr>
+                                <td>{% if fb.user %}{{ fb.user.username }}{% endif %}</td>
+                                <td>{{ fb.category }}</td>
+                                <td>{{ fb.review|truncatechars:60 }}</td>
+                                <td>{{ fb.created_at|date:"Y-m-d" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4">No feedback yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Recent Orders Section -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5>Recent Orders</h5>
+                    <a href="#" class="btn btn-sm btn-outline-light">Show All</a>
+                </div>
+                <div class="card-body">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>User</th>
+                                <th>Status</th>
+                                <th>Amount</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in all_orders|slice:":8" %}
+                            <tr>
+                                <td>{{ order.id }}</td>
+                                <td>{{ order.user.username }}</td>
+                                <td>{{ order.status }}</td>
+                                <td>₹{{ order.total_amount }}</td>
+                                <td>{{ order.created_at|date:"Y-m-d" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5">No orders found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Top Selling Products (Placeholder for Chart) -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Top Selling Products</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="topProductsChart" height="200"></canvas>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer class="text-center py-4">
+                <p>© made with <i class="fas fa-heart text-danger"></i> by AGROBUILD PVT LTD for a better web.</p>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Theme Toggle -->
+    <div class="theme-toggle">
+        <button class="btn btn-primary" onclick="toggleTheme()">Toggle Theme</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Theme Toggle
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.classList.contains('dark-mode') ? 'dark' : 'light';
+            if (currentTheme === 'light') {
+                body.classList.add('dark-mode');
+                body.style.setProperty('--card-bg', '#2e2e2e');
+                body.style.setProperty('--text-dark', '#ffffff');
+                body.style.setProperty('--light-green', '#1e1e1e');
+            } else {
+                body.classList.remove('dark-mode');
+                body.style.setProperty('--card-bg', '#ffffff');
+                body.style.setProperty('--text-dark', '#1a3c34');
+                body.style.setProperty('--light-green', '#e8f5e9');
+            }
+        }
+
+        // Sidebar Toggle for Mobile
+        document.querySelector('.navbar-toggler').addEventListener('click', () => {
+            document.querySelector('.sidebar').classList.toggle('active');
+        });
+
+        // Chart.js for Top Selling Products (Placeholder Data)
+        const ctx = document.getElementById('topProductsChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Product A', 'Product B', 'Product C', 'Product D'],
+                datasets: [{
+                    label: 'Sales',
+                    data: [120, 190, 300, 500],
+                    backgroundColor: 'rgba(46, 125, 50, 0.6)',
+                    borderColor: 'rgba(46, 125, 50, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

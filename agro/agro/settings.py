@@ -35,6 +35,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [ # components
+    'jazzmin',  # For better admin interface
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,8 +43,7 @@ INSTALLED_APPS = [ # components
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'agrobuild',
-    'pytz', 
-    #'crontasks', 
+    'pytz',  
 ]
 
 MIDDLEWARE = [
@@ -70,6 +70,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'agrobuild.context_processors.cart_data',
+                'agrobuild.context_processors.cart_items_processor',
             ],
         },
     },
@@ -123,38 +124,26 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
- 
-# Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-
-STATIC_URL = 'static/'
 
 # STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 NOTIFICATION_SOUND = os.path.join(BASE_DIR, 'static/sounds/notification.mp3')
 
+STATIC_URL = 'static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'), #creates a static folder in the same directory as manage.py
+    BASE_DIR / "static",
+    os.path.join(BASE_DIR, 'static'), 
     os.path.join(BASE_DIR, 'agrobuild/static'),
+
 ]
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -168,8 +157,6 @@ TIME_ZONE = 'Asia/Kolkata'
 # Use timezone-aware datetimes
 USE_TZ = True
 
-# ...existing code...
-
 # Gmail SMTP settings for sending watering reminders
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -179,4 +166,140 @@ EMAIL_HOST_USER = 'shopmulti9859@gmail.com'
 EMAIL_HOST_PASSWORD = 'webv rzla nzog avom'       
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-# ...existing code...
+JAZZMIN_SETTINGS = {
+
+    # General Settings
+    "site_title": "Agro Build Admin",
+    "site_header": "Agro Build",
+    "site_brand": "🌱 Agro Build",
+    "login_logo": "img/logo/logo.png",
+    "login_logo_dark": "img/logo/logo-dark.png",  # Add a dark mode logo
+    "welcome_sign": "Welcome to Agro Build Admin Portal",
+    "copyright": "Agro Build Ltd.",
+    
+    # UI Customization
+    "theme": "minty",
+    "dark_mode_theme": "darkly",
+    "show_ui_builder": True,  # Allow admin users to customize UI
+    
+    # Layout Options
+    "navigation_expanded": True,
+    "hide_apps": [],
+    "hide_models": [],
+    "order_with_respect_to": [
+        "auth",
+        "agrobuild", 
+        "agrobuild.Product", 
+        "agrobuild.Order", 
+        "agrobuild.UserProfile",
+        "agrobuild.Blog"
+    ],
+    
+    # Custom Icons
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "auth.user": "fas fa-user",
+        "auth.Group": "fas fa-users",
+        "agrobuild.Product": "fas fa-leaf",
+        "agrobuild.Order": "fas fa-shopping-bag",
+        "agrobuild.OrderItem": "fas fa-shopping-basket",
+        "agrobuild.CartItem": "fas fa-cart-plus",
+        "agrobuild.Category": "fas fa-tags",
+        "agrobuild.UserProfile": "fas fa-user-circle",
+        "agrobuild.Wishlist": "fas fa-heart",
+        "agrobuild.Feedback": "fas fa-comment-alt",
+        "agrobuild.Blog": "fas fa-newspaper",
+        "agrobuild.BlogComment": "fas fa-comment-dots",
+        "agrobuild.ContactMessage": "fas fa-envelope",
+        "agrobuild.WateringReminder": "fas fa-tint",
+        "agrobuild.NotificationHistory": "fas fa-bell",
+    },
+    
+    # Custom Links
+    "custom_links": {
+        "agrobuild": [{
+            "name": "Admin Dashboard",
+            "url": "/admin/dashboard/",
+            "icon": "fas fa-tachometer-alt",
+            "permissions": ["auth.view_user"]
+        }, {
+            "name": "Visit Website",
+            "url": "/",
+            "icon": "fas fa-external-link-alt",
+            "permissions": ["auth.view_user"]
+    }, {
+        "name": "Support",
+        "url": "mailto:support@agrobuild.com",
+        "icon": "fas fa-life-ring",
+        "permissions": ["auth.view_user"]
+    }, ]
+    
+    },
+    
+    # Advanced UI Features
+    "related_modal_active": True,
+    "custom_css": "css/admin-custom.css",  # Add custom CSS
+    "custom_js": "js/admin-custom.js",     # Add custom JS
+    "custom_css": "css/admin-table-style.css",
+    "show_sidebar": True,
+    "navigation_expanded": True,
+    "changeform_format": "horizontal_tabs",
+    "changeform_format_overrides": {
+        "auth.user": "collapsible",
+        "auth.group": "vertical_tabs",
+        "agrobuild.Product": "collapsible",
+        "agrobuild.Order": "vertical_tabs"
+    },
+    "changeform_format_overrides": {
+    "agrobuild.Product": "horizontal_tabs",
+},
+    # Search Models
+    "search_model": ["agrobuild.Product", "agrobuild.Order", "auth.User"],
+    
+    # User Menu
+    "usermenu_links": [
+        {
+            "name": "Support",
+            "url": "mailto:support@agrobuild.com",
+            "icon": "fas fa-life-ring",
+            "new_window": True
+        },
+        {
+            "model": "auth.user"
+        }
+    ],
+
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "navbar_small_text": False,
+    "footer_small_text": False,
+    "body_small_text": False,
+    "brand_small_text": False,
+    "brand_colour": "navbar-success",
+    "accent": "accent-primary",
+    "navbar": "navbar-dark",
+    "no_navbar_border": False,
+    "navbar_fixed": True,
+    "layout_boxed": False,
+    "footer_fixed": False,
+    "sidebar_fixed": True,
+    "sidebar": "sidebar-dark-success",
+    "sidebar_nav_small_text": False,
+    "sidebar_disable_expand": False,
+    "sidebar_nav_child_indent": False,
+    "sidebar_nav_compact_style": False,
+    "sidebar_nav_legacy_style": True,
+    "sidebar_nav_flat_style": False,
+    "theme": "minty",
+    "dark_mode_theme": "darkly",
+    "button_classes": {
+        "primary": "btn-outline-primary",
+        "secondary": "btn-outline-secondary",
+        "info": "btn-outline-info",
+        "warning": "btn-outline-warning",
+        "danger": "btn-outline-danger",
+        "success": "btn-outline-success"
+    },
+    "actions_sticky_top": True
+}

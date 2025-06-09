@@ -23,11 +23,101 @@ from django.http import HttpResponse
 from django.template.loader import render_to_string
 import pdfkit   
 from decimal import Decimal
+from django.views.generic import TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.admin.views.decorators import staff_member_required
+from django.utils.decorators import method_decorator
+from django.db.models import Count
+from django.db.models import Sum, Count, F
+import datetime
+from django.core.mail import send_mail
+import random 
+
+@method_decorator(staff_member_required, name='dispatch')
+class AdminDashboardView(TemplateView):
+    template_name = 'admin/black_dashboard.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        from .models import Product, Order, UserProfile, Category, OrderItem
+        
+         # Stock of all products
+        stock_labels = list(Product.objects.values_list('P_name', flat=True))
+        stock_counts = list(Product.objects.values_list('stock', flat=True))
+        context['stock_labels'] = stock_labels
+        context['stock_counts'] = stock_counts
+
+        # High sales products (top 5 by quantity sold)
+        top_products = (
+            OrderItem.objects.values('product__P_name')
+            .annotate(total_sold=Sum('quantity'))
+            .order_by('-total_sold')[:5]
+        )
+        context['top_product_labels'] = [p['product__P_name'] for p in top_products]
+        context['top_product_sales'] = [p['total_sold'] for p in top_products]
+
+        # Profit per month for the current year (assume profit = total_amount * 0.2 for demo)
+        now = timezone.now()
+        months = []
+        profits = []
+        for i in range(1, 13):
+            month_label = timezone.datetime(now.year, i, 1).strftime('%b')
+            months.append(month_label)
+            orders = Order.objects.filter(created_at__year=now.year, created_at__month=i)
+            total = orders.aggregate(total=Sum('total_amount'))['total'] or 0
+            profit = float(total) * 0.2  # Example: 20% profit margin
+            profits.append(round(profit, 2))
+        context['profit_month_labels'] = months
+        context['profit_month_data'] = profits
+
+        # Products per category
+        category_data = (
+            Category.objects.annotate(count=Count('product'))
+            .order_by('-count')
+        )
+        context['category_labels'] = [cat.name for cat in category_data]
+        context['category_counts'] = [cat.count for cat in category_data]
+
+        # Users per month (last 6 months)
+        months = []
+        user_counts = []
+        now = timezone.now()
+        for i in range(5, -1, -1):
+            month = (now - timezone.timedelta(days=30*i)).strftime('%b %Y')
+            months.append(month)
+            user_counts.append(
+                UserProfile.objects.filter(
+                    user__date_joined__year=(now - timezone.timedelta(days=30*i)).year,
+                    user__date_joined__month=(now - timezone.timedelta(days=30*i)).month
+                ).count()
+            )
+        context['user_month_labels'] = months
+        context['user_month_counts'] = user_counts
+
+        # Orders per month (last 6 months)
+        order_counts = []
+        for i in range(5, -1, -1):
+            order_counts.append(
+                Order.objects.filter(
+                    created_at__year=(now - timezone.timedelta(days=30*i)).year,
+                    created_at__month=(now - timezone.timedelta(days=30*i)).month
+                ).count()
+            )
+        context['order_month_counts'] = order_counts
+        context['product_count'] = Product.objects.count()
+        context['order_count'] = Order.objects.count()
+        context['user_count'] = UserProfile.objects.count()
+        context['feedback_count'] = Feedback.objects.count()
+        context['recent_orders'] = Order.objects.order_by('-created_at')[:5]
+        context['recent_users'] = UserProfile.objects.order_by('-id')[:5]
+        context['feedback_list'] = Feedback.objects.order_by('-created_at')[:10]  # latest 10 feedbacks
+        context['all_orders'] = Order.objects.all().order_by('-created_at') 
+        context['now'] = datetime.datetime.now()   
+        return context
 
 @login_required(login_url='/login/')
 def view_invoice(request, order_id):
-    order = get_object_or_404(Order, id=order_id, user=request.user)
-    
+    order = get_object_or_404(Order, id=order_id, user=request.user) 
     # Calculate invoice values same as in download_invoice
     subtotal = Decimal('0')
     total_tax = Decimal('0')
@@ -132,7 +222,6 @@ def download_invoice(request, order_id):
     shipping = Decimal('100.00')
     grand_total = total_amount + shipping
 
-
     context = {
         'order': order,
         'items': processed_items,
@@ -156,7 +245,7 @@ def download_invoice(request, order_id):
        context['signature_base64'] = ''
         
     html = render_to_string('htmldemo.net/invoice.html', context)
-    config = pdfkit.configuration(wkhtmltopdf=r"C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\wkhtmltopdf\bin\wkhtmltopdf.exe")
+    config = pdfkit.configuration(wkhtmltopdf=r"C:\Users\a\Desktop\Agro Build Pro\AgroBuild\wkhtmltopdf\bin\wkhtmltopdf.exe")
     options = {
         'enable-local-file-access': None,
         'encoding': 'UTF-8',
@@ -394,23 +483,118 @@ def my_account(request, order_id=None):
 
 @login_required(login_url='/login/')
 def update_account(request):
-    if request.method == 'POST':
-        user = request.user
-        profile, created = UserProfile.objects.get_or_create(user=user)
-       
-        user.email = request.POST.get('email')
-        user.first_name = request.POST.get('first_name')
-        user.last_name = request.POST.get('last_name')
-        user.save()
+    user = request.user
+    profile, created = UserProfile.objects.get_or_create(user=user)
 
-        profile.phone = request.POST.get('phone')
-        profile.dob = request.POST.get('dob')
-        profile.gender = request.POST.get('gender')
-        if 'profile_pic' in request.FILES:
-            profile.profile_pic = request.FILES['profile_pic']
+    if request.method == 'POST':
+        new_email = (request.POST.get('email') or '').strip()
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        phone = request.POST.get('phone')
+        dob = (request.POST.get('dob') or '').strip()
+        gender = request.POST.get('gender') or 'Male'  
+        profile_pic = request.FILES.get('profile_pic')
+
+    # If email is changed, check if already registered
+    if new_email and new_email != user.email:
+        if User.objects.filter(email=new_email).exclude(pk=user.pk).exists():
+            messages.error(request, "This email is already registered with another account.")
+            return redirect('my_account')
+        otp = random.randint(1000, 9999)
+        request.session['pending_email_change'] = {
+            'new_email': new_email,
+            'otp': str(otp),
+            'first_name': first_name,
+            'last_name': last_name,
+            'phone': phone,
+            'dob': dob,
+            'gender': gender,  # <-- Always set
+            'profile_pic': profile_pic.name if profile_pic else None,
+        }
+        subject = f"Verify Your AgroBuild Account, {user.get_full_name() or user.username}!"
+        message = (
+            f"Dear {user.get_full_name() or user.username},\n\n"
+            f"Welcome to AgroBuild! 🌱 Thank you for joining our mission to grow a greener future.\n "
+            f"To complete your email change, please use the following One-Time Password (OTP):\n\n"
+            f"OTP: {otp}\n\n"
+            f"This OTP is valid for 10 minutes. Do not share it with anyone to keep your account secure.\n\n"
+            f"With Green Regards,\n"
+            f"The AgroBuild Team\n"
+            f"AGROBUILD Private Limited\n"
+            f"B-42 Akruti Garden, Nehrunagar\n"
+            f"Ahmedabad, 380015\n"
+            f"📞 8128383925\n"
+            f"✉️ shopmulti9859@gmail.com"
+        )
+        send_mail(
+            subject,
+            message,
+            None,
+            [new_email],
+            fail_silently=False,
+        )
+        # Save profile changes except email, wait for OTP
+        profile.phone = phone
+        profile.gender = gender  # <-- Always set
+        if dob:
+            profile.dob = dob
+        else:
+            profile.dob = None
+        if profile_pic:
+            profile.profile_pic = profile_pic
         profile.save()
-        messages.success(request, 'Account details updated successfully!')
+        messages.info(request, f"An OTP has been sent to {new_email}. Please verify to change your email.")
+        return render(request, 'htmldemo.net/email_otp_verify.html', {'new_email': new_email})
+    # If email not changed, update other fields directly
+    user.first_name = first_name
+    user.last_name = last_name
+    user.save()
+    profile.phone = phone
+    profile.gender = gender  # <-- Always set
+    if dob:
+        profile.dob = dob
+    else:
+        profile.dob = None
+    if profile_pic:
+        profile.profile_pic = profile_pic
+    profile.save()
+    messages.success(request, 'Account details updated successfully!')
     return redirect('my_account')
+
+@login_required(login_url='/login/')
+def email_otp_verify(request):
+    if request.method == 'POST':
+        otp_input = request.POST.get('otp')
+        pending = request.session.get('pending_email_change')
+        if not pending:
+            messages.error(request, "No pending email change found.")
+            return redirect('my_account')
+        if otp_input == pending['otp']:
+            user = request.user
+            user.email = pending['new_email']
+            user.first_name = pending.get('first_name', user.first_name)
+            user.last_name = pending.get('last_name', user.last_name)
+            user.save()
+            profile, _ = UserProfile.objects.get_or_create(user=user)
+            profile.phone = pending.get('phone', profile.phone)
+            profile.gender = pending.get('gender', profile.gender)
+            dob = pending.get('dob', '')
+            if dob:
+                profile.dob = dob
+            else:
+                profile.dob = None
+            # Profile pic is handled in the previous step due to file upload limitations
+            profile.save()
+            del request.session['pending_email_change']
+            messages.success(request, "Email changed and account updated successfully!")
+            return redirect('my_account')
+        else:
+            return render(request, 'htmldemo.net/email_otp_verify.html', {
+                'new_email': pending['new_email'],
+                'error': 'Invalid OTP!'
+            })
+    else:
+        return redirect('my_account')
 
 @login_required(login_url='/login/')
 def logout_view(request):
@@ -427,15 +611,22 @@ def add_to_cart_from_wishlist(request, product_id):
     return redirect('cart')
 
 @require_POST
-@login_required(login_url='/login/')
 def remove_from_cart(request):
-    item_id = request.POST.get('item_id')
-    CartItem.objects.filter(id=item_id, user=request.user).delete()
-    return redirect('cart')
+    if request.method == "POST":
+        item_id = request.POST.get('item_id')
+        CartItem.objects.filter(id=item_id, user=request.user).delete()
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False}, status=400)
 
 def index(request):
+    if request.user.is_authenticated:
+        wishlist_ids = set(Wishlist.objects.filter(user=request.user).values_list('product__P_id', flat=True))
+        cart_ids = set(CartItem.objects.filter(user=request.user).values_list('product__P_id', flat=True))
+    else:
+        wishlist_ids = set()
+        cart_ids = set()
+    
     allProds = []
-   
     categories_to_show = ['indoor plants', 'Fruit Seeds', 'Garden Tools']
     
     for category_name in categories_to_show:
@@ -447,7 +638,8 @@ def index(request):
                 nSlides = n // 4 + ceil((n / 4) - (n // 4))
                 allProds.append([prod, range(1, nSlides), nSlides, category_name])
     
-    return render(request, 'htmldemo.net/index.html', {'allProds': allProds})
+    cart_message = request.session.pop('cart_message', None)
+    return render(request, 'htmldemo.net/index.html', {'allProds': allProds, 'wishlist_ids': wishlist_ids, 'cart_ids': cart_ids, 'cart_message': cart_message})
 
 def account(request): return render(request, 'htmldemo.net/my-account.html')
 
@@ -458,10 +650,16 @@ def wishlist(request):
 
 @login_required(login_url='/login/')
 def add_to_wishlist(request, product_id):
-    product = Product.objects.get(P_id=product_id)
-    product = get_object_or_404(Product, pk=product_id)
-    Wishlist.objects.get_or_create(user=request.user, product=product)
-    return redirect('wishlist') 
+    product = get_object_or_404(Product, P_id=product_id)
+    wishlist_item, created = Wishlist.objects.get_or_create(user=request.user, product=product)
+    if not created:
+        wishlist_item.delete()
+        status = 'removed'
+    else:
+        status = 'added'
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'status': status})
+    return redirect('wishlist')
 
 @login_required(login_url='/login/')
 def remove_from_wishlist(request, product_id):
@@ -472,12 +670,26 @@ def remove_from_wishlist(request, product_id):
 @login_required(login_url='/login/')
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, P_id=product_id)
-    quantity = int(request.POST.get('quantity', 1))
-    cart_item, created = CartItem.objects.get_or_create(user=request.user, product=product, defaults={'quantity': quantity})
-    if not created:
-        cart_item.quantity += quantity
-        cart_item.save()
-    return redirect('cart')
+    cart_item = CartItem.objects.filter(user=request.user, product=product).first()
+
+    if request.method == 'POST':
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            if cart_item:
+                cart_item.delete()
+                return JsonResponse({'status': 'removed', 'message': f"{product.P_name} removed from cart"})
+            else:
+                CartItem.objects.create(user=request.user, product=product, quantity=1)
+                return JsonResponse({'status': 'added', 'message': f"{product.P_name} added to cart"})
+        # fallback for normal POST (not AJAX)
+        if cart_item:
+            cart_item.delete()
+            messages.success(request, f"{product.P_name} removed from cart")
+        else:
+            CartItem.objects.create(user=request.user, product=product, quantity=1)
+            messages.success(request, f"{product.P_name} added to cart")
+        return redirect(request.POST.get('return_url', 'index'))
+
+    return redirect('index')
 
 def basic(request): return render(request, 'htmldemo.net/basic.html')
 
@@ -541,7 +753,6 @@ def checkout(request):
                 # Validate product price
                 if item.product.P_price is None or item.product.P_price <= 0:
                     messages.error(request, f"Invalid price for product {item.product.P_name}")
-                    return redirect('cart')
                 item_subtotal = Decimal(str(item.product.P_price)) * Decimal(item.quantity)
                 items.append({
                     'product': item.product,
@@ -716,18 +927,28 @@ def faq(request): return render(request, 'htmldemo.net/faq.html')
 
 def prod_view(request):
     prod_id = request.GET.get('myid')
-    product = Product.objects.filter(P_id=prod_id).first()
-    return render(request, 'htmldemo.net/prod_View.html', {'product': product})
+    product = get_object_or_404(Product, P_id=prod_id)
+    cart_ids = set(CartItem.objects.filter(user=request.user).values_list('product__P_id', flat=True)) if request.user.is_authenticated else set()
+    wishlist_ids = set(Wishlist.objects.filter(user=request.user).values_list('product__P_id', flat=True)) if request.user.is_authenticated else set()
+    return render(request, 'htmldemo.net/prod_view.html', {'product': product, 'cart_ids': cart_ids, 'wishlist_ids': wishlist_ids})
 
 def category_products(request, slug):
     category = get_object_or_404(Category, slug=slug)
     products = Product.objects.filter(categories=category)
     subcategories = category.children.all()
+    if request.user.is_authenticated:
+        wishlist_ids = set(Wishlist.objects.filter(user=request.user).values_list('product__P_id', flat=True))
+        cart_ids = set(CartItem.objects.filter(user=request.user).values_list('product__P_id', flat=True))
+    else:
+        wishlist_ids = set()
+        cart_ids = set()
     
     context = {
         'category': category,
         'products': products,
         'subcategories': subcategories,
-        'is_main_category': category.parent is None
+        'is_main_category': category.parent is None,
+        'wishlist_ids': wishlist_ids,
+        'cart_ids': cart_ids,
     }
     return render(request, 'htmldemo.net/category_products.html', context)
