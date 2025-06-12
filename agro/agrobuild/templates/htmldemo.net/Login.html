@@ -138,23 +138,13 @@
             {% endif %}
             <form method="post" action="{% url 'login' %}">
                 {% csrf_token %}
-<<<<<<< HEAD
                 {% comment %} <div class="form-outline">
                     <input type="text" name="username" id="username" required>
                     <label for="username">Your Name</label>
                 </div> {% endcomment %}
-                <div class="form-outline mb-4">
-                    <input type="email" name="email" id="email" required>
-                    <label for="email">Your Email</label>
-=======
-                <div class="input-field">
-                    <input type="text" name="username" id="username" placeholder="Enter your name" required>
-                    <i class="uil uil-user icon"></i>
-                </div>
                 <div class="input-field">
                     <input type="text" name="email" id="email" placeholder="Enter your email" required>
                     <i class="uil uil-envelope icon"></i>
->>>>>>> c4d9d64eaf868c038fd92bd9f29c6ef057123c70
                 </div>
                 <div class="input-field">
                     <input type="password" name="password" id="password" class="password" placeholder="Enter your password" required>

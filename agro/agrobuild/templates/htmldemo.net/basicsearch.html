@@ -190,19 +190,13 @@
             color:#4CAF50;
         }
         
-        /*.mini_cart_wrapper a {
+        .mini_cart_wrapper a {
             color:rgb(10, 10, 10);
         }
         
         .mini_cart_wrapper a:hover {
-<<<<<<< HEAD
-            color:#000000;
-        }*/
-=======
-            color: #4CAF50;
+            color:rgb(0, 0, 0);
         }
->>>>>>> c4d9d64eaf868c038fd92bd9f29c6ef057123c70
-        
 
         .item_count {
             position: absolute;
@@ -412,9 +406,8 @@
                                                             <form method="post" action="{% url 'remove_from_cart' %}" style="display:inline;">
                                                                 {% csrf_token %}
                                                                 <input type="hidden" name="item_id" value="{{ item.id }}">
-                                                                <button type="button" class="remove-cart-item-btn" data-item-id="{{ item.id }}" style="background: none; border: none; padding: 0;">
-    <i class="icon-x"></i>
-</button>
+                                                                <button type="button" class="remove-cart-item-btn" data-item-id="{{ item.id }}" style="background: none; border: none; padding: 0;"> <i class="icon-x"></i>
+                                                            </button>
                                                             </form>
                                                         </div>
                                                     </div>
@@ -435,10 +428,10 @@
                                                 
                                                 </div>
                                             </div>
-
+                                                
                                             <div class="mini_cart_footer" style="margin-top: 15px;">
-                                                <div class="cart_button" style="margin-bottom: 10px;">
-                                                    <a href="{% url 'cart' %}"><i class="fa fa-shopping-cart"></i> View Cart</a>
+                                                <div class="cart_button">
+                                                    <a href="{% url 'cart' %}"><i class="fa fa-sign-in"></i> Add To Cart</a>
                                                 </div>
                                                 <div class="cart_button">
                                                     <a class="active" href="{% url 'checkout' %}"><i class="fa fa-sign-in"></i> Checkout</a>
