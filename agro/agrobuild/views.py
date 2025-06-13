@@ -611,11 +611,12 @@ def add_to_cart_from_wishlist(request, product_id):
     return redirect('cart')
 
 @require_POST
-@login_required(login_url='/login/')
 def remove_from_cart(request):
-    item_id = request.POST.get('item_id')
-    CartItem.objects.filter(id=item_id, user=request.user).delete()
-    return redirect('cart')
+    if request.method == "POST":
+        item_id = request.POST.get('item_id')
+        CartItem.objects.filter(id=item_id, user=request.user).delete()
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False}, status=400)
 
 def index(request):
     if request.user.is_authenticated:
