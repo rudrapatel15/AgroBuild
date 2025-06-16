@@ -5,6 +5,865 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% load static %}
+    <!-- Iconscout CSS -->
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+    <!-- Bootstrap 5.3.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <title>AGRO BUILD - Registration</title>
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/x-x-icon" href="{% static 'img/favicon.ico' %}">
+    <!-- CSS code for Registration and OTP -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        body {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-image: url("{% static 'img/Login_Bg/BGImg.jpg' %}");
+            background-size: 100% 100%; /* Make background image cover the whole body */
+            background-position: center;
+            background-repeat: no-repeat;
+            flex-direction: column; /* Allow content to stack */
+            padding: 20px; /* Add padding for responsiveness */
+        }
+        .container {
+            position: relative;
+            max-width: 430px;
+            width: 100%;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin: 0 20px; /* Adjust margin for better centering */
+        }
+        .form {
+            width: 100%;
+            padding: 30px;
+        }
+        .form .title {
+            font-size: 27px;
+            font-weight: 600;
+            position: relative;
+        }
+        .form .title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            height: 3px;
+            width: 30px;
+            background-color: #4070f4;
+            border-radius: 25px;
+        }
+        .input-field {
+            position: relative;
+            height: 50px;
+            margin-top: 30px;
+            margin-bottom: 25px; /* Increased margin-bottom for error messages */
+        }
+        .input-field input {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            padding: 0 35px;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            border-bottom: 2px solid #ccc; /* Initial gray line */
+            border-top: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+        /* Keep these for focus validation */
+        .input-field input:focus {
+            border-bottom-color: #4070f4;
+        }
+        /* Styles for invalid input */
+        .input-field input.is-invalid {
+            border-bottom-color: red !important; /* Red border for invalid input */
+        }
+
+        .input-field i {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 23px;
+        }
+        .input-field input:focus ~ i {
+            color: #4070f4;
+        }
+        .input-field i.icon {
+            left: 0;
+        }
+        .input-field i.showHidePw {
+            right: 0;
+            cursor: pointer;
+            padding: 10px;
+        }
+        .button input {
+            margin-top: 2px;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            background-color: black;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .button input:hover {
+            background-color: #4070f4;
+        }
+        .login-signup {
+            margin-top: 30px;
+            text-align: center;
+        }
+        .login-signup .text {
+            color: #333;
+            font-size: 14px;
+        }
+        .login-signup .text a {
+            color: #4070f4;
+            text-decoration: none;
+        }
+        .login-signup .text a:hover {
+            text-decoration: underline;
+        }
+
+        /* --- Custom Error and Validation Styling --- */
+        .input-error {
+            color: red;
+            font-size: 13px;
+            position: absolute;
+            bottom: -22px; /* Adjusted to push it further down, consistent with Registration */
+            left: 0;
+            width: 100%;
+            text-align: left;
+        }
+        /* --- End Custom Error and Validation Styling --- */
+
+        /* Alert message styling (Django messages) */
+        .alert {
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 14px;
+        }
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .alert-success { /* Added success alert style */
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        /* --- OTP Specific Styles (re-used from previous OTP immersive) --- */
+        .otp-input-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .otp-input {
+            width: 60px;
+            height: 60px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 500;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            -moz-appearance: textfield;
+        }
+
+        .otp-input:focus {
+            border-color: #4070f4;
+            box-shadow: 0 0 0 0.25rem rgba(64, 112, 244, 0.25);
+            outline: none;
+        }
+        .otp-input::-webkit-outer-spin-button,
+        .otp-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .btn-verify {
+            background-color: #4070f4;
+            border-color: #4070f4;
+            padding: 10px 30px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .btn-verify:hover {
+            background-color: #305bbf;
+            border-color: #305bbf;
+            transform: translateY(-2px);
+        }
+
+        .resend-text {
+            margin-top: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .resend-link {
+            color: #4070f4;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .resend-link:hover {
+            text-decoration: underline;
+        }
+
+        .timer {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+            margin-top: 15px;
+        }
+
+        .info {
+            margin-bottom: 15px;
+            color: #4070f4;
+            font-size: 1rem;
+        }
+
+        /* Message box for client-side feedback (instead of alert) */
+        .message-box {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1050;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .message-box.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .message-box.error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 576px) {
+            .container {
+                margin: 0 10px;
+            }
+            .form {
+                padding: 20px;
+            }
+            .form .title {
+                font-size: 24px;
+            }
+            .input-field {
+                margin-top: 20px;
+            }
+        }
+        /* Hidden by default */
+        .otp-section {
+            display: none;
+        }
+        /* Show when active */
+        .otp-section.active {
+            display: block;
+        }
+        .registration-section.hidden {
+            display: none;
+        }
+
+        /* Loading Spinner Overlay */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8); /* Semi-transparent white */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100; /* Above form elements but below message box */
+            border-radius: 20px; /* Match container border-radius */
+        }
+        .spinner {
+            border: 5px solid #f3f3f3; /* Light grey */
+            border-top: 5px solid #4070f4; /* Blue spinner */
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        {# Display Django messages from views.py #}
+        {# These are handled by JS to prevent unwanted messages on wrong pages #}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert" data-django-message>
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {# Display AJAX registration errors #}
+        <div id="ajaxErrorMessages" class="alert alert-danger" style="display: none;"></div>
+        {# Display OTP verification errors from server #}
+        <div id="otpErrorMessages" class="alert alert-danger" style="display: none;"></div>
+
+
+        <div class="form registration-section" id="registrationSection">
+            <span class="title">Registration</span>
+            <form method="post" action="{% url 'registration' %}" id="registrationForm" novalidate>
+                {% csrf_token %}
+                <div class="input-field">
+                    <input type="text" name="username" id="username" placeholder="Enter your name" required>
+                    <i class="uil uil-user"></i>
+                </div>
+                <div class="input-field">
+                    <input type="email" name="email" id="email" placeholder="Enter your email" required>
+                    <i class="uil uil-envelope icon"></i>
+                </div>
+                <div class="input-field">
+                    <input type="password" name="password1" id="password1" class="password" placeholder="Create a password" required>
+                    <i class="uil uil-lock icon"></i>
+                    <i class="uil uil-eye-slash showHidePw"></i>
+                </div>
+                <div class="input-field">
+                    <input type="password" name="password2" id="password2" class="password" placeholder="Confirm a password" required>
+                    <i class="uil uil-lock icon"></i>
+                    <i class="uil uil-eye-slash showHidePw"></i>
+                </div>
+                <div class="input-field button">
+                    <input type="submit" value="Register" id="registerButton">
+                </div>
+            </form>
+            <div class="login-signup">
+                <span class="text">Already a member? <a href="{% url 'login' %}" class="text">Login Now</a></span>
+            </div>
+            <div class="loading-overlay" id="registrationLoadingOverlay" style="display: none;">
+                <div class="spinner"></div>
+            </div>
+        </div>
+
+        {# OTP Verification Section (Initially Hidden) #}
+        <div class="form otp-section" id="otpSection">
+            <span class="title">Verify OTP</span>
+            <div class="info">An OTP has been sent to your email: <b id="otpEmailDisplay"></b></div>
+
+            <form method="post" action="{% url 'otp_verify' %}" id="otpForm">
+                {% csrf_token %}
+                <div class="otp-input-group">
+                    <input type="number" class="form-control otp-input" maxlength="1" id="otp-input-1" name="otp_digit_1" autocomplete="off" inputmode="numeric" pattern="[0-9]*" required>
+                    <input type="number" class="form-control otp-input" maxlength="1" id="otp-input-2" name="otp_digit_2" autocomplete="off" inputmode="numeric" pattern="[0-9]*" required>
+                    <input type="number" class="form-control otp-input" maxlength="1" id="otp-input-3" name="otp_digit_3" autocomplete="off" inputmode="numeric" pattern="[0-9]*" required>
+                    <input type="number" class="form-control otp-input" maxlength="1" id="otp-input-4" name="otp_digit_4" autocomplete="off" inputmode="numeric" pattern="[0-9]*" required>
+                    {# Hidden input to combine OTP for Django's POST request #}
+                    <input type="hidden" name="otp" id="combinedOtpInput">
+                </div>
+
+                <button type="submit" class="btn-verify" id="verifyOtpButton">Verify</button>
+            </form>
+
+            <div class="resend-text">
+                Didn't receive code? <a href="#" class="resend-link" id="resendLink">Request again</a>
+            </div>
+
+            <div class="timer" id="timer">02:00</div>
+        </div>
+
+    </div>
+
+    <!-- Message Box for client-side feedback -->
+    <div id="messageBox" class="message-box"></div>
+
+    <!-- Bootstrap 5.3.3 JS (Bundle includes Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+    <script>
+        // --- Utility Functions ---
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function showMessage(message, isError = false) {
+            messageBox.textContent = message;
+            messageBox.classList.remove('error');
+            if (isError) {
+                messageBox.classList.add('error');
+            }
+            messageBox.classList.add('show');
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+            }, 3000);
+        }
+
+        function showSection(sectionId, email = null, errorMsg = null) {
+            document.querySelectorAll('.form').forEach(section => {
+                section.classList.remove('active');
+                section.classList.add('hidden');
+            });
+            document.getElementById(sectionId).classList.remove('hidden');
+            document.getElementById(sectionId).classList.add('active');
+
+            if (sectionId === 'otpSection') {
+                if (email) {
+                    document.getElementById('otpEmailDisplay').textContent = email;
+                }
+                otpInputs.forEach(input => input.value = ''); // Clear OTP inputs on display
+                otpInputs[0].focus(); // Focus first OTP input
+
+                // Clear any previous OTP errors
+                otpErrorMessages.style.display = 'none';
+                otpErrorMessages.textContent = '';
+                // Display server-side OTP error if present (from views.py context)
+                if (errorMsg) {
+                    otpErrorMessages.style.display = 'block';
+                    otpErrorMessages.textContent = errorMsg;
+                }
+                startTimer(); // Start timer when OTP section is shown
+            } else if (sectionId === 'registrationSection') {
+                clearInterval(timerInterval); // Stop timer if switching back to registration
+            }
+        }
+
+        // --- DOM Elements ---
+        const pwShowHide = document.querySelectorAll(".showHidePw");
+        const registrationForm = document.getElementById('registrationForm');
+        const registrationSection = document.getElementById('registrationSection');
+        const otpSection = document.getElementById('otpSection');
+        const messageBox = document.getElementById('messageBox');
+        const ajaxErrorMessages = document.getElementById('ajaxErrorMessages'); // For registration AJAX errors
+        const otpErrorMessages = document.getElementById('otpErrorMessages'); // For OTP server errors
+
+        const registerButton = document.getElementById('registerButton'); // Reference to the submit button
+        const registrationLoadingOverlay = document.getElementById('registrationLoadingOverlay'); // Loading overlay
+
+        // Registration form fields
+        const username = document.getElementById('username');
+        const email = document.getElementById('email');
+        const password1 = document.getElementById('password1');
+        const password2 = document.getElementById('password2');
+
+        // OTP form elements
+        const otpInputs = document.querySelectorAll('.otp-input');
+        const verifyOtpButton = document.getElementById('verifyOtpButton');
+        const resendLink = document.getElementById('resendLink');
+        const timerDisplay = document.getElementById('timer');
+        const otpForm = document.getElementById('otpForm');
+        const combinedOtpInput = document.getElementById('combinedOtpInput');
+
+        let timerInterval;
+        const initialTimeInSeconds = 2 * 60; // 2 minutes
+        let timeRemaining = initialTimeInSeconds;
+
+        // --- Password Show/Hide Functionality ---
+        pwShowHide.forEach(eyeIcon => {
+            eyeIcon.addEventListener("click", () => {
+                const pwField = eyeIcon.parentElement.querySelector('input');
+                if (pwField.type === "password") {
+                    pwField.type = "text";
+                    eyeIcon.classList.replace("uil-eye-slash", "uil-eye");
+                } else {
+                    pwField.type = "password";
+                    eyeIcon.classList.replace("uil-eye", "uil-eye-slash");
+                }
+            });
+        });
+
+        // --- Client-side Registration Form Validation ---
+        function showError(input, message) {
+            input.classList.remove('is-valid');
+            input.classList.add('is-invalid');
+            let error = input.parentElement.querySelector('.input-error');
+            if (!error) {
+                error = document.createElement('div');
+                error.className = 'input-error';
+                input.parentElement.appendChild(error);
+            }
+            error.textContent = message;
+        }
+
+        function clearError(input) {
+            input.classList.remove('is-invalid');
+            input.classList.add('is-valid');
+            let error = input.parentElement.querySelector('.input-error');
+            if (error) error.remove();
+        }
+
+        function clearAllRegistrationErrors() {
+            document.querySelectorAll('.registration-section .input-field input').forEach(input => {
+                clearError(input);
+            });
+            ajaxErrorMessages.style.display = 'none';
+            ajaxErrorMessages.textContent = '';
+        }
+
+        username.addEventListener('blur', function() {
+            if (!username.value.trim()) {
+                showError(username, "Please enter your name.");
+            } else {
+                clearError(username);
+            }
+        });
+
+        email.addEventListener('blur', function() {
+            const value = email.value.trim();
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!value) {
+                showError(email, "Please enter your email.");
+            } else if (!emailPattern.test(value)) {
+                showError(email, "Please enter a valid email address (e.g., example@gmail.com).");
+            } else {
+                clearError(email);
+            }
+        });
+
+        password1.addEventListener('blur', function() {
+            if (!password1.value) {
+                showError(password1, "Please enter a password.");
+            } else if (password1.value.length < 6) {
+                showError(password1, "Password must be at least 6 characters.");
+            } else {
+                clearError(password1);
+            }
+        });
+
+        password2.addEventListener('blur', function() {
+            if (!password2.value) {
+                showError(password2, "Please confirm your password.");
+            } else if (password2.value !== password1.value) {
+                showError(password2, "Passwords do not match.");
+            } else {
+                clearError(password2);
+            }
+        });
+
+        password1.addEventListener('input', function() {
+            if (password2.value) {
+                if (password2.value !== password1.value) {
+                    showError(password2, "Passwords do not match.");
+                } else {
+                    clearError(password2);
+                }
+            }
+        });
+
+        document.querySelectorAll('.registration-section .input-field input').forEach(input => {
+            input.addEventListener('input', function() {
+                if (this.classList.contains('is-invalid')) {
+                     clearError(this);
+                }
+            });
+            input.addEventListener('focus', function() {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+                let error = this.parentElement.querySelector('.input-error');
+                if (error) error.remove();
+            });
+        });
+
+        // --- Registration Form AJAX Submission ---
+        registrationForm.addEventListener('submit', async function(e) {
+            e.preventDefault(); // Prevent default form submission
+
+            clearAllRegistrationErrors(); // Clear previous client-side and AJAX errors
+
+            let formValid = true;
+
+            // Trigger blur events for all fields to ensure all errors are shown
+            username.dispatchEvent(new Event('blur'));
+            email.dispatchEvent(new Event('blur'));
+            password1.dispatchEvent(new Event('blur'));
+            password2.dispatchEvent(new Event('blur'));
+
+            // Check if any field has an 'is-invalid' class after all blur events
+            if (username.classList.contains('is-invalid') ||
+                email.classList.contains('is-invalid') ||
+                password1.classList.contains('is-invalid') ||
+                password2.classList.contains('is-invalid')) {
+                formValid = false;
+            }
+
+            if (!formValid) {
+                showMessage("Please correct the errors in the form.", true);
+                return; // Stop if client-side validation fails
+            }
+
+            // If client-side valid, proceed with AJAX submission
+            const formData = {
+                username: username.value,
+                email: email.value,
+                password1: password1.value,
+                password2: password2.value
+            };
+
+            // Show loading spinner immediately
+            registrationLoadingOverlay.style.display = 'flex';
+            registerButton.disabled = true; // Disable button while loading
+
+            try {
+                const response = await fetch(registrationForm.action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) { // Check if HTTP status is 2xx
+                    if (data.success) {
+                        showMessage('OTP sent successfully! Please check your email.', false);
+                        showSection('otpSection', data.email); // Show OTP section
+                    } else {
+                        // Handle server-side logic errors (e.g., email sending failed)
+                        showMessage(data.message || 'Registration failed due to an unknown error.', true);
+                    }
+                } else { // Handle non-2xx HTTP status codes (e.g., 400 Bad Request from validation errors)
+                    if (data.errors) {
+                        ajaxErrorMessages.innerHTML = ''; // Clear previous messages
+                        ajaxErrorMessages.style.display = 'block';
+                        for (const field in data.errors) {
+                            const inputField = document.getElementById(field);
+                            if (inputField) {
+                                showError(inputField, data.errors[field]);
+                            } else {
+                                // For non-field errors or general messages
+                                ajaxErrorMessages.innerHTML += `<p>${data.errors[field]}</p>`;
+                            }
+                        }
+                        showMessage("Please correct the server-side errors.", true);
+                    } else {
+                        showMessage(data.message || 'An unexpected error occurred during registration.', true);
+                    }
+                }
+            } catch (error) {
+                console.error('Network or parsing error:', error);
+                showMessage('An error occurred. Please check your internet connection.', true);
+            } finally {
+                // Hide loading spinner and re-enable button after response
+                registrationLoadingOverlay.style.display = 'none';
+                registerButton.disabled = false;
+            }
+        });
+
+        // --- OTP Verification Logic ---
+        function startTimer() {
+            timeRemaining = initialTimeInSeconds;
+            resendLink.style.display = 'none';
+            timerDisplay.style.display = 'block';
+            verifyOtpButton.disabled = true; // Disable until all OTP digits are typed
+            updateTimerDisplay();
+
+            clearInterval(timerInterval); // Clear any existing timer to prevent multiple timers running
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerDisplay();
+
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    timerDisplay.textContent = '00:00';
+                    resendLink.style.display = 'block';
+                    verifyOtpButton.disabled = true;
+                    showMessage("Time's up! You can request a new code.");
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        // OTP input auto-focus and validation (client-side)
+        otpInputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                if (e.target.value.length > 1) {
+                    e.target.value = e.target.value.slice(0, 1);
+                }
+                if (e.target.value.length === 1 && index < otpInputs.length - 1) {
+                    otpInputs[index + 1].focus();
+                }
+                checkAllOtpInputsFilled(); // Check button state
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && e.target.value === '' && index > 0) {
+                    otpInputs[index - 1].focus();
+                }
+                if (!((e.key >= '0' && e.key <= '9') || e.key === 'Backspace' || e.key === 'Delete' || e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'Tab')) {
+                    e.preventDefault();
+                }
+            });
+        });
+
+        function checkAllOtpInputsFilled() {
+            const allFilled = Array.from(otpInputs).every(i => i.value.length === 1);
+            verifyOtpButton.disabled = !allFilled;
+        }
+
+        // OTP Form Submission (this form will make a traditional POST request to otp_verify_view)
+        otpForm.addEventListener('submit', function(e) {
+            const otpCode = Array.from(otpInputs).map(input => input.value).join('');
+            combinedOtpInput.value = otpCode; // Set the hidden input value
+
+            if (otpCode.length !== otpInputs.length) {
+                showMessage('Please enter all 4 digits of the OTP.', true);
+                e.preventDefault(); // Prevent form submission if not complete
+                return;
+            }
+            // If client-side valid, allow default form submission to views.py/otp_verify_view
+            // The server will then handle valid/invalid OTP and redirect/render accordingly.
+        });
+
+
+        // Resend OTP Link
+        resendLink.addEventListener('click', async (e) => {
+            e.preventDefault();
+            showMessage('Requesting new code...');
+
+            // Clear current OTP inputs and disable verify button
+            otpInputs.forEach(input => input.value = '');
+            verifyOtpButton.disabled = true;
+
+            try {
+                // IMPORTANT: You need to create a Django URL and View for '/resend-otp-ajax/'
+                // This view should regenerate and send a new OTP, then return JsonResponse({'success': True})
+                const response = await fetch('/resend-otp-ajax/', { // Example URL, define in urls.py
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ email: document.getElementById('otpEmailDisplay').textContent })
+                });
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    showMessage('New code sent! Please check your email.', false);
+                    otpInputs[0].focus();
+                    startTimer(); // Restart timer
+                } else {
+                    showMessage(data.message || 'Failed to resend code. Please try again later.', true);
+                }
+            } catch (error) {
+                console.error('Error resending OTP:', error);
+                showMessage('An error occurred during resend. Please try again.', true);
+            }
+        });
+
+        // --- Page Load & Back/Forward Cache Handling ---
+        // This function sets the initial state of the form when the page loads
+        // or when navigating back/forward in browser history.
+        function initializeFormState() {
+            // Retrieve Django context variables (passed from views.py)
+            // Use JSON.parse and check for existence as they might not always be there
+            const showOtpSection = "{{ show_otp_section|yesno:'True,False' }}" === 'True';
+            const emailDisplay = "{{ email_display|default:'' }}";
+            const otpErrorMessage = "{{ otp_error_message|default:'' }}";
+
+            // Hide all existing Django messages (e.g., "You have successfully logged in!")
+            // This is crucial to clear messages from previous unrelated actions.
+            document.querySelectorAll('[data-django-message]').forEach(msgDiv => {
+                // Only hide if it's not an OTP error (which we want to show on re-render)
+                // And not a success message that we might want to display briefly before clearing.
+                if (!msgDiv.classList.contains('alert-success') || !showOtpSection) {
+                    msgDiv.style.display = 'none';
+                    msgDiv.remove(); // Remove from DOM after hiding
+                }
+            });
+
+
+            if (showOtpSection) {
+                // If the view explicitly told us to show OTP section (e.g., invalid OTP)
+                showSection('otpSection', emailDisplay, otpErrorMessage);
+            } else {
+                // Default state: show registration form
+                showSection('registrationSection');
+                // Clear all input fields when showing registration form for a fresh start
+                username.value = '';
+                email.value = '';
+                password1.value = '';
+                password2.value = '';
+                clearAllRegistrationErrors(); // Clear client-side validation states too
+            }
+        }
+
+        // Initial setup on DOMContentLoaded
+        document.addEventListener("DOMContentLoaded", initializeFormState);
+
+        // Handle back/forward navigation to prevent timer issues and re-initialize form
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted) {
+                // If loaded from cache (user navigated back/forward)
+                console.log('Page loaded from cache. Re-initializing form state.');
+                initializeFormState();
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+
+{% comment %} <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
     <!--  Iconscout CSS -->
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
     <title>AGRO BUILD - Registration</title>
@@ -131,8 +990,8 @@
 <body>
     <div class="container">
         {% if error %}
-  <div class="alert alert-danger" style="color: red; margin-bottom: 10px;">{{ error }}</div>
-{% endif %}
+            <div class="alert alert-danger" style="color: red; margin-bottom: 10px;">{{ error }}</div>
+        {% endif %}
         <div class="form">
             <span class="title">Registration</span>
             <form method="post" action="{% url 'registration' %}">
@@ -184,4 +1043,4 @@
         });
     </script>
 </body>
-</html>
+</html> {% endcomment %}

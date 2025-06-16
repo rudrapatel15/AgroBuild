@@ -25,7 +25,18 @@
     <link rel="stylesheet" href="{% static 'css/plugins.css' %}">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     
-     <style>
+      <style>
+        /* User Dropdown */
+        /* Hide scrollbar for all browsers */
+        body, html, * {
+            scrollbar-width: none;      /* Firefox */
+            -ms-overflow-style: none;   /* IE and Edge */
+        }
+        body::-webkit-scrollbar, 
+        html::-webkit-scrollbar, 
+        *::-webkit-scrollbar {
+            display: none;    /* Chrome, Safari, Opera */
+        }
         /* User Dropdown */
         .user-dropdown:hover .dropdown-menu {
             display: block;
@@ -109,7 +120,7 @@
 
         /* Header Account Icons */
         .header_account-list {
-            margin-left: 15px;
+            margin-left: 15px;  
         }
         .header_account-list a {
             color: #333;
@@ -171,8 +182,8 @@
             width: 375px;
             min-width: 375px;
             max-width: 375px;
-            height: 100%;
-            padding: 18px 18px 33px;
+            height: 100vh;
+            padding: 18px 18px 18px;
             background: #fff;
             z-index: 999;
             right: 0;
@@ -180,7 +191,7 @@
             transition: .5s;
             transform: translateX(100%);
             box-shadow: 0 0 30px rgba(0,0,0,0.08);
-            overflow-y: auto;
+            {% comment %} overflow-y: auto; {% endcomment %}
         }
         .mini_cart.active {
             transform: translateX(0);
@@ -194,11 +205,17 @@
             }
         }
         .cart_gallery {
-            margin-top: 15px;
+            margin-top: 6px;
+            max-height: 320px;
+            overflow-y: auto;
+            scrollbar-width: none;
+        }
+        .cart_gallery::-webkit-scrollbar {
+            display: none;
         }
         .cart_item {
             overflow: hidden;
-            padding: 20px 0;
+            padding: 15px 0;
             border-bottom: 1px solid #e1e1e1;
             display: flex;
             justify-content: space-between;
@@ -243,9 +260,10 @@
         }
         .cart_remove {
             margin-left: 10px;
+            margin-top: -70px;
         }
         .cart_remove a {
-            font-size: 22px;
+            font-size: 18px;
             color: #222;
             background: none;
             border: none;
@@ -423,50 +441,50 @@
 
    <!--header area start-->
     <header>
-    <div class="main_header">
-        <div class="header_middle">
-            <div class="container">
-                <div class="row align-items-center">
-                        <div class="col-lg-3 col-md-3 col-4">
-                            <div class="logo">
-                                <a href="{% url 'index' %}"><img src="{% static 'img/logo/logo.png' %}" alt=""></a>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 col-md-6 col-6">
-                            
-                        </div>
-                    <div class="col-lg-3 col-md-3 col-2">
-                        <div class="header_account_area">
-                            <div class="header_account_list">
-                                <div class="header_account-list top_links">
-                                    <div class="dropdown user-dropdown">
-                                        <a href="#" class="dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                            {% if user.is_authenticated %}
-                                                {% if user.userprofile.profile_pic %}
-                                                    <img src="{{ user.userprofile.profile_pic.url }}" class="user-avatar" alt="Profile">
-                                                {% else %}
-                                                    <div class="user-avatar user-avatar-initial">
-                                                        {{ user.get_full_name|default:user.username|first|upper }}
-                                                    </div>
-                                                {% endif %}
-                                            {% else %}
-                                                <i class="bi bi-person fs-4"></i>
-                                            {% endif %}
-                                        </a>
-                                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                            {% if user.is_authenticated %}
-                                                <li><span class="dropdown-item-text">Hello, {{ user.username }}</span></li>
-                                                <li><hr class="dropdown-divider"></li>
-                                                <li><a class="dropdown-item" href="{% url 'my_account' %}"><i class="bi bi-person me-2"></i> My Account</a></li>
-                                                <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
-                                            {% else %}
-                                                <li><a class="dropdown-item" href="{% url 'login' %}"><i class="bi bi-box-arrow-in-right me-2"></i> Login</a></li>
-                                                <li><a class="dropdown-item" href="{% url 'registration' %}"><i class="bi bi-person-plus me-2"></i> Register</a></li>
-                                            {% endif %}
-                                        </ul>
-                                    </div>
+        <div class="main_header">
+            <div class="header_middle">
+                <div class="container">
+                    <div class="row align-items-center">
+                            <div class="col-lg-3 col-md-3 col-4">
+                                <div class="logo">
+                                    <a href="{% url 'index' %}"><img src="{% static 'img/logo/logo.png' %}" alt=""></a>
                                 </div>
                             </div>
+                            <div class="col-lg-6 col-md-6 col-6">
+                                
+                            </div>
+                        <div class="col-lg-3 col-md-3 col-2">
+                            <div class="header_account_area">
+                                <div class="header_account_list">
+                                    <div class="header_account-list top_links">
+                                        <div class="dropdown user-dropdown">
+                                            <a href="#" class="dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                                {% if user.is_authenticated %}
+                                                    {% if user.userprofile.profile_pic %}
+                                                        <img src="{{ user.userprofile.profile_pic.url }}" class="user-avatar" alt="Profile">
+                                                    {% else %}
+                                                        <div class="user-avatar user-avatar-initial">
+                                                            {{ user.get_full_name|default:user.username|first|upper }}
+                                                        </div>
+                                                    {% endif %}
+                                                {% else %}
+                                                    <i class="bi bi-person fs-4"></i>
+                                                {% endif %}
+                                            </a>
+                                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                                {% if user.is_authenticated %}
+                                                    <li><span class="dropdown-item-text">Hello, {{ user.username }}</span></li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li><a class="dropdown-item" href="{% url 'my_account' %}"><i class="bi bi-person me-2"></i> My Account</a></li>
+                                                    <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
+                                                {% else %}
+                                                    <li><a class="dropdown-item" href="{% url 'login' %}"><i class="bi bi-box-arrow-in-right me-2"></i> Login</a></li>
+                                                    <li><a class="dropdown-item" href="{% url 'registration' %}"><i class="bi bi-person-plus me-2"></i> Register</a></li>
+                                                {% endif %}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div> 
                                 <div class="header_account_list">
                                     <div class="header_account-list header_wishlist">
                                         <a href="{% url 'wishlist' %}"><i class="icon-heart"></i></a>
@@ -850,6 +868,42 @@ $(document).ready(function () {
                     }
                 }
             }
+
+            function formatIST(date) {
+                const options = { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' };
+                return new Date(date).toLocaleString('en-IN', options);
+            }
+
+            function loadNotifications() {
+                $.get('{% url "get_notifications" %}', function(data) {
+                    const items = $('#notificationItems');
+                    const count = $('#notificationCount');
+                    if (data.notifications.length > 0) {
+                        count.text(data.notifications.length);
+                        items.empty();
+                        data.notifications.forEach(function(n) {
+                            const timeIST = formatIST(n.timestamp);
+                            items.append(`
+                                <div class="notification_item">
+                                    <div class="notification_img">
+                                        <img src="${n.product_img || '{% static "img/plant-placeholder.png" %}'}" alt="${n.product_name}">
+                                    </div>
+                                    <div class="notification_content">
+                                        <p class="notification_text">${n.message}</p>
+                                        <small class="notification_time">${timeIST}</small>
+                                    </div>
+                                </div>
+                            `);
+                        });
+                    } else {
+                        count.text('0');
+                        items.html('<div class="empty_notice">No new notifications</div>');
+                    }
+                });
+            }
+
+            updateNotificationCount();
+            setInterval(function() { updateNotificationCount(true); }, 60000);
         });
     });
 });

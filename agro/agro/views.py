@@ -7,70 +7,99 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 import random
 from django.core.mail import send_mail
+from django.http import JsonResponse
+import json
 
 def register_view(request):
     if request.method == "POST":
-        username = request.POST['username']
-        email = request.POST['email']
-        password1 = request.POST['password1']
-        password2 = request.POST['password2']
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            try:
+                data = json.loads(request.body)
+                username = data.get('username')
+                email = data.get('email')
+                password1 = data.get('password1')
+                password2 = data.get('password2')
+            except json.JSONDecodeError:
+                return JsonResponse({'success': False, 'message': 'Invalid JSON data'}, status=400)
 
-        # Validate email
-        try:
-            validate_email(email)
-        except ValidationError:
-            return render(request, 'htmldemo.net/Registration.html', {'error': 'Please enter a valid email address!'})
+            errors = {}
 
-        if password1 != password2:
-            return render(request, 'htmldemo.net/Registration.html', {'error': 'Passwords do not match!'})
+            # Validate email
+            try:
+                validate_email(email)
+            except ValidationError:
+                errors['email'] = 'Please enter a valid email address!'
 
-        if User.objects.filter(username=username).exists():
-            return render(request, 'htmldemo.net/Registration.html', {'error': 'Username is already taken!'})
-        if User.objects.filter(email=email).exists():
-            return render(request, 'htmldemo.net/Registration.html', {'error': 'Email is already registered!'})
+            if password1 != password2:
+                errors['password2'] = 'Passwords do not match!'
 
-        # Generate OTP and send email
-        otp = random.randint(1000, 9999)
-        request.session['pending_user'] = {
-            'username': username,
-            'email': email,
-            'password': password1,
-            'otp': str(otp)
-        }
-        subject = f"Verify Your AgroBuild Account, {username}!"
-        message = (
-            f"Dear {username},\n\n"
-            f"Welcome to AgroBuild! 🌱 Thank you for joining our mission to grow a greener future.\n "
-            f"To complete your registration, please use the following One-Time Password (OTP):\n\n"
-            f"OTP: {otp}\n\n"
-            f"This OTP is valid for 10 minutes. Do not share it with anyone to keep your account secure.\n\n"
-            f"With Green Regards,\n"
-            f"The AgroBuild Team\n"
-            f"AGROBUILD Private Limited\n"
-            f"B-42 Akruti Garden, Nehrunagar\n"
-            f"Ahmedabad, 380015\n"
-            f"📞 8128383925\n"
-            f"✉️ shopmulti9859@gmail.com"
-        )
-        send_mail(
-            subject,
-            message,
-            None,
-            [email],
-            fail_silently=False,
-        )
-        return render(request, 'htmldemo.net/otp_verify.html', {'email': email})
+            if User.objects.filter(username=username).exists():
+                errors['username'] = 'Username is already taken!'
+            if User.objects.filter(email=email).exists():
+                errors['email'] = 'Email is already registered!'
 
+            if errors:
+                return JsonResponse({'success': False, 'errors': errors}, status=400)
+
+            # Generate OTP and send email
+            otp = random.randint(1000, 9999)
+            request.session['pending_user'] = {
+                'username': username,
+                'email': email,
+                'password': password1,
+                'otp': str(otp)
+            }
+            subject = f"Verify Your AgroBuild Account, {username}!"
+            message = (
+                f"Dear {username},\n\n"
+                f"Welcome to AgroBuild! 🌱 Thank you for joining our mission to grow a greener future.\n "
+                f"To complete your registration, please use the following One-Time Password (OTP):\n\n"
+                f"OTP: {otp}\n\n"
+                f"This OTP is valid for 10 minutes. Do not share it with anyone to keep your account secure.\n\n"
+                f"With Green Regards,\n"
+                f"The AgroBuild Team\n"
+                f"AGROBUILD Private Limited\n"
+                f"B-42 Akruti Garden, Nehrunagar\n"
+                f"Ahmedabad, 380015\n"
+                f"📞 8128383925\n"
+                f"✉️ shopmulti9859@gmail.com"
+            )
+            try:
+                send_mail(
+                    subject,
+                    message,
+                    None,
+                    [email],
+                    fail_silently=False,
+                )
+                # Return success response for AJAX
+                return JsonResponse({'success': True, 'email': email})
+            except Exception as e:
+                # Handle email sending failure
+                return JsonResponse({'success': False, 'message': f'Failed to send OTP email: {e}'}, status=500)
+        else:
+            # This block handles traditional form POST if somehow reached (e.g., JS disabled)
+            messages.error(request, "Please enable JavaScript for registration.")
+            return render(request, 'htmldemo.net/Registration.html')
+
+    # For GET request, just render the initial registration page
+    # This view might also be rendered by otp_verify_view on invalid OTP
     return render(request, 'htmldemo.net/Registration.html')
 
+
+# The otp_verify_view will now RENDER Registration.html with context on failure
 def otp_verify_view(request):
     if request.method == "POST":
-        otp_input = request.POST.get('otp')
+        otp_input = request.POST.get('otp') # This comes from the hidden input in Registration.html
         pending_user = request.session.get('pending_user')
+
         if not pending_user:
+            # If session data is gone, redirect to registration (e.g., session expired)
+            messages.error(request, "OTP session expired or invalid. Please register again.")
             return redirect('registration')
+
         if otp_input == pending_user['otp']:
-            # Create user
+            # Correct OTP
             user = User.objects.create_user(
                 username=pending_user['username'],
                 email=pending_user['email'],
@@ -80,38 +109,44 @@ def otp_verify_view(request):
             messages.success(request, "Registration successful! Please log in.")
             return redirect('login')
         else:
-            return render(request, 'htmldemo.net/otp_verify.html', {'email': pending_user['email'], 'error': 'Invalid OTP!'})
+            # Incorrect OTP - Render Registration.html with error flags
+            # This will allow the JS on the client to re-display the OTP section with the error.
+            email_for_display = pending_user.get('email', '') # Get email for display on client side
+            return render(request, 'htmldemo.net/Registration.html', {
+                'show_otp_section': True, # Flag for client-side JS to show OTP section
+                'email_display': email_for_display, # Pass email to display
+                'otp_error_message': 'Incorrect OTP. Please enter the correct OTP from your email.' # Specific error message
+            })
     else:
+        # If someone directly accesses /otp-verify/ via GET, redirect them to registration.
+        messages.error(request, "Please complete registration first.")
         return redirect('registration')
-    
-def index(request):
-    return render(request, 'htmldemo.net/index.html')
+
 
 def login_view(request):
     if request.method == 'POST':
-        username = request.POST['username']
         email = request.POST['email']
         password = request.POST['password']
-        
+
         try:
             validate_email(email)
         except ValidationError:
-            return render(request, 'htmldemo.net/login.html', 
+            return render(request, 'htmldemo.net/login.html',
                         {'error': 'Please enter a valid email address!'})
+
         try:
-            user = User.objects.get(username=username, email=email)
-            authenticated_user = authenticate(username=username, password=password)
-            
+            user = User.objects.get(email=email)
+            authenticated_user = authenticate(username=user.username, password=password)
             if authenticated_user is not None:
                 auth_login(request, authenticated_user)
                 messages.success(request, "You have successfully logged in!")
                 return redirect('index')
             else:
-                return render(request, 'htmldemo.net/login.html', 
+                return render(request, 'htmldemo.net/login.html',
                             {'error': 'Invalid password!'})
         except User.DoesNotExist:
-            return render(request, 'htmldemo.net/login.html', 
-                        {'error': 'Username and email combination not found!'})
+            return render(request, 'htmldemo.net/login.html',
+                        {'error': 'Email not found!'})
     else:
         return render(request, 'htmldemo.net/login.html')
 
@@ -120,3 +155,7 @@ def logout_view(request):
         auth.logout(request)
         messages.success(request, "You have successfully logged out!")
         return redirect('index')
+
+def index(request):
+    return render(request, 'htmldemo.net/index.html')
+
