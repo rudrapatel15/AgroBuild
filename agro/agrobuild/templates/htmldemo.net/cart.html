@@ -42,10 +42,10 @@
                                 {% for item in cart_items %}
                                 <tr data-price="{{ item.product.P_price }}" data-id="{{ item.id }}">
                                     <td class="product_remove">
-                                        <form method="post" action="{% url 'remove_from_cart' %}" style="display:inline;">
+                                        <form method="post" action="{% url 'remove_from_cart' %}" class="remove-from-cart-form" style="display:inline;">
                                             {% csrf_token %}
                                             <input type="hidden" name="item_id" value="{{ item.id }}">
-                                            <button type="submit" style="background: none; border: none;">
+                                            <button type="submit" style="background: none; border: none;" data-item-id="{{ item.id }}">
                                                 <i class="fa fa-trash-o"></i>
                                             </button>
                                         </form>
@@ -64,6 +64,8 @@
                                     </td>
                                     <td class="product_total">₹<span class="line_total">{{ item.total_price }}</span></td>
                                 </tr>
+                                 {% empty %}
+                                    <tr><td colspan="6" style="text-align:center;">No items in Cart.</td></tr>
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -76,14 +78,7 @@
         <div class="coupon_area">
             <div class="row">
                 <div class="col-lg-6 col-md-6">
-                    <div class="coupon_code left">
-                        <h3>Coupon</h3>
-                        <div class="coupon_inner">
-                            <p>Enter your coupon code if you have one.</p>
-                            <input placeholder="Coupon code" type="text">
-                            <button type="button">Apply coupon</button>
-                        </div>
-                    </div>
+                    
                 </div>
                 <div class="col-lg-6 col-md-6">
                     <div class="coupon_code right">
@@ -105,47 +100,116 @@
     </div>
 </div>
 
-
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const shipping = 0;
+document.addEventListener("DOMContentLoaded", function () {
+    const shipping = 0;
 
-        function updateCartTotals() {
-            let subtotal = 0;
-            document.querySelectorAll("#cart_table tbody tr").forEach(function (row) {
-                const price = parseFloat(row.querySelector(".unit_price").textContent);
-                const qty = parseInt(row.querySelector(".qty_input").value);
-                const lineTotal = price * qty;
-                row.querySelector(".line_total").textContent = lineTotal.toFixed(2);
-                subtotal += lineTotal;
-            });
-            
-            document.getElementById("cart_total").textContent = (subtotal + shipping).toFixed(2);
-        }
-
-       
-        document.querySelectorAll(".qty_input").forEach(input => {
-            input.addEventListener("input", updateCartTotals);
+    function updateCartTotals() {
+        let subtotal = 0;
+        document.querySelectorAll("#cart_table tbody tr").forEach(function (row) {
+            const price = parseFloat(row.querySelector(".unit_price").textContent);
+            const qty = parseInt(row.querySelector(".qty_input").value);
+            const lineTotal = price * qty;
+            row.querySelector(".line_total").textContent = lineTotal.toFixed(2);
+            subtotal += lineTotal;
         });
+        
+        document.getElementById("cart_total").textContent = (subtotal + shipping).toFixed(2);
+    }
 
-      
-        updateCartTotals();
-    });
-</script>
-{% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    
-    const quantityInputs = document.querySelectorAll('.qty_input');
-    
-
-    quantityInputs.forEach(input => {
-        input.addEventListener('change', function() {
-            
+    // Handle quantity updates
+    document.querySelectorAll(".qty_input").forEach(input => {
+        input.addEventListener("input", updateCartTotals);
+        input.addEventListener("change", function() {
             this.closest('.update-quantity-form').submit();
         });
     });
+
+    // Handle item deletion via AJAX
+    document.querySelectorAll(".remove-from-cart-form").forEach(form => {
+        form.addEventListener("submit", function (e) {
+            e.preventDefault(); // Prevent default form submission
+
+            const itemId = form.querySelector('input[name="item_id"]').value;
+            const formData = new FormData(form);
+            const csrfToken = form.querySelector('input[name="csrfmiddlewaretoken"]').value;
+
+            fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        alert('Please log in to remove items from the cart.');
+                        window.location.href = '/login/';
+                        return null;
+                    }
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data) return;
+                if (data.success) {
+                    // Remove the table row from the DOM
+                    const row = document.querySelector(`tr[data-id="${itemId}"]`);
+                    if (row) {
+                        row.remove();
+                    }
+                    // Update cart totals
+                    updateCartTotals();
+                    // Show a confirmation message (optional)
+                    showPopup('Item removed from cart');
+                } else {
+                    showPopup('Error removing item from cart');
+                }
+            })
+            .catch(error => {
+                console.error('Error removing item:', error);
+                showPopup('Failed to remove item');
+            });
+        });
+    });
+
+    // Function to show popup messages
+    function showPopup(message) {
+        let popup = document.querySelector('.cart-popup');
+        if (popup) {
+            popup.remove();
+        }
+        popup = document.createElement('div');
+        popup.className = 'cart-popup';
+        popup.style.position = 'fixed';
+        popup.style.bottom = '20px';
+        popup.style.right = '20px';
+        popup.style.backgroundColor = '#79a206';
+        popup.style.color = 'white';
+        popup.style.padding = '10px 20px';
+        popup.style.borderRadius = '5px';
+        popup.style.zIndex = '1000';
+        popup.style.opacity = '0';
+        popup.style.transition = 'opacity 0.3s ease-in-out';
+        popup.textContent = message;
+        document.body.appendChild(popup);
+        
+        setTimeout(() => {
+            popup.style.opacity = '1';
+        }, 10);
+        setTimeout(() => {
+            popup.style.opacity = '0';
+            setTimeout(() => {
+                popup.remove();
+            }, 300);
+        }, 2000);
+    }
+
+    // Initial cart total calculation
+    updateCartTotals();
 });
 </script>
-{% endblock %}
 {% endblock %}

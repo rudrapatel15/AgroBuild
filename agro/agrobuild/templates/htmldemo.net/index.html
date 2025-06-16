@@ -15,6 +15,9 @@
     display: inline-block;
     color: #79a206 !important;
 }
+.wishlist-btn, .add_to_cart button {
+    cursor: pointer;
+}
 .fa-heart:not(.wishlisted) {
     display: none;
 }
@@ -197,6 +200,14 @@
        style="font-size: 18px; margin-left: 10px; border: 2px solid transparent; padding: 4px; position: relative; top: 20px;"></i>
 </button>
 </form>   
+{% if not user.is_authenticated %}
+    <script>
+        document.getElementById('cart-icon-{{ product.P_id }}').parentNode.parentNode.onsubmit = function() {
+            window.location.href = '/login/';
+            return false;
+        };
+    </script>
+    {% endif %}
 </li>
  
                                                     <li class="wishlist">
@@ -327,7 +338,7 @@ function handleIframeLoad() {
         .getAttribute('data-product-name');
     
     showCartPopup(`${productName} added to cart`);
-
+      
     lastSubmittedProductId = null;
 }
 
@@ -352,12 +363,17 @@ function showCartPopup(message) {
 }
 </script>
 
-
 <!-- Existing Wishlist JavaScript (unchanged) -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.wishlist-btn').forEach(function(btn) {
         btn.addEventListener('click', function(e) {
+            {% if not user.is_authenticated %}
+            e.preventDefault();
+            window.location.href = '/login/';
+            return;
+            {% endif %}
+
             e.preventDefault();
             var iconOutline = this.querySelector('.fa-heart-o');
             var iconFilled = this.querySelector('.fa-heart');

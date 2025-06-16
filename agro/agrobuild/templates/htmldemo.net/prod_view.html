@@ -3,7 +3,9 @@
 {% block body %}
 {% load static %}
 <iframe name="hiddenFrame" style="display:none;"></iframe>
+
 <style>
+    
 /* Button styles */
 .btn-custom {
     padding: 10px 20px;
@@ -58,9 +60,7 @@
 .icon-shopping-bag.add_to_carted {
     color: #79a206 !important;
 }
-.icon-shopping-bag:not(.add_to_carted) {
-    color: white;
-}
+
 .wishlisted {
     color: #79a206 !important;
 }
@@ -140,24 +140,24 @@
                     </div>
                     <!-- Add to Cart and Wishlist buttons -->
                     <div class="action-buttons">
-<form method="POST"
-      action="{% url 'add_to_cart' product.P_id %}"
-      target="hiddenFrame"
-      id="cart-form-{{ product.P_id }}">
-  {% csrf_token %}
-  <input type="hidden" name="from_index" value="false">
-  <input type="hidden" name="return_url" value="{{ request.get_full_path }}">
-
-  <button type="submit"
-          class="btn btn-custom btn-add-to-cart"
-          id="cart-btn-{{ product.P_id }}"
-          data-product-name="{{ product.P_name }}"
-          onclick="handleAddToCart(event, '{{ product.P_id }}')">
-    <span id="btn-text-{{ product.P_id }}">
-      {% if product.P_id in cart_ids %}Go to Cart{% else %}Add to Cart{% endif %}
-    </span>
-  </button>
-</form>                  
+                        <form method="POST"
+                              action="{% url 'add_to_cart' product.P_id %}"
+                              target="hiddenFrame"
+                              id="cart-form-{{ product.P_id }}">
+                          {% csrf_token %}
+                          <input type="hidden" name="from_index" value="false">
+                          <input type="hidden" name="return_url" value="{{ request.get_full_path }}">
+                        
+                          <button type="submit"
+                                  class="btn btn-custom btn-add-to-cart"
+                                  id="cart-btn-{{ product.P_id }}"
+                                  data-product-name="{{ product.P_name }}"
+                                  onclick="handleAddToCart(event, '{{ product.P_id }}')">
+                            <span id="btn-text-{{ product.P_id }}">
+                              {% if product.P_id in cart_ids %}Go to Cart{% else %}Add to Cart{% endif %}
+                            </span>
+                          </button>
+                        </form>                  
 
                         <form id="wishlist-form" class="wishlist-form">
                             {% csrf_token %}
@@ -185,7 +185,7 @@
                             <li><a class="pinterest" href="https://www.pinterest.com/" title="Pinterest" target="_blank"><i class="fa fa-pinterest"></i> Pinterest</a></li>
                         </ul>
                     </div>
-                </div>
+                </div>                        
             </div>
         </div>
     </div>
@@ -349,7 +349,5 @@ function showPopup(message) {
   }, 2000); // Hide after 2 seconds
 }
 </script>
-
-
 
 {% endblock %}
