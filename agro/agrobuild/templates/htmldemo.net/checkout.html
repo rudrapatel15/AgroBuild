@@ -2,6 +2,7 @@
 {% block title %} Checkout {% endblock %}
 {% block body %}
 {% load static %}
+
 <!--breadcrumbs area start-->
 <div class="breadcrumbs_area">
     <div class="container">
@@ -39,12 +40,12 @@
                         <div class="row">
                             <div class="col-lg-12 mb-20">
                                 <label>Full Name <span>*</span></label>
-                                <input type="text" name="full_name" value="{{ user.get_full_name }}" required>
+                                <input type="text" name="full_name" value="{{ user.get_full_name|default:user.username }}" readonly required style="background:#f5f5f5; color:#888;">
                             </div>
                             <div class="col-lg-12 mb-20">
-    <label>Email Address <span>*</span></label>
-    <input type="email" name="email" value="{{ user.email }}" required readonly style="background:#f5f5f5; color:#888;">
-</div>
+                                <label>Email Address <span>*</span></label>
+                                <input type="email" name="email" value="{{ user.email }}" required readonly style="background:#f5f5f5; color:#888;">
+                            </div>
                             <div class="col-12 mb-20">
                                 <label>Street Address <span>*</span></label>
                                 <input placeholder="House number and street name" type="text" name="address" required>
@@ -125,10 +126,10 @@
                                         <label for="allow_website" class="form-check-label">Allow website notification</label>
                                     </div>
                                     <div class="form-check mt-2">
-    <input type="checkbox" name="allow_gmail" id="allow_gmail" value="true" />
-    <label for="allow_gmail" class="form-check-label">Allow Gmail notification</label>
-    <input type="hidden" name="gmail" value="{{ user.email }}">
-</div>
+                                        <input type="checkbox" name="allow_gmail" id="allow_gmail" value="true" />
+                                        <label for="allow_gmail" class="form-check-label">Allow Gmail notification</label>
+                                        <input type="hidden" name="gmail" value="{{ user.email }}">
+                                    </div>
                                 </div>
                             </div>
                         {% endif %}

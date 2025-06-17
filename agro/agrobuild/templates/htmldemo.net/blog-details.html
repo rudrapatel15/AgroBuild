@@ -93,7 +93,8 @@
                                     </div>
                                     <div class="col-lg-4 col-md-4">
                                         <label for="author">Name</label>
-                                        <input id="author" name="name" type="text" value="{{ user.first_name }} {{ user.last_name }}" readonly>
+                                        {% comment %} <input id="author" name="name" type="text" value="{{ user.first_name }} {{ user.last_name }}" readonly> {% endcomment %}
+                                        <input id="author" name="name" type="text" value="{{ user.get_full_name|default:user.username }}" readonly>
                                     </div>
                                     <div class="col-lg-4 col-md-4">
                                         <label for="email">Email</label>

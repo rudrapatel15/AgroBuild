@@ -112,11 +112,11 @@
                                 {% csrf_token %}
                                 <p>
                                     <label>Your Name (required)</label>
-                                    <input name="name" placeholder="Name *" type="text" value="{{ user.first_name }} {{ user.last_name }}" required>
+                                    <input type="text" name="name" placeholder="Name *" value="{{ user.get_full_name|default:user.username }}" readonly required style="background:#f5f5f5; color:#888;">
                                 </p>
                                 <p>
                                     <label>Your Email (required)</label>
-                                    <input name="email" placeholder="Email *" type="email" value="{{ user.email }}" required>
+                                    <input name="email" placeholder="Email *" type="email" value="{{ user.email }}" readonly required style="background:#f5f5f5; color:#888;">
                                 </p>
                                 <p>
                                     <label>Subject</label>

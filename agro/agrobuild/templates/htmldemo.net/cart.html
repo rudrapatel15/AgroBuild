@@ -64,6 +64,8 @@
                                     </td>
                                     <td class="product_total">₹<span class="line_total">{{ item.total_price }}</span></td>
                                 </tr>
+                                {% empty %}
+                                    <tr><td colspan="6" style="text-align:center;">No items in cart.</td></tr>
                                 {% endfor %}
                             </tbody>
                         </table>

@@ -47,7 +47,7 @@
                             <div class="col-md-6">
                                 <div class="form-floating">
                                     <input type="text" class="form-control" id="name" name="name" 
-                                           value="{{ user.first_name }} {{ user.last_name }}" required readonly>
+                                           value="{{ user.get_full_name|default:user.username }}" required readonly>
                                     <label for="name">Your Name</label>
                                     <div class="invalid-feedback">
                                         Please provide your name.
@@ -66,8 +66,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
-                                                      
+                                             
                             <!-- Category Field -->
                             <div class="col-12">
                                 <div class="form-floating">
