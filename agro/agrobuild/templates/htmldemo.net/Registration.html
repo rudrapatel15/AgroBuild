@@ -76,7 +76,7 @@
             border: none;
             outline: none;
             font-size: 16px;
-            border-bottom: 2px solid #ccc; /* Initial gray line */
+            border-bottom: 2px solid #ccc; /* Initial blue line */
             border-top: 2px solid transparent;
             transition: all 0.2s ease;
         }
@@ -88,7 +88,6 @@
         .input-field input.is-invalid {
             border-bottom-color: red !important; /* Red border for invalid input */
         }
-
         .input-field i {
             position: absolute;
             top: 50%;
@@ -155,7 +154,8 @@
         .alert {
             padding: 10px 15px;
             border-radius: 5px;
-            margin-bottom: 15px;
+            margin-top: 2px;
+            margin-bottom: 5px;
             text-align: center;
             font-size: 14px;
         }
@@ -178,7 +178,6 @@
             margin-bottom: 30px;
             flex-wrap: wrap;
         }
-
         .otp-input {
             width: 60px;
             height: 60px;
@@ -190,7 +189,6 @@
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
             -moz-appearance: textfield;
         }
-
         .otp-input:focus {
             border-color: #4070f4;
             box-shadow: 0 0 0 0.25rem rgba(64, 112, 244, 0.25);
@@ -201,10 +199,10 @@
             -webkit-appearance: none;
             margin: 0;
         }
-
         .btn-verify {
-            background-color: #4070f4;
-            border-color: #4070f4;
+            background-color: black;
+            border-color: black;
+            color: white;
             padding: 10px 30px;
             border-radius: 8px;
             font-weight: 500;
@@ -212,36 +210,31 @@
             width: 100%;
             cursor: pointer;
         }
-
         .btn-verify:hover {
-            background-color: #305bbf;
-            border-color: #305bbf;
+            background-color: #4070f4;
+            border-color: #4070f4;
+            color: black;
             transform: translateY(-2px);
         }
-
         .resend-text {
             margin-top: 20px;
             color: #666;
             font-size: 14px;
         }
-
         .resend-link {
             color: #4070f4;
             text-decoration: none;
             font-weight: 500;
         }
-
         .resend-link:hover {
             text-decoration: underline;
         }
-
         .timer {
             font-size: 1.1rem;
             font-weight: 600;
             color: #333;
             margin-top: 15px;
         }
-
         .info {
             margin-bottom: 15px;
             color: #4070f4;
@@ -330,22 +323,12 @@
 </head>
 <body>
     <div class="container">
-        {# Display Django messages from views.py #}
-        {# These are handled by JS to prevent unwanted messages on wrong pages #}
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert" data-django-message>
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
-
         {# Display AJAX registration errors #}
         <div id="ajaxErrorMessages" class="alert alert-danger" style="display: none;"></div>
         {# Display OTP verification errors from server #}
         <div id="otpErrorMessages" class="alert alert-danger" style="display: none;"></div>
-
-
+        
+        {# Registration Section (Initially Visible) #}
         <div class="form registration-section" id="registrationSection">
             <span class="title">Registration</span>
             <form method="post" action="{% url 'registration' %}" id="registrationForm" novalidate>
@@ -385,7 +368,7 @@
             <span class="title">Verify OTP</span>
             <div class="info">An OTP has been sent to your email: <b id="otpEmailDisplay"></b></div>
 
-            <form method="post" action="{% url 'otp_verify' %}" id="otpForm">
+            <form method="post" action="{% url 'otp_verify' %}" id="otpForm" novalidate> {# Added novalidate here #}
                 {% csrf_token %}
                 <div class="otp-input-group">
                     <input type="number" class="form-control otp-input" maxlength="1" id="otp-input-1" name="otp_digit_1" autocomplete="off" inputmode="numeric" pattern="[0-9]*" required>
@@ -400,12 +383,11 @@
             </form>
 
             <div class="resend-text">
-                Didn't receive code? <a href="#" class="resend-link" id="resendLink">Request again</a>
+                Didn't receive OTP? <a href="#" class="resend-link" id="resendLink">Resend OTP</a> {# Changed text here #}
             </div>
 
             <div class="timer" id="timer">02:00</div>
         </div>
-
     </div>
 
     <!-- Message Box for client-side feedback -->
@@ -433,7 +415,7 @@
 
         function showMessage(message, isError = false) {
             messageBox.textContent = message;
-            messageBox.classList.remove('error');
+            messageBox.classList.remove('error', 'show'); // Reset classes
             if (isError) {
                 messageBox.classList.add('error');
             }
@@ -443,36 +425,7 @@
             }, 3000);
         }
 
-        function showSection(sectionId, email = null, errorMsg = null) {
-            document.querySelectorAll('.form').forEach(section => {
-                section.classList.remove('active');
-                section.classList.add('hidden');
-            });
-            document.getElementById(sectionId).classList.remove('hidden');
-            document.getElementById(sectionId).classList.add('active');
-
-            if (sectionId === 'otpSection') {
-                if (email) {
-                    document.getElementById('otpEmailDisplay').textContent = email;
-                }
-                otpInputs.forEach(input => input.value = ''); // Clear OTP inputs on display
-                otpInputs[0].focus(); // Focus first OTP input
-
-                // Clear any previous OTP errors
-                otpErrorMessages.style.display = 'none';
-                otpErrorMessages.textContent = '';
-                // Display server-side OTP error if present (from views.py context)
-                if (errorMsg) {
-                    otpErrorMessages.style.display = 'block';
-                    otpErrorMessages.textContent = errorMsg;
-                }
-                startTimer(); // Start timer when OTP section is shown
-            } else if (sectionId === 'registrationSection') {
-                clearInterval(timerInterval); // Stop timer if switching back to registration
-            }
-        }
-
-        // --- DOM Elements ---
+        // --- Core UI & Timer Logic ---
         const pwShowHide = document.querySelectorAll(".showHidePw");
         const registrationForm = document.getElementById('registrationForm');
         const registrationSection = document.getElementById('registrationSection');
@@ -481,16 +434,14 @@
         const ajaxErrorMessages = document.getElementById('ajaxErrorMessages'); // For registration AJAX errors
         const otpErrorMessages = document.getElementById('otpErrorMessages'); // For OTP server errors
 
-        const registerButton = document.getElementById('registerButton'); // Reference to the submit button
-        const registrationLoadingOverlay = document.getElementById('registrationLoadingOverlay'); // Loading overlay
+        const registerButton = document.getElementById('registerButton');
+        const registrationLoadingOverlay = document.getElementById('registrationLoadingOverlay');
 
-        // Registration form fields
         const username = document.getElementById('username');
         const email = document.getElementById('email');
         const password1 = document.getElementById('password1');
         const password2 = document.getElementById('password2');
 
-        // OTP form elements
         const otpInputs = document.querySelectorAll('.otp-input');
         const verifyOtpButton = document.getElementById('verifyOtpButton');
         const resendLink = document.getElementById('resendLink');
@@ -499,8 +450,80 @@
         const combinedOtpInput = document.getElementById('combinedOtpInput');
 
         let timerInterval;
+        let timeRemaining = 0; // Initialize to 0, it will be set by startTimer
         const initialTimeInSeconds = 2 * 60; // 2 minutes
-        let timeRemaining = initialTimeInSeconds;
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        // Function to start or restart the timer
+        function startTimer() {
+            clearInterval(timerInterval); // Always clear previous interval to prevent duplicates
+            timeRemaining = initialTimeInSeconds; // Reset time for a new OTP
+            resendLink.style.display = 'none'; // Hide resend link
+            timerDisplay.style.display = 'block'; // Show timer
+            verifyOtpButton.disabled = true; // Disable verify button initially (will enable when OTP is typed)
+            updateTimerDisplay();
+
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerDisplay();
+
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    timerDisplay.textContent = '00:00';
+                    resendLink.style.display = 'block'; // Show resend link
+                    verifyOtpButton.disabled = true; // Disable verify button as OTP is expired
+                    showMessage("Time's up! Please request for a new OTP.", true);
+                    otpInputs.forEach(input => input.value = ''); // Clear OTP inputs
+                    otpErrorMessages.style.display = 'none'; // Clear any old OTP errors when timer expires
+                    otpErrorMessages.textContent = '';
+                }
+            }, 1000);
+        }
+
+        // Function to display OTP section and handle its state
+        function showOtpSectionUI(email, errorMsg) {
+            showSection('otpSection', email); // Show the OTP section UI
+            
+            // Handle OTP errors display
+            if (errorMsg) {
+                otpErrorMessages.style.display = 'block';
+                otpErrorMessages.textContent = errorMsg;
+            } else {
+                otpErrorMessages.style.display = 'none';
+                otpErrorMessages.textContent = '';
+            }
+
+            // Always clear inputs and focus first input on entering this section
+            otpInputs.forEach(input => input.value = '');
+            otpInputs[0].focus();
+            checkAllOtpInputsFilled(); // Update button state
+        }
+
+        function showSection(sectionId, email = null) { // Removed errorMsg from here, handled by showOtpSectionUI
+            // Hide all sections first
+            document.querySelectorAll('.form').forEach(section => {
+                section.classList.remove('active');
+                section.classList.add('hidden');
+            });
+            // Show the target section
+            document.getElementById(sectionId).classList.remove('hidden');
+            document.getElementById(sectionId).classList.add('active');
+
+            if (sectionId === 'otpSection') {
+                if (email) {
+                    document.getElementById('otpEmailDisplay').textContent = email;
+                }
+                // No need to start timer here. startTimer() is called explicitly when needed.
+                // OTP inputs are cleared and focused by showOtpSectionUI.
+            } else if (sectionId === 'registrationSection') {
+                clearInterval(timerInterval); // Stop timer if switching back to registration
+            }
+        }
 
         // --- Password Show/Hide Functionality ---
         pwShowHide.forEach(eyeIcon => {
@@ -558,7 +581,7 @@
             if (!value) {
                 showError(email, "Please enter your email.");
             } else if (!emailPattern.test(value)) {
-                showError(email, "Please enter a valid email address (e.g., example@gmail.com).");
+                showError(email, "Please enter a valid email address.");
             } else {
                 clearError(email);
             }
@@ -603,7 +626,7 @@
             input.addEventListener('focus', function() {
                 this.classList.remove('is-invalid');
                 this.classList.add('is-valid');
-                let error = this.parentElement.querySelector('.input-error');
+                let error = input.parentElement.querySelector('.input-error');
                 if (error) error.remove();
             });
         });
@@ -663,7 +686,8 @@
                 if (response.ok) { // Check if HTTP status is 2xx
                     if (data.success) {
                         showMessage('OTP sent successfully! Please check your email.', false);
-                        showSection('otpSection', data.email); // Show OTP section
+                        showOtpSectionUI(data.email, null); // Show OTP section, no error message initially
+                        startTimer(); // Start timer here, as OTP is new
                     } else {
                         // Handle server-side logic errors (e.g., email sending failed)
                         showMessage(data.message || 'Registration failed due to an unknown error.', true);
@@ -697,34 +721,6 @@
         });
 
         // --- OTP Verification Logic ---
-        function startTimer() {
-            timeRemaining = initialTimeInSeconds;
-            resendLink.style.display = 'none';
-            timerDisplay.style.display = 'block';
-            verifyOtpButton.disabled = true; // Disable until all OTP digits are typed
-            updateTimerDisplay();
-
-            clearInterval(timerInterval); // Clear any existing timer to prevent multiple timers running
-            timerInterval = setInterval(() => {
-                timeRemaining--;
-                updateTimerDisplay();
-
-                if (timeRemaining <= 0) {
-                    clearInterval(timerInterval);
-                    timerDisplay.textContent = '00:00';
-                    resendLink.style.display = 'block';
-                    verifyOtpButton.disabled = true;
-                    showMessage("Time's up! You can request a new code.");
-                }
-            }, 1000);
-        }
-
-        function updateTimerDisplay() {
-            const minutes = Math.floor(timeRemaining / 60);
-            const seconds = timeRemaining % 60;
-            timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-        }
-
         // OTP input auto-focus and validation (client-side)
         otpInputs.forEach((input, index) => {
             input.addEventListener('input', (e) => {
@@ -752,34 +748,84 @@
             verifyOtpButton.disabled = !allFilled;
         }
 
-        // OTP Form Submission (this form will make a traditional POST request to otp_verify_view)
-        otpForm.addEventListener('submit', function(e) {
+        // OTP Form Submission (now an AJAX call)
+        otpForm.addEventListener('submit', async function(e) {
+            e.preventDefault(); // Prevent default form submission for AJAX
+            
+            otpErrorMessages.style.display = 'none'; // Clear previous error messages
+            otpErrorMessages.textContent = '';
+            
             const otpCode = Array.from(otpInputs).map(input => input.value).join('');
-            combinedOtpInput.value = otpCode; // Set the hidden input value
-
+            
             if (otpCode.length !== otpInputs.length) {
                 showMessage('Please enter all 4 digits of the OTP.', true);
-                e.preventDefault(); // Prevent form submission if not complete
-                return;
+                return; // Stop if client-side validation not complete
             }
-            // If client-side valid, allow default form submission to views.py/otp_verify_view
-            // The server will then handle valid/invalid OTP and redirect/render accordingly.
+
+            try {
+                const response = await fetch(otpForm.action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ otp: otpCode })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) { // Success (HTTP 200 OK)
+                    if (data.success && data.redirect_url) {
+                        showMessage('OTP Verified Successfully! Redirecting...', false);
+                        clearInterval(timerInterval); // Stop timer on success
+                        window.location.href = data.redirect_url; // Perform client-side redirect
+                    } else {
+                        // This case should ideally not happen if server logic is correct
+                        showMessage(data.message || 'Verification failed due to an unknown error.', true);
+                    }
+                } else { // Error (HTTP 4xx/5xx)
+                    // Display server-side error message (Incorrect OTP, Expired OTP, etc.)
+                    // showMessage(data.message || 'OTP verification failed.', true);
+                    otpErrorMessages.style.display = 'block';
+                    otpErrorMessages.textContent = data.message || 'OTP verification failed.';
+                    otpInputs.forEach(input => input.value = ''); // Clear OTP inputs on error
+                    otpInputs[0].focus(); // Focus first input for re-entry
+                    checkAllOtpInputsFilled(); // Update button state
+
+                    // IMPORTANT FIX: Do NOT reset timer on incorrect OTP or expiry.
+                    // The timer should only reset on a successful resend.
+                    // If the OTP is expired, the timer display should already be 00:00.
+                    // If incorrect, the timer should continue from where it was.
+                    if (timeRemaining <= 0) { // If it was already expired
+                         timerDisplay.textContent = '00:00';
+                         resendLink.style.display = 'block';
+                         verifyOtpButton.disabled = true;
+                    } else {
+                        // If incorrect OTP and timer was still running, ensure it continues
+                        // No action needed here as interval keeps running.
+                    }
+                }
+            } catch (error) {
+                console.error('Network or parsing error during OTP verification:', error);
+                showMessage('An error occurred during OTP verification. Please try again.', true);
+            }
         });
 
 
         // Resend OTP Link
         resendLink.addEventListener('click', async (e) => {
             e.preventDefault();
-            showMessage('Requesting new code...');
+            showMessage('Resending OTP...');
 
             // Clear current OTP inputs and disable verify button
             otpInputs.forEach(input => input.value = '');
             verifyOtpButton.disabled = true;
+            otpErrorMessages.style.display = 'none'; // Clear any existing OTP error message
+            otpErrorMessages.textContent = ''; // Clear text
 
             try {
-                // IMPORTANT: You need to create a Django URL and View for '/resend-otp-ajax/'
-                // This view should regenerate and send a new OTP, then return JsonResponse({'success': True})
-                const response = await fetch('/resend-otp-ajax/', { // Example URL, define in urls.py
+                const response = await fetch('{% url "resend_otp_ajax" %}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -791,11 +837,11 @@
                 const data = await response.json();
 
                 if (response.ok && data.success) {
-                    showMessage('New code sent! Please check your email.', false);
+                    showMessage('New OTP sent! Please check your email.', false);
                     otpInputs[0].focus();
-                    startTimer(); // Restart timer
+                    startTimer(); // Restart timer (sets to 2 min, hides resend link)
                 } else {
-                    showMessage(data.message || 'Failed to resend code. Please try again later.', true);
+                    showMessage(data.message || 'Failed to resend OTP. Please try again later.', true);
                 }
             } catch (error) {
                 console.error('Error resending OTP:', error);
@@ -804,39 +850,49 @@
         });
 
         // --- Page Load & Back/Forward Cache Handling ---
-        // This function sets the initial state of the form when the page loads
-        // or when navigating back/forward in browser history.
         function initializeFormState() {
             // Retrieve Django context variables (passed from views.py)
-            // Use JSON.parse and check for existence as they might not always be there
-            const showOtpSection = "{{ show_otp_section|yesno:'True,False' }}" === 'True';
-            const emailDisplay = "{{ email_display|default:'' }}";
-            const otpErrorMessage = "{{ otp_error_message|default:'' }}";
+            // Note: With OTP verification now fully AJAX, these context variables won't be used
+            // for displaying OTP errors on re-submission (as there's no reload).
+            // They primarily handle the initial load if otp_verify_view directly renders this template
+            // (e.g., if a user directly navigates to /otp-verify/ or if a previous full POST failed)
+            const djangoShowOtpSection = "{{ show_otp_section|yesno:'True,False' }}" === 'True';
+            const djangoEmailDisplay = "{{ email_display|default:'' }}";
+            const djangoOtpErrorMessage = "{{ otp_error_message|default:'' }}";
 
-            // Hide all existing Django messages (e.g., "You have successfully logged in!")
-            // This is crucial to clear messages from previous unrelated actions.
-            document.querySelectorAll('[data-django-message]').forEach(msgDiv => {
-                // Only hide if it's not an OTP error (which we want to show on re-render)
-                // And not a success message that we might want to display briefly before clearing.
-                if (!msgDiv.classList.contains('alert-success') || !showOtpSection) {
-                    msgDiv.style.display = 'none';
-                    msgDiv.remove(); // Remove from DOM after hiding
+            // Process and clear Django messages from previous redirects (not form-specific errors)
+            // No changes here, as we already commented out the Django messages loop in HTML.
+            // This ensures no lingering Django messages.
+
+            // Decision logic for which section to show on initial page load or full render
+            if (djangoShowOtpSection && djangoEmailDisplay) {
+                // If view explicitly tells us to show OTP section (e.g., from otp_verify_view if it renders on invalid session)
+                showSection('otpSection', djangoEmailDisplay);
+                // Display the server-side OTP error message if one was passed during this render
+                if (djangoOtpErrorMessage) {
+                    otpErrorMessages.style.display = 'block';
+                    otpErrorMessages.textContent = djangoOtpErrorMessage;
                 }
-            });
-
-
-            if (showOtpSection) {
-                // If the view explicitly told us to show OTP section (e.g., invalid OTP)
-                showSection('otpSection', emailDisplay, otpErrorMessage);
+                // When landing on OTP section from a full render (e.g., invalid OTP, session expired),
+                // the timer should be reset to 00:00 and resend link shown, as the OTP is likely expired or invalid.
+                clearInterval(timerInterval); // Ensure no timer is running
+                timeRemaining = 0; // Set to 0 to show 00:00
+                updateTimerDisplay(); // Update display
+                resendLink.style.display = 'block'; // Make resend visible
+                verifyOtpButton.disabled = true; // Disable verify button
+                otpInputs.forEach(input => input.value = ''); // Clear inputs
+                otpInputs[0].focus(); // Focus for user to re-enter or resend
             } else {
-                // Default state: show registration form
+                // Default: show registration form
                 showSection('registrationSection');
-                // Clear all input fields when showing registration form for a fresh start
                 username.value = '';
                 email.value = '';
                 password1.value = '';
                 password2.value = '';
-                clearAllRegistrationErrors(); // Clear client-side validation states too
+                clearAllRegistrationErrors();
+                clearInterval(timerInterval); // Ensure timer is stopped if on registration page
+                timeRemaining = 0; // Reset time
+                updateTimerDisplay(); // Update display
             }
         }
 
@@ -846,201 +902,22 @@
         // Handle back/forward navigation to prevent timer issues and re-initialize form
         window.addEventListener('pageshow', function(event) {
             if (event.persisted) {
-                // If loaded from cache (user navigated back/forward)
-                console.log('Page loaded from cache. Re-initializing form state.');
-                initializeFormState();
+                console.log('Page loaded from cache via history navigation. Re-initializing form state.');
+                // For 'pageshow' from cache, we want a clean slate typically
+                // Always go back to registration form on back navigation from other pages
+                showSection('registrationSection');
+                username.value = '';
+                email.value = '';
+                password1.value = '';
+                password2.value = '';
+                clearAllRegistrationErrors();
+                clearInterval(timerInterval); // Ensure timer is stopped
+                timeRemaining = 0; // Reset timer display
+                updateTimerDisplay();
+                resendLink.style.display = 'block'; // Ensure resend is visible if timer was active
+                verifyOtpButton.disabled = true; // Ensure verify button is disabled
             }
         });
     </script>
 </body>
 </html>
-
-
-
-{% comment %} <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% load static %}
-    <!--  Iconscout CSS -->
-    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
-    <title>AGRO BUILD - Registration</title>
-    <!-- Favicon -->
-    <link rel="shortcut icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
-    <!-- CSS code for Registration -->
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
-        body {
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-image: url("{% static 'img/Login_Bg/BGImg.jpg' %}");
-            background-size: 1285px 759px;
-        }
-        .container {
-            position: relative;
-            max-width: 430px;
-            width: 100%;
-            background: #fff;
-            border-radius: 20px;
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            margin: 0 20px;
-        }
-        .form {
-            width: 100%;
-            padding: 30px;
-        }
-        .form .title {
-            font-size: 27px;
-            font-weight: 600;
-            position: relative;
-        }
-        .form .title::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            bottom: 0;
-            height: 3px;
-            width: 30px;
-            background-color: #4070f4;
-            border-radius: 25px;
-        }
-        .input-field {
-            position: relative;
-            height: 50px;
-            margin-top: 30px;
-        }
-        .input-field input {
-            position: absolute;
-            height: 100%;
-            width: 100%;
-            padding: 0 35px;
-            border: none;
-            outline: none;
-            font-size: 16px;
-            border-bottom: 2px solid #ccc;
-            border-top: 2px solid transparent;
-            transition: all 0.2s ease;
-        }
-        .input-field input:focus,
-        .input-field input:valid {
-            border-bottom-color: #4070f4;
-        }
-        .input-field i {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #999;
-            font-size: 23px;
-        }
-        .input-field input:focus ~ i {
-            color: #4070f4;
-        }
-        .input-field i.icon {
-            left: 0;
-        }
-        .input-field i.showHidePw {
-            right: 0;
-            cursor: pointer;
-            padding: 10px;
-        }
-        .button input {
-            margin-top: 2px;
-            width: 100%;
-            padding: 12px;
-            border: none;
-            background-color: black;
-            color: white;
-            font-size: 16px;
-            font-weight: 500;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .button input:hover {
-            background-color: #4070f4;
-        }
-        .login-signup {
-            margin-top: 30px;
-            text-align: center;
-        }
-        .login-signup .text {
-            color: #333;
-            font-size: 14px;
-        }
-        .login-signup .text a {
-            color: #4070f4;
-            text-decoration: none;
-        }
-        .login-signup .text a:hover {
-            text-decoration: underline;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        {% if error %}
-            <div class="alert alert-danger" style="color: red; margin-bottom: 10px;">{{ error }}</div>
-        {% endif %}
-        <div class="form">
-            <span class="title">Registration</span>
-            <form method="post" action="{% url 'registration' %}">
-                {% csrf_token %}
-                <div class="input-field">
-                    <input type="text" name="username" id="username" placeholder="Enter your name" required>
-                    <i class="uil uil-user"></i>
-                </div>
-                <div class="input-field">
-                    <input type="email" name="email" id="email" placeholder="Enter your email" required>
-                    <i class="uil uil-envelope icon"></i>
-                </div>
-                <div class="input-field">
-                    <input type="password" name="password1" id="password1" class="password" placeholder="Create a password" required>
-                    <i class="uil uil-lock icon"></i>
-                    <i class="uil uil-eye-slash showHidePw"></i>
-                </div>
-                <div class="input-field">
-                    <input type="password" name="password2" id="password2" class="password" placeholder="Confirm a password" required>
-                    <i class="uil uil-lock icon"></i>
-                    <i class="uil uil-eye-slash showHidePw"></i>
-                </div>
-                <div class="input-field button">
-                    <input type="submit" value="Register">
-                </div>
-            </form>
-            <div class="login-signup">
-                <span class="text">Already a member? <a href="{% url 'login' %}" class="text">Login Now</a></span>
-            </div>
-        </div>
-    </div>
-
-    <!-- JS Code for Registration -->
-    <script>
-        const pwShowHide = document.querySelectorAll(".showHidePw");
-
-        pwShowHide.forEach(eyeIcon => {
-            eyeIcon.addEventListener("click", () => {
-                // Find the input field inside the same .input-field container
-                const pwField = eyeIcon.parentElement.querySelector('input');
-                if (pwField.type === "password") {
-                    pwField.type = "text";
-                    eyeIcon.classList.replace("uil-eye-slash", "uil-eye");
-                } else {
-                    pwField.type = "password";
-                    eyeIcon.classList.replace("uil-eye", "uil-eye-slash");
-                }
-            });
-        });
-    </script>
-</body>
-</html> {% endcomment %}

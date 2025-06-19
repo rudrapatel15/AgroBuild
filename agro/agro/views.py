@@ -9,6 +9,10 @@ import random
 from django.core.mail import send_mail
 from django.http import JsonResponse
 import json
+import time
+
+# OTP validity period in seconds (2 minutes)
+OTP_VALIDITY_SECONDS = 120
 
 def register_view(request):
     if request.method == "POST":
@@ -41,21 +45,24 @@ def register_view(request):
             if errors:
                 return JsonResponse({'success': False, 'errors': errors}, status=400)
 
-            # Generate OTP and send email
+            # Generate OTP and store with timestamp
             otp = random.randint(1000, 9999)
             request.session['pending_user'] = {
                 'username': username,
                 'email': email,
                 'password': password1,
-                'otp': str(otp)
+                'otp': str(otp),
+                'otp_timestamp': int(time.time())
             }
+            request.session.modified = True
+
             subject = f"Verify Your AgroBuild Account, {username}!"
             message = (
                 f"Dear {username},\n\n"
                 f"Welcome to AgroBuild! 🌱 Thank you for joining our mission to grow a greener future.\n "
                 f"To complete your registration, please use the following One-Time Password (OTP):\n\n"
                 f"OTP: {otp}\n\n"
-                f"This OTP is valid for 10 minutes. Do not share it with anyone to keep your account secure.\n\n"
+                f"This OTP is valid for {OTP_VALIDITY_SECONDS // 60} minutes. Do not share it with anyone to keep your account secure.\n\n"
                 f"With Green Regards,\n"
                 f"The AgroBuild Team\n"
                 f"AGROBUILD Private Limited\n"
@@ -72,31 +79,38 @@ def register_view(request):
                     [email],
                     fail_silently=False,
                 )
-                # Return success response for AJAX
                 return JsonResponse({'success': True, 'email': email})
             except Exception as e:
-                # Handle email sending failure
                 return JsonResponse({'success': False, 'message': f'Failed to send OTP email: {e}'}, status=500)
         else:
-            # This block handles traditional form POST if somehow reached (e.g., JS disabled)
             messages.error(request, "Please enable JavaScript for registration.")
             return render(request, 'htmldemo.net/Registration.html')
 
     # For GET request, just render the initial registration page
-    # This view might also be rendered by otp_verify_view on invalid OTP
     return render(request, 'htmldemo.net/Registration.html')
 
 
-# The otp_verify_view will now RENDER Registration.html with context on failure
+# NEW: otp_verify_view now handles AJAX POST requests for OTP validation
 def otp_verify_view(request):
-    if request.method == "POST":
-        otp_input = request.POST.get('otp') # This comes from the hidden input in Registration.html
+    if request.method == "POST" and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        try:
+            data = json.loads(request.body)
+            otp_input = data.get('otp')
+        except json.JSONDecodeError:
+            return JsonResponse({'success': False, 'message': 'Invalid JSON data'}, status=400)
+
         pending_user = request.session.get('pending_user')
 
         if not pending_user:
-            # If session data is gone, redirect to registration (e.g., session expired)
-            messages.error(request, "OTP session expired or invalid. Please register again.")
-            return redirect('registration')
+            return JsonResponse({'success': False, 'message': 'OTP session expired or invalid. Please register again.'}, status=400)
+
+        otp_timestamp = pending_user.get('otp_timestamp')
+        if otp_timestamp and (time.time() - otp_timestamp > OTP_VALIDITY_SECONDS):
+            # OTP has expired
+            # Clear expired OTP from session to prevent re-use
+            del request.session['pending_user']
+            request.session.modified = True
+            return JsonResponse({'success': False, 'message': 'The OTP has expired. Please request a new one.'}, status=400)
 
         if otp_input == pending_user['otp']:
             # Correct OTP
@@ -106,21 +120,60 @@ def otp_verify_view(request):
                 password=pending_user['password']
             )
             del request.session['pending_user']
-            messages.success(request, "Registration successful! Please log in.")
-            return redirect('login')
+            request.session.modified = True
+            # Return success and URL to redirect to
+            return JsonResponse({'success': True, 'redirect_url': str(redirect('login').url)})
         else:
-            # Incorrect OTP - Render Registration.html with error flags
-            # This will allow the JS on the client to re-display the OTP section with the error.
-            email_for_display = pending_user.get('email', '') # Get email for display on client side
-            return render(request, 'htmldemo.net/Registration.html', {
-                'show_otp_section': True, # Flag for client-side JS to show OTP section
-                'email_display': email_for_display, # Pass email to display
-                'otp_error_message': 'Incorrect OTP. Please enter the correct OTP from your email.' # Specific error message
-            })
+            # Incorrect OTP
+            return JsonResponse({'success': False, 'message': 'Incorrect OTP. Please enter the correct OTP from your email.'}, status=400)
     else:
-        # If someone directly accesses /otp-verify/ via GET, redirect them to registration.
+        # If someone directly accesses /otp-verify/ via GET or non-AJAX POST, redirect them to registration.
         messages.error(request, "Please complete registration first.")
         return redirect('registration')
+
+
+def resend_otp_ajax_view(request):
+    if request.method == "POST" and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        pending_user = request.session.get('pending_user')
+        if not pending_user:
+            return JsonResponse({'success': False, 'message': 'No pending registration session found. Please register again.'}, status=400)
+
+        username = pending_user.get('username')
+        email = pending_user.get('email')
+
+        # Generate new OTP and update session
+        new_otp = random.randint(1000, 9999)
+        pending_user['otp'] = str(new_otp)
+        pending_user['otp_timestamp'] = int(time.time()) # Update timestamp for new OTP
+        request.session['pending_user'] = pending_user # Update the session
+        request.session.modified = True
+
+        subject = f"Your New AgroBuild OTP, {username}!"
+        message = (
+            f"Dear {username},\n\n"
+            f"You requested a new OTP for your AgroBuild account. Here it is:\n\n"
+            f"New OTP: {new_otp}\n\n"
+            f"This OTP is valid for {OTP_VALIDITY_SECONDS // 60} minutes. Do not share it with anyone to keep your account secure.\n\n"
+            f"With Green Regards,\n"
+            f"The AgroBuild Team\n"
+            f"AGROBUILD Private Limited\n"
+            f"B-42 Akruti Garden, Nehrunagar\n"
+            f"Ahmedabad, 380015\n"
+            f"📞 8128383925\n"
+            f"✉️ shopmulti9859@gmail.com"
+        )
+        try:
+            send_mail(
+                subject,
+                message,
+                None,
+                [email],
+                fail_silently=False,
+            )
+            return JsonResponse({'success': True, 'message': 'New OTP sent successfully!'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': f'Failed to resend OTP email: {e}'}, status=500)
+    return JsonResponse({'success': False, 'message': 'Invalid request method or not an AJAX call.'}, status=400)
 
 
 def login_view(request):
