@@ -544,25 +544,21 @@
                                                 {% if user.userprofile.profile_pic %}
                                                     <img src="{{ user.userprofile.profile_pic.url }}" class="user-avatar" alt="Profile">
                                                 {% else %}
-                                                    <div class="user-avatar user-avatar-initial">
-                                                        {{ user.get_full_name|default:user.username|first|upper }}
-                                                    </div>
+                                                    <i class="bi bi-person fs-4"></i>
                                                 {% endif %}
-                                            {% else %}
-                                                <i class="bi bi-person fs-4"></i>
-                                            {% endif %}
-                                        </a>
-                                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                            {% if user.is_authenticated %}
-                                                <li><span class="dropdown-item-text">Hello, {{ user.username }}</span></li>
-                                                <li><hr class="dropdown-divider"></li>
-                                                <li><a class="dropdown-item" href="{% url 'my_account' %}"><i class="bi bi-person me-2"></i> My Account</a></li>
-                                                <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
-                                            {% else %}
-                                                <li><a class="dropdown-item" href="{% url 'login' %}"><i class="bi bi-box-arrow-in-right me-2"></i> Login</a></li>
-                                                <li><a class="dropdown-item" href="{% url 'registration' %}"><i class="bi bi-person-plus me-2"></i> Register</a></li>
-                                            {% endif %}
-                                        </ul>
+                                            </a>
+                                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                                {% if user.is_authenticated %}
+                                                    <li><span class="dropdown-item-text">Hello, {{ user.username }}</span></li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li><a class="dropdown-item" href="{% url 'my_account' %}"><i class="bi bi-person me-2"></i> My Account</a></li>
+                                                    <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
+                                                {% else %}
+                                                    <li><a class="dropdown-item" href="{% url 'login' %}"><i class="bi bi-box-arrow-in-right me-2"></i> Login</a></li>
+                                                    <li><a class="dropdown-item" href="{% url 'registration' %}"><i class="bi bi-person-plus me-2"></i> Register</a></li>
+                                                {% endif %}
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

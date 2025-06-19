@@ -26,7 +26,7 @@
     <link rel="stylesheet" href="{% static 'css/plugins.css' %}">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     
-     <style>
+    <style>
         /* Hide scrollbar for all browsers */
         body, html, * {
             scrollbar-width: none;      /* Firefox */
@@ -117,9 +117,9 @@
             text-align: center;
             color: #666;
         }
-
-        /* Header Account Icons */
-        .header_account-list {
+        
+        /* Update icon styles */
+        {% comment %} .header_account-list {
             margin-left: 15px;
         }
         .header_account-list a {
@@ -137,202 +137,15 @@
         .header_wishlist a:hover {
             color: #4CAF50;
         }
-
-        /* Mini Cart Styles */
-        .mini_cart_wrapper {
-            position: relative;
+        
+        .mini_cart_wrapper a {
+            color:rgb(10, 10, 10);
         }
-        .mini_cart_wrapper span.item_count {
-            position: absolute;
-            top: -10px;
-            right: -8px;
-            width: 20px;
-            height: 20px;
-            line-height: 20px;
-            background: #79a206;
-            border-radius: 100%;
-            text-align: center;
-            font-weight: 400;
-            font-size: 12px;
-            color: #fff;
-        }
-        .cart_close {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid #e1e1e1;
-            padding-bottom: 10px;
-        }
-        .cart_text h3 {
-            font-size: 18px;
-            text-transform: capitalize;
-            font-weight: 400;
-            margin-bottom: 0;
-        }
-        .mini_cart_close > a {
-            font-size: 25px;
-            color: #222;
-            transition: color 0.2s;
-        }
-        .mini_cart_close > a:hover {
-            color: #79a206;
-        }
-        .mini_cart {
-            position: fixed;
-            width: 375px;
-            min-width: 375px;
-            max-width: 375px;
-            height: 100%;
-            padding: 18px 18px 33px;
-            background: #fff;
-            z-index: 999;
-            right: 0;
-            top: 0;
-            transition: .5s;
-            transform: translateX(100%);
-            box-shadow: 0 0 30px rgba(0,0,0,0.08);
-            overflow-y: auto;
-        }
-        .mini_cart.active {
-            transform: translateX(0);
-            transition: .5s;
-        }
-        @media only screen and (max-width: 767px) {
-            .mini_cart {
-                min-width: 300px;
-                height: 100%;
-                padding: 18px 18px 33px;
-            }
-        }
-        .cart_gallery {
-            margin-top: 15px;
-        }
-        .cart_item {
-            overflow: hidden;
-            padding: 20px 0;
-            border-bottom: 1px solid #e1e1e1;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .cart_img {
-            width: 90px;
-            margin-right: 10px;
-            border: 1px solid transparent;
-            flex-shrink: 0;
-        }
-        .cart_img img {
-            width: 100%;
-            height: auto;
-            border-radius: 4px;
-        }
-        .cart_img:hover {
-            border-color: #79a206;
-        }
-        .cart_info {
-            width: 63%;
-        }
-        .cart_info a {
-            font-weight: 400;
-            font-size: 14px;
-            line-height: 20px;
-            display: block;
-            margin-bottom: 6px;
-            color: #222;
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-        .cart_info a:hover {
-            color: #79a206;
-        }
-        .cart_info p {
-            font-size: 12px;
-            margin-bottom: 0;
-        }
-        .cart_info p span {
-            font-weight: 600;
-        }
-        .cart_remove {
-            margin-left: 10px;
-        }
-        .cart_remove a {
-            font-size: 22px;
-            color: #222;
-            background: none;
-            border: none;
-            box-shadow: none;
-            outline: none;
-            display: inline;
-            padding: 0;
-            margin: 0;
-            line-height: 1;
-            transition: color 0.2s;
-        }
-        .cart_remove a:hover,
-        .cart_remove a:focus {
-            color: #c00;
-            background: none;
-            box-shadow: none;
-            outline: none;
-        }
-        .mini_cart_table {
-            padding: 23px 0;
-        }
-        .cart_total {
-            display: flex;
-            justify-content: space-between;
-        }
-        .cart_total span {
-            font-size: 14px;
-            font-weight: 400;
-        }
-        .cart_total span.price {
-            font-weight: 700;
-        }
-        @media only screen and (min-width: 768px) and (max-width: 991px) {
-            .cart_total span {
-                font-size: 13px;
-            }
-        }
-        @media only screen and (max-width: 767px) {
-            .cart_total span {
-                font-size: 13px;
-            }
-        }
-        .cart_button:first-child {
-            margin-bottom: 15px;
-        }
-        .cart_button a {
-            text-transform: uppercase;
-            border-radius: 3px;
-            font-size: 12px;
-            font-weight: 500;
-            background: #eef0f1;
-            display: block;
-            text-align: center;
-            line-height: 20px;
-            margin-bottom: 0;
-            padding: 13px 0px 11px;
-            border: 1px solid #e1e1e1;
-            color: #222;
-            transition: background 0.2s, color 0.2s, border-color 0.2s;
-            text-decoration: none;
-        }
-        .cart_button a:hover {
-            background: #79a206;
-            border-color: #79a206;
-            color: #fff;
-        }
-        .cart_button a.active {
-            background: #79a206;
-            border-color: #79a206;
-            color: #fff;
-        }
-        .cart_button a.disabled {
-            pointer-events: none;
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
+        
+        .mini_cart_wrapper a:hover {
+            color:#4CAF50;
+        } {% endcomment %}
+         
         .item_count {
             position: absolute;
             top: -8px;
@@ -434,10 +247,10 @@
 
    <!--header area start-->
     <header>
-    <div class="main_header">
-        <div class="header_middle">
-            <div class="container">
-                <div class="row align-items-center">
+        <div class="main_header">
+            <div class="header_middle">
+                <div class="container">
+                    <div class="row align-items-center">
                         <div class="col-lg-3 col-md-3 col-4">
                             <div class="logo">
                                 <a href="{% url 'index' %}"><img src="{% static 'img/logo/logo.png' %}" alt=""></a>
@@ -446,9 +259,8 @@
                         <div class="col-lg-6 col-md-6 col-6">
                             
                         </div>
-                    <div class="col-lg-3 col-md-3 col-2">
-                        <div class="header_account_area">
-                            <div class="header_account_list">
+                        <div class="col-lg-3 col-md-3 col-2">
+                            <div class="header_account_area">
                                 <div class="header_account-list top_links">
                                     <div class="dropdown user-dropdown">
                                         <a href="#" class="dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
@@ -477,8 +289,25 @@
                                         </ul>
                                     </div>
                                 </div>
+<<<<<<< HEAD
+                                <div class="header_account-list header_wishlist">
+                                    <a href="{% url 'wishlist' %}"><i class="icon-heart"></i></a>
+                                </div>  
+                                <div class="header_account-list mini_cart_wrapper">
+                                    <a href="javascript:void(0)"><i class="icon-shopping-bag"></i><span class="item_count">{{ cart_items.count }}</span></a>
+                                    <!--mini cart-->
+                                    <div class="mini_cart">
+                                        <div class="cart_gallery">
+                                            <div class="cart_close" style="display: flex; justify-content: space-between; align-items: center;">
+                                                <div class="cart_text">
+                                                    <h3 style="margin: 0;">Cart</h3>
+                                                </div>
+                                                <div class="mini_cart_close">
+                                                    <a href="javascript:void(0)"><i class="icon-x"></i></a>
+=======
                             </div>
-                                <div class="header_account_list">
+                                
+                               <div class="header_account_list">
                                     <div class="header_account-list header_wishlist">
                                         <a href="{% url 'wishlist' %}"><i class="icon-heart"></i></a>
                                     </div>
@@ -513,64 +342,64 @@
                                                         <div class="cart_remove">
                                                             <a href="javascript:void(0);" class="remove-cart-item-btn" data-item-id="{{ item.id }}">
                                                                 <i class="icon-x"></i>
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                    {% endfor %}
-                                                {% else %}
-                                                    <div class="cart_item">
-                                                        <p style="padding: 10px;"><b>Your cart is empty.</b></p>
-                                                    </div>
-                                                {% endif %}
-                                            </div>
-                                            <div class="mini_cart_table">
-                                                <div class="cart_table_border">
-                                                    <div class="cart_total">
-                                                        <span><b>Total:</b></span>
-                                                        <span class="price">₹<span id="cart_total"><b>{{ cart_total }}</b></span></span>
+                                                            </button>
+                                                        </form>
                                                     </div>
                                                 </div>
-                                                <br>
-                                                <div class="mini_cart_footer">
-                                                    <div class="cart_button">
-                                                        <a href="{% url 'cart' %}" class="view-cart-btn"><i class="fa fa-shopping-cart"></i> View Cart</a>
-                                                    </div>
-                                                    <div class="cart_button">
-                                                        <a class="active checkout-btn" href="{% url 'checkout' %}"><i class="fa fa-sign-in"></i> Checkout</a>
-                                                    </div>
+                                                {% endfor %}
+                                            {% else %}
+                                                <div class="cart_item">
+                                                    <p style="padding: 10px;">Your cart is empty.</p>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="mini_cart_table">
+                                            <div class="cart_table_border">
+                                                <div class="cart_subtotal mt-10">
+                                                    <p>Total</p>
+                                                    <p class="cart_amount">₹<span id="cart_total">0</span></p>
                                                 </div>
                                             </div>
                                         </div>
-                                        <!--mini cart end-->
-                                    </div>
-                                </div>
-                                <div class="header_account_list">
-                                    <div class="header_account-list notification_wrapper">
-                                        <a href="javascript:void(0)" id="notificationIcon">
-                                            <i class="bi bi-bell"></i>
-                                            <span class="item_count" id="notificationCount">0</span>
-                                        </a>
-                                        <div class="notification_dropdown" id="notificationDropdown">
-                                            <div class="notification_header">
-                                                <h4>Notifications</h4>
+                                        <div class="mini_cart_footer">
+                                            <div class="cart_button">
+                                                <a href="{% url 'cart' %}"><i class="fa fa-shopping-cart"></i> View Cart</a>
                                             </div>
-                                            <div class="notification_items" id="notificationItems">
-                                                <div class="empty_notice">No new notifications</div>
-                                            </div>
-                                            <div class="notification_footer">
-                                                <a href="{% url 'view_all_notifications' %}">View All</a>
+                                            <div class="cart_button">
+                                                <a class="active" href="{% url 'checkout' %}"><i class="fa fa-sign-in"></i> Checkout</a>
                                             </div>
                                         </div>
                                     </div>
+                                    <!--mini cart end-->
+                                </div> 
+                                <!-- Notification Icon -->
+                                <div class="header_account-list notification_wrapper">
+                                    <a href="javascript:void(0)" id="notificationIcon">
+                                        <i class="bi bi-bell"></i>
+                                        <span class="item_count" id="notificationCount">0</span>
+                                    </a>
+                                    <div class="notification_dropdown" id="notificationDropdown">
+                                        <div class="notification_header">
+                                            <h4>Notifications</h4>
+                                        </div>
+                                        <div class="notification_items" id="notificationItems">
+                                            <div class="empty_notice">No new notifications</div>
+                                        </div>
+                                        <div class="notification_footer">
+                                            <a href="{% url 'view_all_notifications' %}">View All</a>
+                                        </div>
+                                    </div>
                                 </div>
+                                <!-- Notification Icon End -->
                             </div>
                         </div>  
                     </div>
                 </div>
             </div>    
-        </div>
-    </header>
-    <!--header area end-->   
+
+                {% comment %} </div>
+            </div>     {% endcomment %}
+
             <div class="header_bottom sticky-header">
                 <div class="container">
                     <div class="row align-items-center">
@@ -819,8 +648,8 @@
     <script src="{% static 'js/plugins.js' %}"></script>
     <script src="{% static 'js/popularSearches.js' %}"></script>
     <script src="{% static 'js/main.js' %}"></script>
-   <script>
-        $(document).on('click', '.remove-cart-item-btn', function () {
+    <script>
+$(document).on('click', '.remove-cart-item-btn', function() {
     var itemId = $(this).data('item-id');
     var btn = $(this);
     $.ajax({
@@ -845,39 +674,22 @@
     $('#cart_total').text(total);
     var count = $('.cart_item').length;
     $('.item_count').text(count);
-    
-
-     if (itemCount === 0) {
-    // Show empty message
-    $('.cart_gallery').html(`
-        <div class="cart_item">
-            <p style="padding: 10px; text-align:center; width:100%;">Your cart is empty.</p>
-        </div>
-    `);
-
-    $('#cart_total').hide();
-    $('.item_count').text(0);
-
-    // Disable the buttons
-    $('.view-cart-btn').addClass('disabled').attr('disabled', true);
-    $('.checkout-btn').addClass('disabled').attr('disabled', true);
-
-    // Auto-close mini cart
-    $('.mini_cart').removeClass('active');
-}
-        },
-        error: function () {
+    if (count === 0) {
+        $('.cart_gallery').html('<div class="cart_item"><p style="padding: 10px;">Your cart is empty.</p></div>');
+        $('#cart_total').text(0);
+    }
+},
+        error: function() {
             alert('Failed to remove item from cart.');
         }
     });
 });
-
-    </script>
-    <script>
-        function playNotificationSound() {
-            var audio = new Audio("{% static 'sounds/notification.mp3' %}");
-            audio.play().catch(e => console.log('Audio play failed:', e));
-        }
+</script>
+<script>
+function playNotificationSound() {
+    var audio = new Audio("{% static 'sounds/notification.mp3' %}");
+    audio.play().catch(e => console.log('Audio play failed:', e));
+}
 
         $(document).ready(function() {
             let lastNotificationCount = 0;

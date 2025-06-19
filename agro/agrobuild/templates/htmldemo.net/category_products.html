@@ -5,7 +5,6 @@
 <input type="hidden" id="csrf_token" value="{{ csrf_token }}">
 <iframe name="hidden_iframe" id="hidden_iframe" style="display: none;" onload="handleIframeLoad()"></iframe>
 <style>
-    
 .wishlisted {
     color:   #79a206 !important;
 }
@@ -21,6 +20,9 @@
 }
 .fa-heart-o:not(.wishlisted) {
     display: inline-block;
+}
+.wishlist-btn, .add_to_cart button {
+    cursor: pointer;
 }
 .wishlist-popup {
     position: fixed;
@@ -102,18 +104,26 @@
                                                 <ul>
                                                     <li class="add_to_cart">
                                                     <form action="{% url 'add_to_cart' product.P_id %}" method="POST"
-      target="hidden_iframe"
-      data-product-id="{{ product.P_id }}"
-      data-product-name="{{ product.P_name }}"
-      onsubmit="return prepareCartIconUpdate(this)">
-    {% csrf_token %}
-    <button type="submit" style="background: none; border: none;">
-    <i id="cart-icon-{{ product.P_id }}"
-       class="icon-shopping-bag{% if product.P_id in cart_ids %} add_to_carted{% endif %}"
-       style="font-size: 18px; margin-left: 10px; border: 2px solid transparent; padding: 4px; position: relative; top: 20px;"></i>
-</button>
-</form>   
-</li>
+                                                          target="hidden_iframe"
+                                                          data-product-id="{{ product.P_id }}"
+                                                          data-product-name="{{ product.P_name }}"
+                                                          onsubmit="return prepareCartIconUpdate(this)">
+                                                        {% csrf_token %}
+                                                        <button type="submit" style="background: none; border: none;">
+                                                        <i id="cart-icon-{{ product.P_id }}"
+                                                           class="icon-shopping-bag{% if product.P_id in cart_ids %} add_to_carted{% endif %}"
+                                                           style="font-size: 18px; margin-left: 10px; border: 2px solid transparent; padding: 4px; position: relative; top: 20px;"></i>
+                                                        </button>
+                                                         {% if not user.is_authenticated %}
+                                                          <script>
+                                                            document.getElementById('cart-icon-{{ product.P_id }}').parentNode.parentNode.onsubmit = function() {
+                                                                window.location.href = '/login/';
+                                                                return false;
+                                                            };
+                                                          </script>
+                                                        {% endif %}
+                                                    </form>   
+                                                    </li>
  
                                                     <li class="wishlist">
                                                         <a href="javascript:void(0);"
@@ -206,6 +216,11 @@ function showCartPopup(message) {
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.wishlist-btn').forEach(function(btn) {
         btn.addEventListener('click', function(e) {
+            {% if not user.is_authenticated %}
+            e.preventDefault();
+            window.location.href = '/login/';
+            return;
+            {% endif %}
             e.preventDefault();
             var iconOutline = this.querySelector('.fa-heart-o');
             var iconFilled = this.querySelector('.fa-heart');

@@ -33,6 +33,7 @@ import datetime
 from django.core.mail import send_mail
 import random 
 
+
 @method_decorator(staff_member_required, name='dispatch')
 class AdminDashboardView(TemplateView):
     template_name = 'admin/black_dashboard.html'
