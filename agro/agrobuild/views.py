@@ -638,9 +638,26 @@ def index(request):
             if n > 0:
                 nSlides = n // 4 + ceil((n / 4) - (n // 4))
                 allProds.append([prod, range(1, nSlides), nSlides, category_name])
-    
+
+    # --- Add this for random products ---
+    random_products = list(Product.objects.all())
+    random.shuffle(random_products)
+    random_products = random_products[:20]  # Show 12 random products
+
+    for product in random_products:
+        if hasattr(product, 'old_price') and product.old_price and product.old_price > product.P_price:
+            product.discount_percent = int(round((product.old_price - product.P_price) * 100 / product.old_price))
+        else:
+            product.discount_percent = 0
+
     cart_message = request.session.pop('cart_message', None)
-    return render(request, 'htmldemo.net/index.html', {'allProds': allProds, 'wishlist_ids': wishlist_ids, 'cart_ids': cart_ids, 'cart_message': cart_message})
+    return render(request, 'htmldemo.net/index.html', {
+        'allProds': allProds,
+        'wishlist_ids': wishlist_ids,
+        'cart_ids': cart_ids,
+        'cart_message': cart_message,
+        'random_products': random_products,  # Pass to template
+    })
 
 def account(request): return render(request, 'htmldemo.net/my-account.html')
 

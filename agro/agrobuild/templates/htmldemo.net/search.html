@@ -2,6 +2,9 @@
 {% block title %}Search Results{% endblock %}
 
 {% block body %}
+<input type="hidden" id="csrf_token" value="{{ csrf_token }}">
+<iframe name="hidden_iframe" id="hidden_iframe" style="display: none;" onload="handleIframeLoad()"></iframe>
+
 <div class="breadcrumbs_area">
     <div class="container">   
         <div class="row">
@@ -18,6 +21,74 @@
         </div>
     </div>
 </div>
+<style>
+.wishlisted {
+    color: #79a206 !important;
+}
+.fa-heart-o.wishlisted {
+    display: none;
+}
+.fa-heart.wishlisted {
+    display: inline-block;
+    color: #79a206 !important;
+}
+.wishlist-btn, .add_to_cart button {
+    cursor: pointer;
+}
+.fa-heart:not(.wishlisted) {
+    display: none;
+}
+.fa-heart-o:not(.wishlisted) {
+    display: inline-block;
+}
+.wishlist-popup {
+    position: fixed;
+    top: 600px;
+    right: 20px;
+    background-color: #79a206;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    z-index: 1000;
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+.wishlist-popup.show {
+    opacity: 1;
+}
+.add_to_carted,
+.icon-shopping-bag.add_to_carted {
+    color: #79a206 !important;
+}
+.icon-shopping-bag:not(.add_to_carted) {
+    color: inherit;
+}
+.add_to_cart-popup {
+    position: fixed;
+    top: 600px;
+    right: 20px;
+    background-color: #79a206;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    z-index: 1000;
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+.add_to_cart-popup.show {
+    opacity: 1;
+}
+.add_to_cart-popup .popup-buttons {
+    margin-top: 10px;
+}
+.add_to_cart-popup .popup-buttons a {
+    color: white;
+    text-decoration: underline;
+    margin: 0 10px;
+}
+</style>
 
 <div class="product_area mb-95">
     <div class="container">
@@ -46,17 +117,48 @@
                                     <img src="/media/{{ product.P_img }}" alt="{{ product.P_name }}" style="height:250px; width:100%; object-fit:cover;">
                                 </a>
                                 <div class="action_links">
-                                    <ul>
-                                        <li class="add_to_cart"><a href="{% url 'add_to_cart' product.P_id %}" title="Add to cart"><i class="icon-shopping-bag"></i></a></li>
-                                        <li class="wishlist"><a href="{% url 'add_to_wishlist' product.P_id %}" title="Add to Wishlist"><i class="icon-heart"></i></a></li>
-                                        <li class="quick_button"><a href="/prod_view/?myid={{ product.P_id }}"><i class="icon-eye"></i></a></li>
-                                    </ul>
-                                </div>
+                                                <ul>
+                                                    <li class="add_to_cart">
+                                                    <form action="{% url 'add_to_cart' product.P_id %}" method="POST"
+      target="hidden_iframe"
+      data-product-id="{{ product.P_id }}"
+      data-product-name="{{ product.P_name }}"
+      onsubmit="return prepareCartIconUpdate(this)">
+    {% csrf_token %}
+    <button type="submit" style="background: none; border: none;">
+    <i id="cart-icon-{{ product.P_id }}"
+       class="icon-shopping-bag{% if product.P_id in cart_ids %} add_to_carted{% endif %}"
+       style="font-size: 18px; margin-left: 10px; border: 2px solid transparent; padding: 4px; position: relative; top: 20px;"></i>
+</button>
+</form>   
+{% if not user.is_authenticated %}
+    <script>
+        document.getElementById('cart-icon-{{ product.P_id }}').parentNode.parentNode.onsubmit = function() {
+            window.location.href = '/login/';
+            return false;
+        };
+    </script>
+    {% endif %}
+</li>
+ 
+                                                    <li class="wishlist">
+                                                        <a href="javascript:void(0);"
+                                                           class="wishlist-btn"
+                                                           data-product-id="{{ product.P_id }}"
+                                                           data-product-name="{{ product.P_name }}"
+                                                           title="Add to Wishlist">
+                                                            <i class="fa fa-heart-o{% if product.P_id in wishlist_ids %} wishlisted{% endif %}"></i>
+                                                            <i class="fa fa-heart{% if product.P_id in wishlist_ids %} wishlisted{% endif %}"></i>
+                                                        </a>
+                                                    </li>
+                                                    <li class="quick_button"><a href="/prod_view/?myid={{ product.P_id }}"><i class="icon-eye"></i></a></li>
+                                                </ul>
+                                            </div>
                             </div>
                             <figcaption class="product_content">
                                 <h4 class="product_name"><a href="/prod_view/?myid={{ product.P_id }}">{{ product.P_name }}</a></h4>
                                 <div class="price_box">
-                                    <span class="current_price">₹{{ product.P_price }}</span>
+                                    <span class="current_price">₹{{ product.P_price }}</span><br> <br>
                                 </div>
                             </figcaption>
                         </figure>
@@ -106,4 +208,149 @@
         {% endif %}
     </div>
 </div>
+<script>
+let lastSubmittedProductId = null;
+
+function prepareCartIconUpdate(form) {
+    lastSubmittedProductId = form.getAttribute('data-product-id');
+
+    // Force iframe to reload every time by appending dummy param
+    const originalAction = form.getAttribute("action");
+    const randomParam = "_ts=" + new Date().getTime();
+    form.setAttribute("action", originalAction + (originalAction.includes("?") ? "&" : "?") + randomParam);
+
+    return true;
+}
+
+function handleIframeLoad() {
+    if (!lastSubmittedProductId) return;
+
+    // Update all cart icons with this product ID
+    document.querySelectorAll("#cart-icon-" + lastSubmittedProductId).forEach(function(icon) {
+        icon.classList.add('add_to_carted');
+        // No border color change!
+    });
+
+    const productNameElem = document.querySelector(`form[data-product-id="${lastSubmittedProductId}"]`);
+    const productName = productNameElem ? productNameElem.getAttribute('data-product-name') : '';
+    showCartPopup(`${productName} added to cart`);
+    lastSubmittedProductId = null;
+}
+
+function showCartPopup(message) {
+    const existingPopup = document.querySelector('.add_to_cart-popup');
+    if (existingPopup) existingPopup.remove();
+
+    const popup = document.createElement('div');
+    popup.className = 'add_to_cart-popup show';
+    popup.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span>${message}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+            <a href="/cart/" style="color: white; text-decoration: underline;">Go to Cart</a>
+        </div>
+    `;
+    document.body.appendChild(popup);
+
+    setTimeout(() => {
+        popup.classList.remove('show');
+        setTimeout(() => popup.remove(), 300);
+    }, 4000);
+}
+</script>
+
+<!-- Existing Wishlist JavaScript (unchanged) -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.wishlist-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            {% if not user.is_authenticated %}
+            e.preventDefault();
+            window.location.href = '/login/';
+            return;
+            {% endif %}
+
+            e.preventDefault();
+            var iconOutline = this.querySelector('.fa-heart-o');
+            var iconFilled = this.querySelector('.fa-heart');
+            var productId = this.getAttribute('data-product-id');
+            var productName = this.getAttribute('data-product-name');
+            console.log('Adding to wishlist: Product ID =', productId, 'Name =', productName);
+            fetch("{% url 'add_to_wishlist' 0 %}".replace('0', productId), {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.getElementById('csrf_token').value,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                console.log('Wishlist response status:', response.status);
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        console.log('Unauthorized: Redirecting to login');
+                        showWishlistPopup('Please log in to add to wishlist');
+                        setTimeout(() => {
+                            window.location.href = '/login/';
+                        }, 2000);
+                        return null;
+                    } else if (response.status === 403) {
+                        console.log('CSRF token error or forbidden');
+                        showWishlistPopup('CSRF token error. Please refresh the page.');
+                        return null;
+                    } else if (response.status === 404) {
+                        console.log('Product not found');
+                        showWishlistPopup('Product not found');
+                        return null;
+                    }
+                    throw new Error(`HTTP error: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data) return;
+                console.log('Wishlist response data:', data);
+                if (data.status === 'added') {
+                    iconOutline.classList.add('wishlisted');
+                    iconFilled.classList.add('wishlisted');
+                    iconOutline.style.display = 'none';
+                    iconFilled.style.display = 'inline-block';
+                    showWishlistPopup(`${productName} added to wishlist`);
+                } else if (data.status === 'removed') {
+                    iconOutline.classList.remove('wishlisted');
+                    iconFilled.classList.remove('wishlisted');
+                    iconOutline.style.display = 'inline-block';
+                    iconFilled.style.display = 'none';
+                    showWishlistPopup(`${productName} removed from wishlist`);
+                } else {
+                    console.log('Unexpected wishlist response status:', data.status);
+                    showWishlistPopup('Could not process wishlist action');
+                }
+            })
+            .catch(error => {
+                console.error('Wishlist fetch error:', error.message);
+                showWishlistPopup('Error: Unable to connect to server');
+            });
+        });
+    });
+
+    function showWishlistPopup(message) {
+        var existingPopup = document.querySelector('.wishlist-popup');
+        if (existingPopup) {
+            existingPopup.remove();
+        }
+        var popup = document.createElement('div');
+        popup.className = 'wishlist-popup';
+        popup.textContent = message;
+        document.body.appendChild(popup);
+        setTimeout(() => {
+            popup.classList.add('show');
+        }, 10);
+        setTimeout(() => {
+            popup.classList.remove('show');
+            setTimeout(() => {
+                popup.remove();
+            }, 300);
+        }, 2000);
+    }
+});
+</script>
 {% endblock %}
