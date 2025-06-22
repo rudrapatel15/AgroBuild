@@ -970,3 +970,15 @@ def category_products(request, slug):
         'cart_ids': cart_ids,
     }
     return render(request, 'htmldemo.net/category_products.html', context)
+
+def admin_login(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None and user.is_superuser:
+            login(request, user)
+            return redirect('admin_dashboard')
+        else:
+            messages.error(request, 'Invalid credentials or insufficient permissions.')
+    return render(request, 'admin/black_dashboard.html')
