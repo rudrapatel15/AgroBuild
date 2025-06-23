@@ -8,7 +8,7 @@ from django.views.decorators.http import require_POST
 from django.templatetags.static import static
 from django.http import JsonResponse
 from django.conf import settings
-from django.contrib.auth import logout
+from django.contrib.auth import logout, authenticate, login
 from django.contrib import messages
 from django.utils import timezone
 from django.contrib.staticfiles import finders
