@@ -1,4 +1,3 @@
-# views.py
 from django.shortcuts import render, redirect
 from .models import Product, Wishlist, CartItem, Order, OrderItem, Category, UserProfile, ContactMessage, Blog, BlogComment, Feedback, WateringReminder, NotificationHistory
 from django.contrib.auth.models import User
@@ -32,7 +31,6 @@ from django.db.models import Sum, Count, F
 import datetime
 from django.core.mail import send_mail
 import random 
-
 
 @method_decorator(staff_member_required, name='dispatch')
 class AdminDashboardView(TemplateView):
