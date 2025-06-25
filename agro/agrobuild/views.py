@@ -689,13 +689,25 @@ def add_to_cart(request, product_id):
     cart_item = CartItem.objects.filter(user=request.user, product=product).first()
 
     if request.method == 'POST':
-        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        # AJAX/iframe/JS request for instant update
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('_ts'):
             if cart_item:
                 cart_item.delete()
-                return JsonResponse({'status': 'removed', 'message': f"{product.P_name} removed from cart"})
+                # Update mini cart context
+                updated_cart_items = CartItem.objects.filter(user=request.user).select_related('product')
+                updated_cart_total = sum(item.product.P_price * item.quantity for item in updated_cart_items)
+                return render(request, 'htmldemo.net/mini_cart_partial.html', {
+                    'cart_items': updated_cart_items,
+                    'cart_total': updated_cart_total,
+                })
             else:
                 CartItem.objects.create(user=request.user, product=product, quantity=1)
-                return JsonResponse({'status': 'added', 'message': f"{product.P_name} added to cart"})
+                updated_cart_items = CartItem.objects.filter(user=request.user).select_related('product')
+                updated_cart_total = sum(item.product.P_price * item.quantity for item in updated_cart_items)
+                return render(request, 'htmldemo.net/mini_cart_partial.html', {
+                    'cart_items': updated_cart_items,
+                    'cart_total': updated_cart_total,
+                })
         # fallback for normal POST (not AJAX)
         if cart_item:
             cart_item.delete()

@@ -28,47 +28,47 @@
                 <div class="table_desc">
                     <div class="cart_page table-responsive">
                         <table id="cart_table">
-                            <thead>
-                                <tr>
-                                    <th class="product_remove">Delete</th>
-                                    <th class="product_thumb">Image</th>
-                                    <th class="product_name">Product</th>
-                                    <th class="product-price">Price</th>
-                                    <th class="product_quantity">Quantity</th>
-                                    <th class="product_total">Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for item in cart_items %}
-                                <tr data-price="{{ item.product.P_price }}" data-id="{{ item.id }}">
-                                    <td class="product_remove">
-                                        <form method="post" action="{% url 'remove_from_cart' %}" class="remove-from-cart-form" style="display:inline;">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="item_id" value="{{ item.id }}">
-                                            <button type="submit" style="background: none; border: none;" data-item-id="{{ item.id }}">
-                                                <i class="fa fa-trash-o"></i>
-                                            </button>
-                                        </form>
-                                    </td>
-                                    <td class="product_thumb">
-                                        <img src="/media/{{ item.product.P_img }}" alt="{{ item.product.P_name }}" style="max-width: 80px; max-height: 80px;">
-                                    </td>
-                                    <td class="product_name">{{ item.product.P_name }}</td>
-                                    <td class="product-price">₹<span class="unit_price">{{ item.product.P_price }}</span></td>
-                                    <td class="product_quantity">
-                                        <form method="post" action="{% url 'update_cart' %}" class="update-quantity-form" style="display:inline;">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="item_id" value="{{ item.id }}">
-                                            <input class="qty_input" name="quantity_{{ item.id }}" min="1" max="100" value="{{ item.quantity }}" type="number">
-                                        </form>
-                                    </td>
-                                    <td class="product_total">₹<span class="line_total">{{ item.total_price }}</span></td>
-                                </tr>
-                                 {% empty %}
-                                    <tr><td colspan="6" style="text-align:center;">No items in Cart.</td></tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+    <thead>
+        <tr>
+            <th class="product_remove">Delete</th>
+            <th class="product_thumb">Image</th>
+            <th class="product_name">Product</th>
+            <th class="product-price">Price</th>
+            <th class="product_quantity">Quantity</th>
+            <th class="product_total">Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in cart_items %}
+        <tr data-price="{{ item.product.P_price }}" data-id="{{ item.id }}">
+            <td class="product_remove">
+                <form method="post" action="{% url 'remove_from_cart' %}" class="remove-from-cart-form" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="item_id" value="{{ item.id }}">
+                    <button type="submit" style="background: none; border: none;" data-item-id="{{ item.id }}">
+                        <i class="fa fa-trash-o"></i>
+                    </button>
+                </form>
+            </td>
+            <td class="product_thumb">
+                <img src="/media/{{ item.product.P_img }}" alt="{{ item.product.P_name }}" style="max-width: 80px; max-height: 80px;">
+            </td>
+            <td class="product_name">{{ item.product.P_name }}</td>
+            <td class="product-price">₹<span class="unit_price">{{ item.product.P_price }}</span></td>
+            <td class="product_quantity">
+                <form method="post" action="{% url 'update_cart' %}" class="update-quantity-form" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="item_id" value="{{ item.id }}">
+                    <input class="qty_input" name="quantity_{{ item.id }}" min="1" max="100" value="{{ item.quantity }}" type="number">
+                </form>
+            </td>
+            <td class="product_total">₹<span class="line_total">{{ item.total_price }}</span></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" style="text-align:center;">No items in Cart.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
                     </div>
                 </div>
             </div>
@@ -82,17 +82,17 @@
                 </div>
                 <div class="col-lg-6 col-md-6">
                     <div class="coupon_code right">
-                        <h3>Cart Totals</h3>
-                        <div class="coupon_inner">                                                           
-                            <div class="cart_subtotal">
-                                <p>Total</p>
-                                <p class="cart_amount">₹<span id="cart_total">{{ subtotal }}</span></p>
-                            </div>
-                            <div class="checkout_btn">
-                                <a href="{% url 'checkout' %}">Proceed to Checkout</a>
-                            </div>
-                        </div>
-                    </div>
+    <h3>Cart Totals</h3>
+    <div class="coupon_inner">
+        <div class="cart_subtotal">
+            <p>Total</p>
+            <p class="cart_amount">₹<span id="cart_total_summary">{{ cart_total }}</span></p>
+        </div>
+        <div class="checkout_btn">
+            <a href="{% url 'checkout' %}">Proceed to Checkout</a>
+        </div>
+    </div>
+</div>
                 </div>
             </div>
         </div>
@@ -102,24 +102,31 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    const shipping = 0;
-
     function updateCartTotals() {
         let subtotal = 0;
-        document.querySelectorAll("#cart_table tbody tr").forEach(function (row) {
-            const price = parseFloat(row.querySelector(".unit_price").textContent);
-            const qty = parseInt(row.querySelector(".qty_input").value);
-            const lineTotal = price * qty;
-            row.querySelector(".line_total").textContent = lineTotal.toFixed(2);
-            subtotal += lineTotal;
+        document.querySelectorAll("#cart_table tbody tr[data-id]").forEach(function (row) {
+            const priceElem = row.querySelector(".unit_price");
+            const qtyElem = row.querySelector(".qty_input");
+            const lineTotalElem = row.querySelector(".line_total");
+            if (priceElem && qtyElem && lineTotalElem) {
+                const price = parseFloat(priceElem.textContent);
+                const qty = parseInt(qtyElem.value);
+                const lineTotal = price * qty;
+                lineTotalElem.textContent = lineTotal.toFixed(2);
+                subtotal += lineTotal;
+            }
         });
-        
-        document.getElementById("cart_total").textContent = (subtotal + shipping).toFixed(2);
+        // Update both the table total and the summary total
+        document.querySelectorAll("#cart_total, #cart_total_summary").forEach(function(el) {
+            el.textContent = subtotal.toFixed(2);
+        });
     }
 
     // Handle quantity updates
     document.querySelectorAll(".qty_input").forEach(input => {
-        input.addEventListener("input", updateCartTotals);
+        input.addEventListener("input", function() {
+            updateCartTotals();
+        });
         input.addEventListener("change", function() {
             this.closest('.update-quantity-form').submit();
         });
@@ -128,7 +135,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Handle item deletion via AJAX
     document.querySelectorAll(".remove-from-cart-form").forEach(form => {
         form.addEventListener("submit", function (e) {
-            e.preventDefault(); // Prevent default form submission
+            e.preventDefault();
 
             const itemId = form.querySelector('input[name="item_id"]').value;
             const formData = new FormData(form);
@@ -161,9 +168,17 @@ document.addEventListener("DOMContentLoaded", function () {
                     if (row) {
                         row.remove();
                     }
-                    // Update cart totals
+                    // Update cart totals and subtotals instantly
                     updateCartTotals();
-                    // Show a confirmation message (optional)
+                    // If no more product rows, show "No items in Cart." and set total to 0
+                    const productRows = document.querySelectorAll("#cart_table tbody tr[data-id]");
+                    if (productRows.length === 0) {
+                        const tbody = document.querySelector("#cart_table tbody");
+                        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No items in Cart.</td></tr>';
+                        document.querySelectorAll("#cart_total, #cart_total_summary").forEach(function(el) {
+                            el.textContent = "0.00";
+                        });
+                    }
                     showPopup('Item removed from cart');
                 } else {
                     showPopup('Error removing item from cart');
@@ -196,7 +211,7 @@ document.addEventListener("DOMContentLoaded", function () {
         popup.style.transition = 'opacity 0.3s ease-in-out';
         popup.textContent = message;
         document.body.appendChild(popup);
-        
+
         setTimeout(() => {
             popup.style.opacity = '1';
         }, 10);
