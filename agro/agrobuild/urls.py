@@ -43,7 +43,8 @@ urlpatterns = [
     path('admin/dashboard/', AdminDashboardView.as_view(), name='admin_dashboard'),
     path('admin-login/', views.admin_login, name='adminlogin'),
     path('email-otp-verify/', views.email_otp_verify, name='email_otp_verify'),
-    ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    
+]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -10,6 +10,12 @@ from django.core.mail import send_mail
 from django.http import JsonResponse
 import json
 import time
+from django.conf import settings
+from datetime import datetime, timedelta
+import logging
+import requests
+
+logger = logging.getLogger(__name__)
 
 # OTP validity period in seconds (2 minutes)
 OTP_VALIDITY_SECONDS = 120
@@ -108,7 +114,7 @@ def otp_verify_view(request):
         if otp_timestamp and (time.time() - otp_timestamp > OTP_VALIDITY_SECONDS):
             # OTP has expired
             # Clear expired OTP from session to prevent re-use
-            del request.session['pending_user']
+            # del request.session['pending_user']
             request.session.modified = True
             return JsonResponse({'success': False, 'message': 'The OTP has expired. Please request a new one.'}, status=400)
 
@@ -212,3 +218,218 @@ def logout_view(request):
 def index(request):
     return render(request, 'htmldemo.net/index.html')
 
+def agriculture_news_page(request):
+    """
+    Render the main agriculture news page
+    """
+    context = {
+        'title': 'Agriculture News - India',
+        'current_date': datetime.now().strftime('%A, %B %d'),
+        'username': request.user.username if request.user.is_authenticated else 'Guest'
+    }
+    return render(request, 'htmldemo.net/news.html', context)
+
+def fetch_agriculture_news(request):
+    try:
+        NEWS_API_KEY = getattr(settings, 'NEWS_API_KEY', None)
+        if not NEWS_API_KEY:
+            return JsonResponse({'error': 'News API key not configured', 'articles': []})
+        # Use a single broad query for maximum results
+        url = "https://newsapi.org/v2/everything"
+        params = {
+            'q': 'agriculture OR farming OR crop OR harvest OR irrigation OR fertilizer OR seeds',
+            'language': 'en',
+            'sortBy': 'publishedAt',
+            'pageSize': 50,  # Fetch more articles
+            'apiKey': NEWS_API_KEY,
+            'from': (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')  # Last 30 days
+        }
+        response = requests.get(url, params=params, timeout=15)
+        all_articles = []
+        if response.status_code == 200:
+            data = response.json()
+            all_articles = data.get('articles', [])
+        seen_urls = set()
+        unique_articles = []
+        for article in all_articles:
+            if article.get('url') and article.get('url') not in seen_urls:
+                seen_urls.add(article.get('url'))
+                unique_articles.append({
+                    'title': article.get('title', ''),
+                    'description': article.get('description', ''),
+                    'url': article.get('url', ''),
+                    'urlToImage': article.get('urlToImage', ''),
+                    'publishedAt': article.get('publishedAt', ''),
+                    'source': {
+                        'name': article.get('source', {}).get('name', 'Unknown Source')
+                    },
+                    'category': 'Agriculture',
+                    'relevance_score': 1,
+                    'matched_keywords': []
+                })
+        return JsonResponse({
+            'success': True,
+            'articles': unique_articles[:20],  # Show up to 20
+            'total': len(unique_articles),
+            'queries_searched': 1
+        })
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Request error: {str(e)}")
+        return JsonResponse({'error': 'Network error occurred', 'articles': []})
+    except Exception as e:
+        logger.error(f"Unexpected error: {str(e)}")
+        return JsonResponse({'error': 'An unexpected error occurred', 'articles': []})
+
+def fetch_category_news(request, category):
+    try:
+        NEWS_API_KEY = getattr(settings, 'NEWS_API_KEY', None)
+        if not NEWS_API_KEY:
+            return JsonResponse({'error': 'News API key not configured', 'articles': []})
+        category_queries = {
+            'crop-news': [
+                'crop farming India',
+                'wheat rice pulses India',
+                'sugarcane cotton jute India',
+                'harvest crop yield India',
+                'kharif rabi crops India',
+                'crop diseases India',
+                'crop insurance India',
+                'seed varieties India'
+            ],
+            'market-updates': [
+                'agricultural markets India',
+                'mandi prices India',
+                'APMC market India',
+                'agricultural exports India',
+                'agricultural imports India',
+                'commodity prices India',
+                'agricultural trade India',
+                'market rates India'
+            ],
+            'technology-agri': [
+                'agricultural technology India',
+                'agritech India',
+                'precision farming India',
+                'drone farming India',
+                'AI agriculture India',
+                'smart farming India',
+                'digital agriculture India',
+                'IoT farming India'
+            ],
+            'weather-climate': [
+                'agriculture weather India',
+                'monsoon agriculture India',
+                'drought farming India',
+                'climate change agriculture India',
+                'weather forecast farming India',
+                'rainfall agriculture India',
+                'agricultural climate India'
+            ],
+            'government-policies': [
+                'agricultural policy India',
+                'PM Kisan India',
+                'agricultural subsidies India',
+                'MSP procurement India',
+                'agricultural reforms India',
+                'government farming India',
+                'agricultural schemes India'
+            ],
+            'expert-insights': [
+                'agricultural experts India',
+                'farming advice India',
+                'agricultural research India',
+                'farming techniques India',
+                'agricultural innovation India',
+                'farming best practices India'
+            ],
+            'sustainable-farming': [
+                'organic farming India',
+                'sustainable agriculture India',
+                'natural farming India',
+                'eco-friendly farming India',
+                'biodynamic farming India',
+                'permaculture India'
+            ]
+        }
+        search_queries = category_queries.get(category, [
+            'agriculture farming India',
+            'crop farming harvest India',
+            'farmer agricultural India'
+        ])
+        all_articles = []
+        for query in search_queries[:6]:
+            try:
+                url = "https://newsapi.org/v2/everything"
+                params = {
+                    'q': query,
+                    'language': 'en',
+                    'sortBy': 'publishedAt',
+                    'pageSize': 30,  # Fetch more articles per query
+                    'apiKey': NEWS_API_KEY,
+                    'domains': 'timesofindia.indiatimes.com,indianexpress.com,thehindu.com,business-standard.com,livemint.com,financialexpress.com,deccanherald.com,tribuneindia.com,ndtv.com,hindustantimes.com,economic-times.indiatimes.com,zeenews.india.com,news18.com,cnbctv18.com',
+                    'from': (datetime.now() - timedelta(days=14)).strftime('%Y-%m-%d')
+                }
+                response = requests.get(url, params=params, timeout=15)
+                if response.status_code == 200:
+                    data = response.json()
+                    all_articles.extend(data.get('articles', []))
+                time.sleep(0.3)
+            except Exception as e:
+                logger.error(f"Error fetching news for query '{query}': {str(e)}")
+                continue
+        seen_urls = set()
+        unique_articles = []
+        for article in all_articles:
+            if article.get('url') and article.get('url') not in seen_urls:
+                seen_urls.add(article.get('url'))
+                unique_articles.append(article)
+        # Category-specific keywords
+        category_keywords = {
+            'crop-news': ['crop', 'harvest', 'yield', 'wheat', 'rice', 'pulses', 'sugarcane', 'cotton', 'seed', 'kharif', 'rabi'],
+            'market-updates': ['market', 'price', 'mandi', 'apmc', 'export', 'import', 'trade', 'commodity', 'procurement'],
+            'technology-agri': ['technology', 'agritech', 'digital', 'ai', 'drone', 'precision', 'smart', 'iot', 'innovation'],
+            'weather-climate': ['weather', 'monsoon', 'climate', 'drought', 'rainfall', 'temperature', 'forecast'],
+            'government-policies': ['policy', 'government', 'subsidy', 'msp', 'pm kisan', 'scheme', 'reform'],
+            'expert-insights': ['expert', 'research', 'advice', 'technique', 'innovation', 'best practice'],
+            'sustainable-farming': ['organic', 'sustainable', 'natural', 'eco-friendly', 'biodynamic', 'permaculture']
+        }
+        keywords = category_keywords.get(category, ['agriculture', 'farming'])
+        filtered_articles = []
+        general_articles = []
+        for article in unique_articles:
+            title = article.get('title', '').lower()
+            description = article.get('description', '').lower()
+            is_agri = any(keyword in title or keyword in description for keyword in keywords)
+            clean_article = {
+                'title': article.get('title', ''),
+                'description': article.get('description', ''),
+                'url': article.get('url', ''),
+                'urlToImage': article.get('urlToImage', ''),
+                'publishedAt': article.get('publishedAt', ''),
+                'source': {
+                    'name': article.get('source', {}).get('name', 'Unknown Source')
+                },
+                'category': category.replace('-', ' ').title(),
+                'relevance_score': 1,
+                'matched_keywords': []
+            }
+            if is_agri:
+                filtered_articles.append(clean_article)
+            else:
+                general_articles.append(clean_article)
+        # If fewer than 6, fill with general news
+        if len(filtered_articles) < 6:
+            filtered_articles += general_articles[:6-len(filtered_articles)]
+        return JsonResponse({
+            'success': True,
+            'articles': filtered_articles[:20],
+            'total': len(filtered_articles),
+            'category': category,
+            'queries_searched': len(search_queries[:6])
+        })
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Request error: {str(e)}")
+        return JsonResponse({'error': 'Network error occurred', 'articles': []})
+    except Exception as e:
+        logger.error(f"Unexpected error: {str(e)}")
+        return JsonResponse({'error': 'An unexpected error occurred', 'articles': []})

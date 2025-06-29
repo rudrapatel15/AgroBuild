@@ -31,6 +31,7 @@ from django.db.models import Sum, Count, F
 import datetime
 from django.core.mail import send_mail
 import random 
+from django.http import JsonResponse
 
 @method_decorator(staff_member_required, name='dispatch')
 class AdminDashboardView(TemplateView):
