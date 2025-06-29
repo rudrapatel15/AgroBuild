@@ -56,8 +56,12 @@
 .add_to_cart-popup.show {
     opacity: 1;
 }
+.add_to_carted,
 .icon-shopping-bag.add_to_carted {
     color: #79a206 !important;
+}
+.icon-shopping-bag:not(.add_to_carted) {
+    color: inherit;
 }
 </style>
 <div class="breadcrumbs_area">
@@ -178,15 +182,37 @@ function prepareCartIconUpdate(form) {
 function handleIframeLoad() {
     if (!lastSubmittedProductId) return;
 
-    const icon = document.getElementById("cart-icon-" + lastSubmittedProductId);
-    if (icon && !icon.classList.contains('add_to_carted')) {
+    // Update all cart icons with this product ID
+    document.querySelectorAll("#cart-icon-" + lastSubmittedProductId).forEach(function(icon) {
         icon.classList.add('add_to_carted');
-        icon.style.borderColor = '#79a206';
+    });
+
+    // --- Mini Cart Update ---
+    try {
+        var iframe = document.getElementById('hidden_iframe');
+        if (!iframe) return;
+        var iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+        // Get the mini cart HTML from the iframe
+        var miniCart = iframeDoc.querySelector('.mini_cart');
+        if (miniCart) {
+            // Replace the entire mini_cart in the parent page
+            var parentMiniCart = document.querySelector('.mini_cart');
+            if (parentMiniCart) {
+                parentMiniCart.outerHTML = miniCart.outerHTML;
+            }
+            // Update the cart item count if you have a separate element
+            var newCount = miniCart.querySelector('.item_count');
+            var parentCount = document.querySelector('.mini_cart_wrapper .item_count');
+            if (newCount && parentCount) {
+                parentCount.textContent = newCount.textContent;
+            }
+        }
+    } catch (e) {
+        console.log('Mini cart update failed:', e);
     }
 
-    const productForm = document.querySelector(`form[data-product-id="${lastSubmittedProductId}"]`);
-    const productName = productForm.getAttribute('data-product-name');
-
+    const productNameElem = document.querySelector(`form[data-product-id="${lastSubmittedProductId}"]`);
+    const productName = productNameElem ? productNameElem.getAttribute('data-product-name') : '';
     showCartPopup(`${productName} added to cart`);
     lastSubmittedProductId = null;
 }

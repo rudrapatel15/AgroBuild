@@ -1,4 +1,3 @@
-# views.py
 from django.shortcuts import render, redirect
 from .models import Product, Wishlist, CartItem, Order, OrderItem, Category, UserProfile, ContactMessage, Blog, BlogComment, Feedback, WateringReminder, NotificationHistory
 from django.contrib.auth.models import User
@@ -9,7 +8,7 @@ from django.views.decorators.http import require_POST
 from django.templatetags.static import static
 from django.http import JsonResponse
 from django.conf import settings
-from django.contrib.auth import logout
+from django.contrib.auth import logout, authenticate, login
 from django.contrib import messages
 from django.utils import timezone
 from django.contrib.staticfiles import finders
@@ -638,9 +637,26 @@ def index(request):
             if n > 0:
                 nSlides = n // 4 + ceil((n / 4) - (n // 4))
                 allProds.append([prod, range(1, nSlides), nSlides, category_name])
-    
+
+    # --- Add this for random products ---
+    random_products = list(Product.objects.all())
+    random.shuffle(random_products)
+    random_products = random_products[:20]  # Show 12 random products
+
+    for product in random_products:
+        if hasattr(product, 'old_price') and product.old_price and product.old_price > product.P_price:
+            product.discount_percent = int(round((product.old_price - product.P_price) * 100 / product.old_price))
+        else:
+            product.discount_percent = 0
+
     cart_message = request.session.pop('cart_message', None)
-    return render(request, 'htmldemo.net/index.html', {'allProds': allProds, 'wishlist_ids': wishlist_ids, 'cart_ids': cart_ids, 'cart_message': cart_message})
+    return render(request, 'htmldemo.net/index.html', {
+        'allProds': allProds,
+        'wishlist_ids': wishlist_ids,
+        'cart_ids': cart_ids,
+        'cart_message': cart_message,
+        'random_products': random_products,  # Pass to template
+    })
 
 def account(request): return render(request, 'htmldemo.net/my-account.html')
 
@@ -674,13 +690,25 @@ def add_to_cart(request, product_id):
     cart_item = CartItem.objects.filter(user=request.user, product=product).first()
 
     if request.method == 'POST':
-        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        # AJAX/iframe/JS request for instant update
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('_ts'):
             if cart_item:
                 cart_item.delete()
-                return JsonResponse({'status': 'removed', 'message': f"{product.P_name} removed from cart"})
+                # Update mini cart context
+                updated_cart_items = CartItem.objects.filter(user=request.user).select_related('product')
+                updated_cart_total = sum(item.product.P_price * item.quantity for item in updated_cart_items)
+                return render(request, 'htmldemo.net/mini_cart_partial.html', {
+                    'cart_items': updated_cart_items,
+                    'cart_total': updated_cart_total,
+                })
             else:
                 CartItem.objects.create(user=request.user, product=product, quantity=1)
-                return JsonResponse({'status': 'added', 'message': f"{product.P_name} added to cart"})
+                updated_cart_items = CartItem.objects.filter(user=request.user).select_related('product')
+                updated_cart_total = sum(item.product.P_price * item.quantity for item in updated_cart_items)
+                return render(request, 'htmldemo.net/mini_cart_partial.html', {
+                    'cart_items': updated_cart_items,
+                    'cart_total': updated_cart_total,
+                })
         # fallback for normal POST (not AJAX)
         if cart_item:
             cart_item.delete()
@@ -953,3 +981,15 @@ def category_products(request, slug):
         'cart_ids': cart_ids,
     }
     return render(request, 'htmldemo.net/category_products.html', context)
+
+def admin_login(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None and user.is_superuser:
+            login(request, user)
+            return redirect('admin_dashboard')
+        else:
+            messages.error(request, 'Invalid credentials or insufficient permissions.')
+    return render(request, 'admin/black_dashboard.html')

@@ -23,5 +23,6 @@ urlpatterns = [
     path('api/news/<str:category>/', views.fetch_category_news, name='fetch_category_news'),
     
 ] 
+
 if settings.DEBUG:
     urlpatterns +=static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
