@@ -244,7 +244,7 @@ def download_invoice(request, order_id):
        context['signature_base64'] = ''
         
     html = render_to_string('htmldemo.net/invoice.html', context)
-    config = pdfkit.configuration(wkhtmltopdf=r"C:\Users\a\Desktop\Agro Build Pro\AgroBuild\wkhtmltopdf\bin\wkhtmltopdf.exe")
+    config = pdfkit.configuration(wkhtmltopdf=r"C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\wkhtmltopdf\bin\wkhtmltopdf.exe")
     options = {
         'enable-local-file-access': None,
         'encoding': 'UTF-8',
@@ -603,11 +603,18 @@ def logout_view(request):
 @login_required(login_url='/login/')
 def add_to_cart_from_wishlist(request, product_id):
     product = get_object_or_404(Product, P_id=product_id)
+
+    # Add to cart
     cart_item, created = CartItem.objects.get_or_create(user=request.user, product=product)
     if not created:
         cart_item.quantity += 1
         cart_item.save()
+
+    # Remove from wishlist
+    Wishlist.objects.filter(user=request.user, product=product).delete()
+
     return redirect('cart')
+
 
 @require_POST
 def remove_from_cart(request):
