@@ -1,0 +1,789 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>{{ title }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a2332 0%, #2d3748 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* Internet Explorer 10+ */
+        }
+
+        body::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+
+        .header {
+            background: rgba(26, 35, 50, 0.95);
+            padding: 10px 0;
+            border-bottom: 1px solid #4a5568;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .date {
+            color: #48bb78;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .logo {
+            color: #48bb78;
+            font-size: 24px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .user-section {
+            color: #48bb78;
+            font-size: 14px;
+        }
+
+        .nav-menu {
+            background: rgba(45, 55, 72, 0.9);
+            padding: 15px 0;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            list-style: none;
+        }
+
+        .nav-links li {
+            position: relative;
+        }
+
+        .nav-links a {
+            color: #cbd5e0;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            padding: 10px 0;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: #48bb78;
+        }
+
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #48bb78;
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* Internet Explorer 10+ */
+        }
+
+        .main-content::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .page-title h1 {
+            color: #48bb78;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .page-subtitle {
+            color: #a0aec0;
+            font-size: 1.1rem;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* Internet Explorer 10+ */
+        }
+
+        .news-grid::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+
+        .news-card {
+            background: rgba(45, 55, 72, 0.8);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(72, 187, 120, 0.1);
+        }
+
+        .news-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(72, 187, 120, 0.2);
+        }
+
+        .news-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: linear-gradient(45deg, #2d3748, #4a5568);
+        }
+
+        .news-content {
+            padding: 20px;
+        }
+
+        .news-meta {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .live-badge {
+            background: #e53e3e;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .news-category {
+            background: #48bb78;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* Category-specific colors */
+        .category-agricultural-technology {
+            background: #3182ce;
+        }
+
+        .category-agricultural-policy {
+            background: #d69e2e;
+        }
+
+        .category-agricultural-markets {
+            background: #805ad5;
+        }
+
+        .category-weather-climate {
+            background: #38b2ac;
+        }
+
+        .category-sustainable-farming {
+            background: #38a169;
+        }
+
+        .relevance-indicator {
+            font-size: 16px;
+            margin-left: auto;
+        }
+
+        .news-keywords {
+            margin: 10px 0;
+            padding: 8px 12px;
+            background: rgba(72, 187, 120, 0.1);
+            border-radius: 6px;
+            border-left: 3px solid #48bb78;
+        }
+
+        .news-keywords small {
+            color: #a0aec0;
+            font-size: 11px;
+            line-height: 1.4;
+        }
+
+        .news-title {
+            color: #f7fafc;
+            font-size: 1.1rem;
+            font-weight: 600;
+            line-height: 1.4;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .news-title:hover {
+            color: #48bb78;
+        }
+
+        .news-description {
+            color: #a0aec0;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .news-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #718096;
+        }
+
+        .news-source {
+            color: #48bb78;
+            font-weight: 500;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #a0aec0;
+            font-size: 1.1rem;
+        }
+
+        .error {
+            text-align: center;
+            padding: 40px;
+            color: #fc8181;
+            font-size: 1.1rem;
+        }
+
+        .spinner {
+            border: 4px solid #4a5568;
+            border-top: 4px solid #48bb78;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .no-image {
+            background: linear-gradient(135deg, #2d3748, #4a5568);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #a0aec0;
+            font-size: 0.9rem;
+        }
+
+        .refresh-btn {
+            background: #48bb78;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 20px auto;
+            display: block;
+            transition: background 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            background: #38a169;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                flex-wrap: wrap;
+                gap: 20px;
+            }
+
+            .page-title h1 {
+                font-size: 2rem;
+            }
+
+            .news-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .header-top {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
+        .news-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(45, 55, 72, 0.6);
+            border-radius: 8px;
+            border: 1px solid rgba(72, 187, 120, 0.2);
+        }
+
+        .stats-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .stats-label {
+            color: #a0aec0;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stats-value {
+            color: #48bb78;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .news-placeholder {
+            opacity: 0.7;
+            background: rgba(72, 187, 120, 0.08);
+            border: 1px dashed #48bb78;
+        }
+
+        .main-news-centered {
+            padding-top: 60px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Hide scrollbar for body */
+        body {
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* Internet Explorer 10+ */
+        }
+
+        body::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+
+        /* Hide scrollbar for main content area */
+        .main-content {
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* Internet Explorer 10+ */
+        }
+
+        .main-content::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+
+        /* Hide scrollbar for news grid container */
+        .news-grid {
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* Internet Explorer 10+ */
+        }
+
+        .news-grid::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+
+        /* Hide scrollbar for any other scrollable elements */
+        * {
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* Internet Explorer 10+ */
+        }
+
+        *::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+
+        /* Comprehensive scrollbar hiding for all elements */
+        html, body, .main-content, .news-grid, .news-container, 
+        .chatbot-messages, .chatbot-window, .news-card {
+            scrollbar-width: none !important; /* Firefox */
+            -ms-overflow-style: none !important; /* Internet Explorer 10+ */
+        }
+
+        html::-webkit-scrollbar, 
+        body::-webkit-scrollbar, 
+        .main-content::-webkit-scrollbar, 
+        .news-grid::-webkit-scrollbar, 
+        .news-container::-webkit-scrollbar,
+        .chatbot-messages::-webkit-scrollbar,
+        .chatbot-window::-webkit-scrollbar,
+        .news-card::-webkit-scrollbar {
+            display: none !important; /* Chrome, Safari, Opera */
+        }
+
+        /* Ensure scroll functionality is maintained */
+        html, body {
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .main-content {
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-top">
+            <div class="date">&lt;/{{ current_date }}&gt;</div>
+            <div class="logo">&lt;/AGRO BUILD&gt;</div>
+            <div class="user-section">👤 Welcome, User</div>
+        </div>
+        <!-- Navigation menu removed for a cleaner look -->
+    </header>
+
+    <main class="main-content main-news-centered">
+        <div class="page-title">
+            <h1>Agriculture in India - Top Headlines</h1>
+            <p class="page-subtitle">Stay updated with the latest news and developments in Indian agriculture</p>
+        </div>
+
+        <button id="refresh-btn" class="refresh-btn" onclick="refreshNews()">🔄 Refresh News</button>
+
+        <div id="news-stats" class="news-stats" style="display: none;">
+            <div class="stats-item">
+                <span class="stats-label">Articles Found:</span>
+                <span id="total-articles" class="stats-value">0</span>
+            </div>
+            <div class="stats-item">
+                <span class="stats-label">Queries Searched:</span>
+                <span id="queries-searched" class="stats-value">0</span>
+            </div>
+        </div>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            Loading latest agriculture news...
+        </div>
+
+        <div id="error" class="error" style="display: none;">
+            <span id="error-message">Failed to load news. Please try again later.</span>
+        </div>
+
+        <div id="news-container" class="news-grid" style="display: none;">
+            <!-- News articles will be dynamically loaded here -->
+        </div>
+    </main>
+
+    <script>
+        class AgricultureNews {
+            constructor() {
+                this.baseApiUrl = '{% url "fetch_agriculture_news" %}';
+                this.categoryApiUrl = '{% url "fetch_category_news" "category" %}'.replace('category', '');
+                this.csrfToken = document.querySelector('[name=csrf-token]').getAttribute('content');
+                this.currentCategory = 'home';
+                this.init();
+                this.setupNavigation();
+            }
+
+            setupNavigation() {
+                const navLinks = document.querySelectorAll('.nav-links a');
+                navLinks.forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const category = link.getAttribute('data-category');
+                        this.switchCategory(category);
+                    });
+                });
+            }
+
+            switchCategory(category) {
+                // Update active state
+                document.querySelectorAll('.nav-links a').forEach(link => {
+                    link.classList.remove('active');
+                });
+                document.querySelector(`[data-category="${category}"]`).classList.add('active');
+
+                // Update page title
+                const pageTitle = document.querySelector('.page-title h1');
+                const pageSubtitle = document.querySelector('.page-subtitle');
+                
+                const categoryTitles = {
+                    'home': 'Agriculture in India - Top Headlines',
+                    'crop-news': 'Crop News & Farming Updates',
+                    'market-updates': 'Agricultural Market Updates',
+                    'technology-agri': 'Agricultural Technology News',
+                    'weather-climate': 'Weather & Climate Impact on Agriculture',
+                    'government-policies': 'Government Agricultural Policies',
+                    'expert-insights': 'Expert Insights & Research',
+                    'sustainable-farming': 'Sustainable Farming News'
+                };
+
+                const categorySubtitles = {
+                    'home': 'Stay updated with the latest news and developments in Indian agriculture',
+                    'crop-news': 'Latest updates on crop farming, harvest, and agricultural yields',
+                    'market-updates': 'Real-time market prices, trade updates, and commodity news',
+                    'technology-agri': 'Innovations in agricultural technology and smart farming',
+                    'weather-climate': 'Weather forecasts and climate impact on farming',
+                    'government-policies': 'Government schemes, subsidies, and agricultural policies',
+                    'expert-insights': 'Expert advice, research findings, and farming best practices',
+                    'sustainable-farming': 'Organic farming, sustainable practices, and eco-friendly agriculture'
+                };
+
+                pageTitle.textContent = categoryTitles[category] || 'Agriculture News';
+                pageSubtitle.textContent = categorySubtitles[category] || 'Latest agriculture news';
+
+                this.currentCategory = category;
+                this.fetchNews();
+            }
+
+            async init() {
+                try {
+                    await this.fetchNews();
+                } catch (error) {
+                    console.error('Error initializing:', error);
+                    this.showError();
+                }
+            }
+
+            async fetchNews() {
+                const loadingEl = document.getElementById('loading');
+                const errorEl = document.getElementById('error');
+                const errorMsgEl = document.getElementById('error-message');
+                const containerEl = document.getElementById('news-container');
+
+                try {
+                    loadingEl.style.display = 'block';
+                    errorEl.style.display = 'none';
+                    containerEl.style.display = 'none';
+
+                    // Determine API URL based on category
+                    let apiUrl;
+                    if (this.currentCategory === 'home') {
+                        apiUrl = this.baseApiUrl;
+                    } else {
+                        apiUrl = this.categoryApiUrl + this.currentCategory + '/';
+                    }
+
+                    const response = await fetch(apiUrl, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': this.csrfToken,
+                        },
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+
+                    if (data.articles && data.articles.length >= 6) {
+                        this.renderNews(data.articles);
+                        this.updateStats(data);
+                        loadingEl.style.display = 'none';
+                        containerEl.style.display = 'grid';
+                    } else if (data.articles && data.articles.length > 0) {
+                        this.renderNews(data.articles);
+                        this.updateStats(data);
+                        loadingEl.style.display = 'none';
+                        containerEl.style.display = 'grid';
+                        errorMsgEl.textContent = `Only ${data.articles.length} article(s) found. Showing all available news.`;
+                        errorEl.style.display = 'block';
+                    } else {
+                        let msg = 'Failed to load news. Please try again later.';
+                        if (data.error) msg = data.error;
+                        errorMsgEl.textContent = msg;
+                        throw new Error(msg);
+                    }
+                } catch (error) {
+                    console.error('Error fetching news:', error);
+                    errorMsgEl.textContent = error.message || 'Failed to load news. Please try again later.';
+                    this.showError();
+                }
+            }
+
+            renderNews(articles) {
+                const container = document.getElementById('news-container');
+                container.innerHTML = '';
+
+                // Always show at least 6 cards (real or placeholder)
+                const minArticles = 6;
+                const totalToShow = Math.max(articles.length, minArticles);
+
+                for (let i = 0; i < totalToShow; i++) {
+                    if (i < articles.length) {
+                        const newsCard = this.createNewsCard(articles[i], i);
+                        container.appendChild(newsCard);
+                    } else {
+                        // Placeholder card
+                        const placeholder = document.createElement('div');
+                        placeholder.className = 'news-card news-placeholder';
+                        placeholder.innerHTML = `
+                            <div class="news-image no-image">No News Available</div>
+                            <div class="news-content">
+                                <div class="news-meta">
+                                    <span class="news-category">Coming Soon</span>
+                                </div>
+                                <h3 class="news-title">More news will appear here soon!</h3>
+                                <p class="news-description">Stay tuned for the latest updates in agriculture.</p>
+                                <div class="news-footer">
+                                    <span class="news-source">AgroBuild</span>
+                                    <span class="news-time">--</span>
+                                </div>
+                            </div>
+                        `;
+                        container.appendChild(placeholder);
+                    }
+                }
+            }
+
+            createNewsCard(article, index) {
+                const card = document.createElement('div');
+                card.className = 'news-card';
+
+                const isLive = index === 0; // Make first article "LIVE"
+                const category = article.category || 'News';
+                const relevanceScore = article.relevance_score || 0;
+                const matchedKeywords = article.matched_keywords || [];
+
+                // Add relevance score indicator
+                const relevanceIndicator = relevanceScore >= 5 ? '🔥' : relevanceScore >= 3 ? '⭐' : '📰';
+
+                card.innerHTML = `
+                    ${article.urlToImage ? 
+                        `<img src="${article.urlToImage}" alt="${article.title}" class="news-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                         <div class="news-image no-image" style="display: none;">No Image Available</div>` : 
+                        `<div class="news-image no-image">No Image Available</div>`
+                    }
+                    <div class="news-content">
+                        <div class="news-meta">
+                            ${isLive ? '<span class="live-badge">LIVE</span>' : ''}
+                            <span class="news-category category-${category.toLowerCase().replace(/\s+/g, '-')}">${category}</span>
+                            <span class="relevance-indicator" title="Relevance Score: ${relevanceScore}">${relevanceIndicator}</span>
+                        </div>
+                        <h3 class="news-title" onclick="this.openArticle('${article.url}')">${article.title}</h3>
+                        <p class="news-description">${article.description || 'No description available.'}</p>
+                        ${matchedKeywords.length > 0 ? `
+                            <div class="news-keywords">
+                                <small>Keywords: ${matchedKeywords.slice(0, 3).join(', ')}</small>
+                            </div>
+                        ` : ''}
+                        <div class="news-footer">
+                            <span class="news-source">${article.source.name}</span>
+                            <span class="news-time">${this.formatTime(article.publishedAt)}</span>
+                        </div>
+                    </div>
+                `;
+
+                // Add click handler for opening articles
+                const titleEl = card.querySelector('.news-title');
+                titleEl.addEventListener('click', () => {
+                    if (article.url && article.url !== '#') {
+                        window.open(article.url, '_blank');
+                    }
+                });
+
+                return card;
+            }
+
+            formatTime(dateString) {
+                try {
+                    const date = new Date(dateString);
+                    const now = new Date();
+                    const diffMs = now - date;
+                    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                    const diffMins = Math.floor(diffMs / (1000 * 60));
+
+                    if (diffHours > 24) {
+                        return date.toLocaleDateString('en-IN');
+                    } else if (diffHours > 0) {
+                        return `${diffHours}h ago`;
+                    } else if (diffMins > 0) {
+                        return `${diffMins}m ago`;
+                    } else {
+                        return 'Just now';
+                    }
+                } catch (error) {
+                    return 'Recently';
+                }
+            }
+
+            showError() {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('news-container').style.display = 'none';
+                document.getElementById('news-stats').style.display = 'none';
+            }
+
+            updateStats(data) {
+                const statsEl = document.getElementById('news-stats');
+                const totalArticlesEl = document.getElementById('total-articles');
+                const queriesSearchedEl = document.getElementById('queries-searched');
+                
+                if (totalArticlesEl) {
+                    totalArticlesEl.textContent = data.total || data.articles.length;
+                }
+                if (queriesSearchedEl) {
+                    queriesSearchedEl.textContent = data.queries_searched || '10';
+                }
+                
+                statsEl.style.display = 'flex';
+            }
+        }
+
+        // Initialize the app when DOM is loaded
+        let newsApp;
+        document.addEventListener('DOMContentLoaded', () => {
+            newsApp = new AgricultureNews();
+        });
+
+        // Refresh news function
+        function refreshNews() {
+            if (newsApp) {
+                newsApp.fetchNews();
+            }
+        }
+
+        // Auto-refresh news every 5 minutes
+        setInterval(() => {
+            if (newsApp) {
+                newsApp.fetchNews();
+            }
+        }, 300000);
+    </script>
+</body>
+</html>

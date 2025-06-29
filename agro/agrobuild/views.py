@@ -32,6 +32,9 @@ from django.db.models import Sum, Count, F
 import datetime
 from django.core.mail import send_mail
 import random 
+from django.views.decorators.csrf import csrf_exempt
+import json
+import re
 
 
 @method_decorator(staff_member_required, name='dispatch')
@@ -246,7 +249,7 @@ def download_invoice(request, order_id):
        context['signature_base64'] = ''
         
     html = render_to_string('htmldemo.net/invoice.html', context)
-    config = pdfkit.configuration(wkhtmltopdf=r"C:\Users\a\Desktop\Agro Build Pro\AgroBuild\wkhtmltopdf\bin\wkhtmltopdf.exe")
+    config = pdfkit.configuration(wkhtmltopdf=r"D:\AgroBUild(Main)\AgroBuild\wkhtmltopdf\bin\wkhtmltopdf.exe")
     options = {
         'enable-local-file-access': None,
         'encoding': 'UTF-8',
@@ -953,3 +956,105 @@ def category_products(request, slug):
         'cart_ids': cart_ids,
     }
     return render(request, 'htmldemo.net/category_products.html', context)
+
+def chatbot_response(request):
+    """
+    Handle chatbot queries and return appropriate responses
+    """
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            user_message = data.get('message', '').lower().strip()
+            
+            # Agriculture knowledge base
+            agriculture_qa = {
+                # Plant care
+                'watering': {
+                    'keywords': ['water', 'watering', 'how often water', 'when to water', 'irrigation'],
+                    'response': "Most plants need regular watering. Check soil moisture by inserting your finger 1-2 inches deep. Water when the top layer feels dry. Avoid overwatering as it can cause root rot. Indoor plants typically need water every 1-2 weeks, while outdoor plants may need more frequent watering depending on weather."
+                },
+                'fertilizer': {
+                    'keywords': ['fertilizer', 'fertilizing', 'nutrients', 'plant food', 'npk'],
+                    'response': "Fertilizers provide essential nutrients (NPK - Nitrogen, Phosphorus, Potassium) to plants. Use organic fertilizers for better soil health. Apply during growing season (spring/summer) and reduce in winter. Follow package instructions for proper dosage. Over-fertilizing can harm plants."
+                },
+                'sunlight': {
+                    'keywords': ['sunlight', 'sun', 'light', 'shade', 'bright', 'dark'],
+                    'response': "Different plants have different light requirements. Full sun plants need 6+ hours of direct sunlight. Partial sun/shade plants need 3-6 hours. Full shade plants thrive with minimal direct sunlight. Check plant tags or research specific plant needs."
+                },
+                'soil': {
+                    'keywords': ['soil', 'potting mix', 'dirt', 'ph', 'drainage'],
+                    'response': "Good soil is crucial for plant health. Use well-draining potting mix for containers. Garden soil should be rich in organic matter. Most plants prefer slightly acidic to neutral pH (6.0-7.0). Test your soil pH and amend as needed."
+                },
+                'pests': {
+                    'keywords': ['pest', 'insect', 'bug', 'disease', 'aphid', 'spider mite'],
+                    'response': "Common plant pests include aphids, spider mites, and mealybugs. Use neem oil or insecticidal soap for organic control. Remove affected leaves and isolate infected plants. Regular inspection helps catch problems early."
+                },
+                'seeds': {
+                    'keywords': ['seed', 'germination', 'planting', 'sow', 'seedling'],
+                    'response': "Plant seeds at the recommended depth (usually 2-3 times the seed diameter). Keep soil moist but not soggy. Most seeds germinate in 7-14 days. Start seeds indoors 6-8 weeks before last frost for vegetables."
+                },
+                'pruning': {
+                    'keywords': ['prune', 'trim', 'cut', 'deadhead', 'trimming'],
+                    'response': "Pruning promotes healthy growth and removes dead/damaged parts. Use clean, sharp tools. Prune flowering plants after they bloom. Remove dead or crossing branches. Don't prune more than 1/3 of the plant at once."
+                },
+                'indoor_plants': {
+                    'keywords': ['indoor', 'houseplant', 'room', 'apartment'],
+                    'response': "Popular indoor plants include pothos, snake plant, and peace lily. They prefer bright, indirect light and moderate humidity. Water when top soil is dry. Use well-draining pots and potting mix."
+                },
+                'vegetables': {
+                    'keywords': ['vegetable', 'tomato', 'carrot', 'lettuce', 'garden'],
+                    'response': "Start with easy vegetables like tomatoes, lettuce, and herbs. Plant in well-draining soil with plenty of organic matter. Most vegetables need 6+ hours of sunlight. Water regularly and fertilize as needed."
+                },
+                'organic': {
+                    'keywords': ['organic', 'natural', 'chemical free', 'pesticide'],
+                    'response': "Organic gardening avoids synthetic chemicals. Use compost, manure, and organic fertilizers. Control pests with neem oil, companion planting, and beneficial insects. Build healthy soil for natural pest resistance."
+                },
+                'seasonal': {
+                    'keywords': ['season', 'spring', 'summer', 'fall', 'winter', 'planting time'],
+                    'response': "Spring: Plant cool-season crops and start warm-season seeds. Summer: Plant heat-loving vegetables and maintain watering. Fall: Plant cool-season crops and prepare for winter. Winter: Plan next season and maintain indoor plants."
+                }
+            }
+            
+            # Check for matches
+            best_match = None
+            highest_score = 0
+            
+            for category, qa_data in agriculture_qa.items():
+                for keyword in qa_data['keywords']:
+                    if keyword in user_message:
+                        score = len(keyword)  # Simple scoring based on keyword length
+                        if score > highest_score:
+                            highest_score = score
+                            best_match = qa_data['response']
+            
+            # If no specific match, provide general help
+            if not best_match:
+                general_responses = [
+                    "I can help with plant care, watering, fertilizing, pest control, and general gardening questions. What specific topic would you like to know about?",
+                    "For agriculture questions, I can assist with plant care, soil management, pest control, and seasonal gardening. Please ask a specific question!",
+                    "I'm here to help with your agriculture and gardening questions. Try asking about watering, fertilizing, plant care, or pest management."
+                ]
+                import random
+                best_match = random.choice(general_responses)
+            
+            return JsonResponse({
+                'success': True,
+                'response': best_match,
+                'user_message': user_message
+            })
+            
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'success': False,
+                'response': 'Sorry, I couldn\'t understand your message. Please try again.'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'response': 'Sorry, something went wrong. Please try again.'
+            })
+    
+    return JsonResponse({
+        'success': False,
+        'response': 'Please send a POST request with your question.'
+    })

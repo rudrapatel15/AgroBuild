@@ -1,0 +1,88 @@
+{% extends 'htmldemo.net/basic.html' %}
+{% block title %}Chatbot Test - AgroBuild{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">
+                        <i class="bi bi-robot"></i> AgriBot Test Page
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <h5>Welcome to the AgriBot Test Page!</h5>
+                    <p>This page is to test the agriculture chatbot functionality. The chatbot widget should appear in the bottom-right corner of this page. <strong>New Feature:</strong> AgriBot now has a ChatGPT-like typing effect that makes responses appear character by character!</p>
+                    
+                    <div class="alert alert-info">
+                        <h6><i class="bi bi-info-circle"></i> Test Instructions:</h6>
+                        <ol>
+                            <li>Look for the "Ask AgriBot" button in the bottom-right corner</li>
+                            <li>Click on it to open the chat window</li>
+                            <li>Notice the ChatGPT-like typing effect when AgriBot responds</li>
+                            <li>Try asking questions like:
+                                <ul>
+                                    <li>"How often should I water my plants?"</li>
+                                    <li>"What fertilizer should I use?"</li>
+                                    <li>"How to control pests naturally?"</li>
+                                    <li>"Best time to plant vegetables?"</li>
+                                    <li>"How to care for indoor plants?"</li>
+                                </ul>
+                            </li>
+                            <li>The chatbot should respond with helpful agriculture advice</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="alert alert-success">
+                        <h6><i class="bi bi-check-circle"></i> Features Tested:</h6>
+                        <ul>
+                            <li>✅ Chatbot widget integration</li>
+                            <li>✅ Message sending and receiving</li>
+                            <li>✅ Agriculture knowledge base</li>
+                            <li>✅ Responsive design</li>
+                            <li>✅ Suggestion buttons</li>
+                            <li>✅ Typing indicators</li>
+                            <li>✅ ChatGPT-like typing effect</li>
+                            <li>✅ HTML content support in typing</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="text-center">
+                        <a href="{% url 'index' %}" class="btn btn-primary">
+                            <i class="bi bi-house"></i> Back to Home
+                        </a>
+                        <a href="{% url 'agriculture_news' %}" class="btn btn-success">
+                            <i class="bi bi-newspaper"></i> Agriculture News
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border: none;
+    border-radius: 15px;
+}
+
+.card-header {
+    border-radius: 15px 15px 0 0 !important;
+    border: none;
+}
+
+.alert {
+    border-radius: 10px;
+    border: none;
+}
+
+.btn {
+    border-radius: 25px;
+    padding: 10px 25px;
+    margin: 5px;
+}
+</style>
+{% endblock %} 

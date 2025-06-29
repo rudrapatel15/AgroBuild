@@ -14,7 +14,26 @@ urlpatterns = [
     path('otp-verify/', views.otp_verify_view, name='otp_verify'),
     # NEW LINE ADDED: This maps the AJAX request for resending OTP to its view
     path('resend-otp-ajax/', views.resend_otp_ajax_view, name='resend_otp_ajax'),
+
+    # Agriculture news pages
+    path('agriculture-news/', views.agriculture_news_page, name='agriculture_news'),
     
+    # API endpoints for fetching news
+    path('api/news/', views.fetch_agriculture_news, name='fetch_agriculture_news'),
+    path('api/news/<str:category>/', views.fetch_category_news, name='fetch_category_news'),
+    
+    # Chatbot API endpoint
+    path('api/chatbot/', views.chatbot_response, name='chatbot_response'),
+    
+    # Chat history endpoint
+    path('api/chat-history/', views.get_chat_history, name='get_chat_history'),
+    
+    # Clear chat history endpoint
+    path('api/clear-chat-history/', views.clear_chat_history, name='clear_chat_history'),
+    
+    # Chatbot test page
+    path('chatbot-test/', views.chatbot_test_page, name='chatbot_test'),
+      
 ] 
 if settings.DEBUG:
     urlpatterns +=static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
