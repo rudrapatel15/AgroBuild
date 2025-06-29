@@ -14,6 +14,13 @@ urlpatterns = [
     path('otp-verify/', views.otp_verify_view, name='otp_verify'),
     # NEW LINE ADDED: This maps the AJAX request for resending OTP to its view
     path('resend-otp-ajax/', views.resend_otp_ajax_view, name='resend_otp_ajax'),
+
+    # Agriculture news pages
+    path('agriculture-news/', views.agriculture_news_page, name='agriculture_news'),
+    
+    # API endpoints for fetching news
+    path('api/news/', views.fetch_agriculture_news, name='fetch_agriculture_news'),
+    path('api/news/<str:category>/', views.fetch_category_news, name='fetch_category_news'),
     
 ] 
 if settings.DEBUG:

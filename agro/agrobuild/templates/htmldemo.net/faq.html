@@ -188,4 +188,20 @@
     <!--Accordion area end-->
     <!--faq area end-->
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const accordion = document.getElementById('accordion');
+            if (!accordion) return;
+            accordion.addEventListener('show.bs.collapse', function (event) {
+                // Close all other open items
+                const openItems = accordion.querySelectorAll('.collapse.show');
+                openItems.forEach(function (item) {
+                    if (item !== event.target) {
+                        new bootstrap.Collapse(item, {toggle: true});
+                    }
+                });
+            });
+        });
+    </script>
+
 {% endblock %}

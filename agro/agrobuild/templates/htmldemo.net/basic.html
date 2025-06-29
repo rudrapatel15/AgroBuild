@@ -433,6 +433,16 @@
             bottom: 0;
             background: white;
         }
+        .dropdown-item:focus,
+        .dropdown-item:active,
+        .dropdown-item:hover {
+            background-color: transparent !important;
+            color: inherit !important;
+        }
+        .dropdown-item:focus-visible {
+            outline: none !important;
+            box-shadow: none !important;
+        }
     </style>
     <script src="{% static 'js/vendor/modernizr-3.7.1.min.js' %}"></script>
 </head>
@@ -788,6 +798,7 @@
                 <h2>Quick Links</h2>
                 <ul>
                     <li><a href="{% url 'home' %}">Products</a></li>
+                    <li><a href="{% url 'agriculture_news' %}">Agriculture News</a></li>
                     <li><a href="{% url 'aboutus' %}">About Us</a></li>
                     <li><a href="{% url 'contactus' %}">Contact Us</a></li>
                     <li><a href="#">Terms & Conditions</a></li>
