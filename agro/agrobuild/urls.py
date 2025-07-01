@@ -2,11 +2,11 @@ from django.urls import path
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
-from django.contrib.auth.views import LogoutView
-from django.conf.urls.static import static
-from .views import AdminDashboardView  # Add this import
+from .views import AdminDashboardView
+from django.contrib import admin
 
 urlpatterns = [
+    
     path('', views.blog_list, name='blog_list'),
     path('wishlist/', views.wishlist, name="wishlist"),
     path('add_to_wishlist/<int:product_id>/', views.add_to_wishlist, name='add_to_wishlist'),
@@ -44,7 +44,7 @@ urlpatterns = [
     path('admin-login/', views.admin_login, name='adminlogin'),
     path('email-otp-verify/', views.email_otp_verify, name='email_otp_verify'),
     
-]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

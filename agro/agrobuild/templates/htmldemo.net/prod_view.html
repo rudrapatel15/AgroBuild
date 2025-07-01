@@ -147,22 +147,34 @@
                           <input type="hidden" name="from_index" value="false">
                           <input type="hidden" name="return_url" value="{{ request.get_full_path }}">
                         
-                          <button type="submit"
-                                  class="btn btn-custom btn-add-to-cart"
-                                  id="cart-btn-{{ product.P_id }}"
-                                  data-product-name="{{ product.P_name }}"
-                                  onclick="handleAddToCart(event, '{{ product.P_id }}')">
-                            <span id="btn-text-{{ product.P_id }}">
-                              {% if product.P_id in cart_ids %}Go to Cart{% else %}Add to Cart{% endif %}
-                            </span>
-                          </button>
-                        </form>                  
-
-                        <form id="wishlist-form" class="wishlist-form">
-                            {% csrf_token %}
-                            <button class="btn btn-custom btn-wishlist" type="button" data-product-id="{{ product.P_id }}" data-product-name="{{ product.P_name }}">
-                                {% if product.P_id in wishlist_ids %} Wishlisted {% else %} Wishlist {% endif %}
-                            </button>
+                          {% if user.is_authenticated %}
+    <!-- Add to Cart Button -->
+    <button type="submit"
+            class="btn btn-custom btn-add-to-cart"
+            id="cart-btn-{{ product.P_id }}"
+            data-product-name="{{ product.P_name }}"
+            onclick="handleAddToCart(event, '{{ product.P_id }}')">
+      <span id="btn-text-{{ product.P_id }}">
+        {% if product.P_id in cart_ids %}Go to Cart{% else %}Add to Cart{% endif %}
+      </span>
+    </button>
+    <!-- Wishlist Button -->
+    <button class="btn btn-custom btn-wishlist" type="button" data-product-id="{{ product.P_id }}" data-product-name="{{ product.P_name }}">
+        {% if product.P_id in wishlist_ids %} Wishlisted {% else %} Wishlist {% endif %}
+    </button>
+{% else %}
+    <!-- If not logged in, show buttons that redirect to login -->
+    <button type="button"
+            class="btn btn-custom btn-add-to-cart"
+            onclick="window.location.href='{% url 'login' %}?next={{ request.path }}'">
+      Add to Cart
+    </button>
+    <button type="button"
+            class="btn btn-custom btn-wishlist"
+            onclick="window.location.href='{% url 'login' %}?next={{ request.path }}'">
+      Wishlist
+    </button>
+{% endif %}
                         </form>
                     </div>
                     <!-- Quantity and Buy Now -->
@@ -314,6 +326,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 2000);
     }
 });
+
+</script>
+
+<script>
+    {% if not user.is_authenticated %}
+document.querySelectorAll('.btn-add-to-cart, .btn-wishlist').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        window.location.href = "{% url 'login' %}?next={{ request.path }}";
+    });
+});
+{% endif %}
 </script>
 
 <script>

@@ -235,3 +235,13 @@ class ContactMessage(models.Model):
 
     def __str__(self):
         return f"Message from {self.name} - {self.subject}"
+    
+class ChatMessage(models.Model):
+    """
+    Model to store chatbot conversation history for logged-in users
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='chat_messages')
+    message = models.TextField()
+    response = models.TextField()
+    is_user_message = models.BooleanField(default=True)  # True for user, False for bot
+    timestamp = models.DateTimeField(default=timezone.now)

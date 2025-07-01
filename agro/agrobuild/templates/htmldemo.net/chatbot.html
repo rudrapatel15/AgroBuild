@@ -1,0 +1,867 @@
+{% load static %}
+
+<!-- Chatbot Widget -->
+<div id="chatbot-widget" class="chatbot-container">
+    <!-- Chat Toggle Button -->
+    <div id="chatbot-toggle" class="chatbot-toggle">
+        <i class="bi bi-chat-dots"></i>
+        <span class="chatbot-toggle-text">Ask AgriBot</span>
+    </div>
+    
+    <!-- Chat Window -->
+    <div id="chatbot-window" class="chatbot-window">
+        <div class="chatbot-header">
+            <div class="chatbot-title">
+                <i class="bi bi-robot"></i>
+                <span>AgriBot - Agriculture & Weather Assistant</span>
+            </div>
+            <div class="chatbot-actions">
+                <button id="clear-history-btn" class="clear-history-btn" title="Clear Chat History" style="display: none;">
+                    <i class="bi bi-trash"></i>
+                </button>
+                <button id="chatbot-close" class="chatbot-close">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="chatbot-messages" id="chatbot-messages">
+            <div class="message bot-message">
+                <div class="message-content">
+                    <i class="bi bi-robot message-icon"></i>
+                    <div class="message-text">
+                        <span class="typing-text">{% if user.is_authenticated %}
+                                            Hello {{ user.first_name|default:user.username }}! 👋 I'm AgriBot, your agriculture assistant. I can help you with:
+                                        {% else %}
+                                            Hello! I'm AgriBot, your agriculture assistant. I can help you with:
+                                        {% endif %}
+                        <ul>
+                            <li>Plant care and watering</li>
+                            <li>Fertilizing and soil management</li>
+                            <li>Pest control and disease prevention</li>
+                            <li>Weather information across India</li>
+                            <li>Monsoon and seasonal patterns</li>
+                            <li>Weather-based farming planning</li>
+                            <li>Seasonal gardening tips</li>
+                            <li>Indoor and outdoor plant care</li>
+                        </ul>
+                        What would you like to know?</span><span class="typing-cursor"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chatbot-input-container">
+            <div class="chatbot-input-wrapper">
+                <input type="text" id="chatbot-input" class="chatbot-input" placeholder="Ask me about agriculture, weather, or farming..." maxlength="500">
+                <button id="chatbot-send" class="chatbot-send">
+                    <i class="bi bi-send"></i>
+                </button>
+            </div>
+            <div class="chatbot-suggestions">
+                <button class="suggestion-btn" data-suggestion="How often should I water my plants?">Watering</button>
+                <button class="suggestion-btn" data-suggestion="What fertilizer should I use?">Fertilizer</button>
+                <button class="suggestion-btn" data-suggestion="How to control pests naturally?">Pest Control</button>
+                <button class="suggestion-btn" data-suggestion="How does weather affect crops?">Weather & Crops</button>
+                <button class="suggestion-btn" data-suggestion="Weather forecast for farming">Weather Forecast</button>
+                <button class="suggestion-btn" data-suggestion="How to handle extreme weather?">Extreme Weather</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Chatbot Styles */
+.chatbot-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.chatbot-toggle {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.chatbot-toggle:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}
+
+.chatbot-toggle i {
+    font-size: 20px;
+}
+
+.chatbot-window {
+    position: absolute;
+    bottom: 80px;
+    right: 0;
+    width: 350px;
+    height: 500px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.chatbot-window.active {
+    display: flex;
+}
+
+.chatbot-header {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chatbot-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+}
+
+.chatbot-title i {
+    font-size: 18px;
+}
+
+.chatbot-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.clear-history-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: background 0.3s ease;
+}
+
+.clear-history-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.chatbot-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: background 0.3s ease;
+}
+
+.chatbot-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.chatbot-messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.message {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.user-message {
+    justify-content: flex-end;
+}
+
+.bot-message {
+    justify-content: flex-start;
+}
+
+.message-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    max-width: 80%;
+}
+
+.user-message .message-content {
+    flex-direction: row-reverse;
+}
+
+.message-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.bot-message .message-icon {
+    background: #4CAF50;
+    color: white;
+}
+
+.user-message .message-icon {
+    background: #2196F3;
+    color: white;
+}
+
+.message-text {
+    background: #f5f5f5;
+    padding: 12px 15px;
+    border-radius: 15px;
+    font-size: 14px;
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+.user-message .message-text {
+    background: #2196F3;
+    color: white;
+}
+
+.message-text ul {
+    margin: 8px 0;
+    padding-left: 20px;
+}
+
+.message-text li {
+    margin: 3px 0;
+}
+
+.chatbot-input-container {
+    padding: 15px 20px;
+    border-top: 1px solid #eee;
+}
+
+.chatbot-input-wrapper {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.chatbot-input {
+    flex: 1;
+    padding: 12px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 25px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.chatbot-input:focus {
+    border-color: #4CAF50;
+}
+
+.chatbot-send {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.chatbot-send:hover {
+    background: #45a049;
+}
+
+.chatbot-send:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.chatbot-suggestions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.suggestion-btn {
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 15px;
+    padding: 6px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #333;
+}
+
+.suggestion-btn:hover {
+    background: #4CAF50;
+    color: white;
+    border-color: #4CAF50;
+}
+
+/* Loading animation */
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 12px 15px;
+    background: #f5f5f5;
+    border-radius: 15px;
+    font-size: 14px;
+}
+
+.typing-dots {
+    display: flex;
+    gap: 3px;
+}
+
+.typing-dot {
+    width: 6px;
+    height: 6px;
+    background: #999;
+    border-radius: 50%;
+    animation: typing 1.4s infinite ease-in-out;
+}
+
+.typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typing {
+    0%, 80%, 100% {
+        transform: scale(0.8);
+        opacity: 0.5;
+    }
+    40% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Typing effect styles */
+.typing-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1.2em;
+    background: #4CAF50;
+    margin-left: 2px;
+    animation: blink 1s infinite;
+    vertical-align: middle;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+.typing-text {
+    display: inline;
+}
+
+.typing-complete .typing-cursor {
+    display: none;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .chatbot-window {
+        width: 300px;
+        height: 400px;
+        bottom: 70px;
+        right: 10px;
+    }
+    
+    .chatbot-toggle {
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+    
+    .chatbot-toggle-text {
+        display: none;
+    }
+}
+</style>
+
+<script>
+// Chatbot with ChatGPT-like typing effect
+// Features:
+// - Real-time typing animation for bot responses
+// - HTML content support (lists, formatting)
+// - Configurable typing speed
+// - Error handling and fallbacks
+// - Blinking cursor animation
+document.addEventListener('DOMContentLoaded', function() {
+    const chatbotToggle = document.getElementById('chatbot-toggle');
+    const chatbotWindow = document.getElementById('chatbot-window');
+    const chatbotClose = document.getElementById('chatbot-close');
+    const chatbotInput = document.getElementById('chatbot-input');
+    const chatbotSend = document.getElementById('chatbot-send');
+    const chatbotMessages = document.getElementById('chatbot-messages');
+    const suggestionBtns = document.querySelectorAll('.suggestion-btn');
+    const clearHistoryBtn = document.getElementById('clear-history-btn');
+    
+    // Check if all required elements exist
+    if (!chatbotToggle || !chatbotWindow || !chatbotClose || !chatbotInput || !chatbotSend || !chatbotMessages) {
+        console.error('Chatbot elements not found. Chatbot functionality disabled.');
+        return;
+    }
+    
+    let isTyping = false;
+    
+    // Toggle chatbot window
+    chatbotToggle.addEventListener('click', function() {
+        chatbotWindow.classList.toggle('active');
+        if (chatbotWindow.classList.contains('active')) {
+            chatbotInput.focus();
+            // Load chat history for logged-in users
+            loadChatHistory();
+            // Trigger typing effect for initial message if it's the first time
+            triggerInitialTypingEffect();
+        }
+    });
+    
+    // Close chatbot window
+    chatbotClose.addEventListener('click', function() {
+        chatbotWindow.classList.remove('active');
+    });
+    
+    // Load chat history for logged-in users
+    function loadChatHistory() {
+        // Check if user is logged in (you can modify this check based on your authentication setup)
+        const isLoggedIn = document.body.classList.contains('logged-in') || 
+                          document.querySelector('[data-user-authenticated="true"]') !== null ||
+                          document.cookie.includes('sessionid');
+        
+        if (isLoggedIn) {
+            fetch('/api/chat-history/', {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.messages && data.messages.length > 0) {
+                    // Clear the default welcome message
+                    chatbotMessages.innerHTML = '';
+                    
+                    // Load chat history
+                    data.messages.forEach(msg => {
+                        addMessage(msg.message || msg.response, msg.type);
+                    });
+                } else {
+                    // No chat history, show welcome message with typing effect
+                    chatbotMessages.innerHTML = `
+                        <div class="message bot-message">
+                            <div class="message-content">
+                                <i class="bi bi-robot message-icon"></i>
+                                <div class="message-text">
+                                    <span class="typing-text">Hello! I'm AgriBot, your agriculture assistant. I can help you with:
+                                    <ul>
+                                        <li>Plant care and watering</li>
+                                        <li>Fertilizing and soil management</li>
+                                        <li>Pest control and disease prevention</li>
+                                        <li>Weather information across India</li>
+                                        <li>Monsoon and seasonal patterns</li>
+                                        <li>Weather-based farming planning</li>
+                                        <li>Seasonal gardening tips</li>
+                                        <li>Indoor and outdoor plant care</li>
+                                    </ul>
+                                    What would you like to know?</span><span class="typing-cursor"></span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Trigger typing effect for the welcome message
+                    setTimeout(() => {
+                        triggerInitialTypingEffect();
+                    }, 100);
+                }
+            })
+            .catch(error => {
+                console.log('Could not load chat history:', error);
+            });
+        }
+    }
+    
+    // Trigger typing effect for initial welcome message
+    function triggerInitialTypingEffect() {
+        try {
+            const initialMessage = chatbotMessages.querySelector('.message.bot-message .message-text');
+            if (initialMessage && !initialMessage.classList.contains('typing-complete')) {
+                const typingText = initialMessage.querySelector('.typing-text');
+                const cursor = initialMessage.querySelector('.typing-cursor');
+                
+                if (typingText && cursor) {
+                    const fullText = typingText.innerHTML;
+                    typingText.innerHTML = '';
+                    cursor.style.display = 'inline-block';
+                    
+                    // Start typing effect after a short delay
+                    setTimeout(() => {
+                        typeMessage(fullText, initialMessage);
+                    }, 500);
+                }
+            }
+        } catch (error) {
+            console.error('Error triggering initial typing effect:', error);
+        }
+    }
+    
+    // Send message function
+    function sendMessage(message) {
+        if (!message.trim() || isTyping) return;
+        
+        // Add user message
+        addMessage(message, 'user');
+        chatbotInput.value = '';
+        
+        // Show typing indicator
+        showTypingIndicator();
+        
+        // Send to backend
+        fetch('/api/chatbot/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                message: message
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideTypingIndicator();
+            if (data.success) {
+                addMessage(data.response, 'bot');
+            } else {
+                addMessage('Sorry, I encountered an error. Please try again.', 'bot');
+            }
+        })
+        .catch(error => {
+            hideTypingIndicator();
+            addMessage('Sorry, I\'m having trouble connecting. Please try again.', 'bot');
+        });
+    }
+    
+    // Add message to chat
+    function addMessage(text, sender) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}-message`;
+        
+        const messageContent = document.createElement('div');
+        messageContent.className = 'message-content';
+        
+        const messageIcon = document.createElement('div');
+        messageIcon.className = 'message-icon';
+        messageIcon.innerHTML = sender === 'bot' ? '<i class="bi bi-robot"></i>' : '<i class="bi bi-person"></i>';
+        
+        const messageText = document.createElement('div');
+        messageText.className = 'message-text';
+        
+        if (sender === 'bot') {
+            // For bot messages, implement typing effect
+            messageText.innerHTML = '<span class="typing-text"></span><span class="typing-cursor"></span>';
+            messageContent.appendChild(messageIcon);
+            messageContent.appendChild(messageText);
+            messageDiv.appendChild(messageContent);
+            
+            chatbotMessages.appendChild(messageDiv);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+            
+            // Start typing effect
+            typeMessage(text, messageText);
+        } else {
+            // For user messages, display immediately
+            messageText.textContent = text;
+            messageContent.appendChild(messageIcon);
+            messageContent.appendChild(messageText);
+            messageDiv.appendChild(messageContent);
+            
+            chatbotMessages.appendChild(messageDiv);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        }
+    }
+    
+    // Typing effect function
+    function typeMessage(text, messageElement) {
+        try {
+            // Validate input
+            if (!text || typeof text !== 'string') {
+                console.error('Invalid text for typing effect:', text);
+                return;
+            }
+            
+            const typingText = messageElement.querySelector('.typing-text');
+            const cursor = messageElement.querySelector('.typing-cursor');
+            
+            if (!typingText || !cursor) {
+                console.error('Typing effect elements not found');
+                return;
+            }
+            
+            // Typing speed configuration
+            const charDelay = 30; // milliseconds per character
+            const htmlDelay = 50; // milliseconds for HTML tags
+            const initialDelay = 200; // milliseconds before starting
+            
+            // Handle HTML content (like lists) by splitting on tags
+            const textParts = splitTextWithHTML(text);
+            let currentPartIndex = 0;
+            let currentCharIndex = 0;
+            let currentHTML = '';
+            
+            function typeNextChar() {
+                try {
+                    if (currentPartIndex < textParts.length) {
+                        const currentPart = textParts[currentPartIndex];
+                        
+                        if (currentPart.isHTML) {
+                            // Add HTML tag immediately
+                            currentHTML += currentPart.content;
+                            typingText.innerHTML = currentHTML;
+                            currentPartIndex++;
+                            setTimeout(typeNextChar, htmlDelay);
+                        } else {
+                            // Type text character by character
+                            if (currentCharIndex < currentPart.content.length) {
+                                currentHTML += currentPart.content[currentCharIndex];
+                                typingText.innerHTML = currentHTML;
+                                currentCharIndex++;
+                                setTimeout(typeNextChar, charDelay);
+                            } else {
+                                currentPartIndex++;
+                                currentCharIndex = 0;
+                                setTimeout(typeNextChar, htmlDelay);
+                            }
+                        }
+                    } else {
+                        // Typing complete
+                        messageElement.classList.add('typing-complete');
+                        cursor.style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error('Error in typing effect:', error);
+                    // Fallback: show full text immediately
+                    typingText.innerHTML = text;
+                    messageElement.classList.add('typing-complete');
+                    cursor.style.display = 'none';
+                }
+            }
+            
+            // Start typing effect after initial delay
+            setTimeout(typeNextChar, initialDelay);
+        } catch (error) {
+            console.error('Error initializing typing effect:', error);
+            // Fallback: show full text immediately
+            const typingText = messageElement.querySelector('.typing-text');
+            const cursor = messageElement.querySelector('.typing-cursor');
+            if (typingText) {
+                typingText.innerHTML = text || '';
+            }
+            if (cursor) {
+                cursor.style.display = 'none';
+            }
+            messageElement.classList.add('typing-complete');
+        }
+    }
+    
+    // Helper function to split text while preserving HTML tags
+    function splitTextWithHTML(text) {
+        const parts = [];
+        let currentIndex = 0;
+        
+        // Find all HTML tags
+        const tagRegex = /<\/?[^>]+>/g;
+        let match;
+        
+        while ((match = tagRegex.exec(text)) !== null) {
+            // Add text before the tag
+            if (match.index > currentIndex) {
+                const textContent = text.substring(currentIndex, match.index);
+                if (textContent.trim()) {
+                    parts.push({ content: textContent, isHTML: false });
+                }
+            }
+            
+            // Add the HTML tag
+            parts.push({ content: match[0], isHTML: true });
+            currentIndex = match.index + match[0].length;
+        }
+        
+        // Add remaining text
+        if (currentIndex < text.length) {
+            const remainingText = text.substring(currentIndex);
+            if (remainingText.trim()) {
+                parts.push({ content: remainingText, isHTML: false });
+            }
+        }
+        
+        return parts;
+    }
+    
+    // Show typing indicator
+    function showTypingIndicator() {
+        isTyping = true;
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'message bot-message typing-indicator';
+        typingDiv.id = 'typing-indicator';
+        
+        const messageContent = document.createElement('div');
+        messageContent.className = 'message-content';
+        
+        const messageIcon = document.createElement('div');
+        messageIcon.className = 'message-icon';
+        messageIcon.innerHTML = '<i class="bi bi-robot"></i>';
+        
+        const typingText = document.createElement('div');
+        typingText.className = 'message-text';
+        typingText.innerHTML = 'AgriBot is typing<div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+        
+        messageContent.appendChild(messageIcon);
+        messageContent.appendChild(typingText);
+        typingDiv.appendChild(messageContent);
+        
+        chatbotMessages.appendChild(typingDiv);
+        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+    }
+    
+    // Hide typing indicator
+    function hideTypingIndicator() {
+        isTyping = false;
+        const typingIndicator = document.getElementById('typing-indicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+    }
+    
+    // Send button click
+    chatbotSend.addEventListener('click', function() {
+        sendMessage(chatbotInput.value);
+    });
+    
+    // Enter key press
+    chatbotInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            sendMessage(chatbotInput.value);
+        }
+    });
+    
+    // Suggestion buttons
+    suggestionBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const suggestion = this.getAttribute('data-suggestion');
+            sendMessage(suggestion);
+        });
+    });
+    
+    // Get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    // Check if user is logged in and show clear history button
+    function checkUserLoginStatus() {
+        const isLoggedIn = document.body.hasAttribute('data-user-authenticated') || 
+                          document.querySelector('[data-user-authenticated="true"]') !== null ||
+                          document.cookie.includes('sessionid');
+        
+        if (isLoggedIn && clearHistoryBtn) {
+            clearHistoryBtn.style.display = 'block';
+        }
+    }
+    
+    // Initialize user login status check
+    checkUserLoginStatus();
+    
+    // Clear history button click
+    if (clearHistoryBtn) {
+        clearHistoryBtn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to clear your chat history? This action cannot be undone.')) {
+                fetch('/api/clear-chat-history/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Clear the chat messages and show welcome message
+                        chatbotMessages.innerHTML = `
+                            <div class="message bot-message">
+                                <div class="message-content">
+                                    <i class="bi bi-robot message-icon"></i>
+                                    <div class="message-text">
+                                        <span class="typing-text">Hello! I'm AgriBot, your agriculture assistant. I can help you with:
+                                        <ul>
+                                            <li>Plant care and watering</li>
+                                            <li>Fertilizing and soil management</li>
+                                            <li>Pest control and disease prevention</li>
+                                            <li>Weather information across India</li>
+                                            <li>Monsoon and seasonal patterns</li>
+                                            <li>Weather-based farming planning</li>
+                                            <li>Seasonal gardening tips</li>
+                                            <li>Indoor and outdoor plant care</li>
+                                        </ul>
+                                        What would you like to know?</span><span class="typing-cursor"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Trigger typing effect for the new welcome message
+                        setTimeout(() => {
+                            triggerInitialTypingEffect();
+                        }, 100);
+                    } else {
+                        alert('Failed to clear chat history. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error clearing chat history:', error);
+                    alert('Failed to clear chat history. Please try again.');
+                });
+            }
+        });
+    }
+});
+</script>

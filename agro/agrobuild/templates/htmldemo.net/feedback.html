@@ -116,16 +116,46 @@
                         </div>
                     </form>
                     {% else %}
-                    <div class="alert alert-info text-center">
-                        <i class="bi bi-info-circle-fill me-2"></i>
-                        Please <a href="{% url 'login' %}?next={% url 'feedback' %}" class="alert-link">login</a> to submit feedback.
-                    </div>
-                    {% endif %}
+                    
+    <div class="alert alert-info text-center">
+        <i class="bi bi-info-circle-fill me-2"></i>
+        Please <a href="{% url 'login' %}?next={% url 'feedback' %}" class="alert-link">login</a> to submit feedback.
+    </div>
+{% endif %}
                 </div>
                 
                 <div class="card-footer bg-light text-muted text-center">
                     <small>We value your feedback and will respond as soon as possible.</small>
                 </div>
+<div class="mt-5">
+    <h4 class="mb-4 text-center text-success fw-bold">What Our Users Say</h4>
+    {% if feedbacks %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for fb in feedbacks %}
+                <div class="col">
+                    <div class="card border-success shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="card-title text-success mb-1">{{ fb.name }}</h5>
+                                <small class="text-muted">{{ fb.created_at|date:"d M Y, H:i" }}</small>
+                            </div>
+                            <div class="mb-2">
+                                <span class="badge bg-success-subtle text-success border border-success">{{ fb.category }}</span>
+                                {% if fb.product_name %}
+                                    <span class="badge bg-light text-dark border">{{ fb.product_name }}</span>
+                                {% endif %}
+                            </div>
+                            <p class="card-text text-secondary">{{ fb.review }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-center text-muted fst-italic">No feedback yet.</p>
+    {% endif %}
+</div>
+
             </div>
         </div>
     </div>

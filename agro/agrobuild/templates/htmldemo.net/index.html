@@ -153,7 +153,7 @@
         </div>
     </div>
 </div>
-<!-- filepath: c:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\agro\agrobuild\templates\htmldemo.net\index.html -->
+
 <div class="product_area mb-95">
     <div class="container">
         <div class="row">
@@ -179,28 +179,39 @@
                         <div class="action_links">
                             <ul>
                                 <li class="add_to_cart">
-                                    <form action="{% url 'add_to_cart' product.P_id %}" method="POST"
-                                        target="hidden_iframe"
-                                        data-product-id="{{ product.P_id }}"
-                                        data-product-name="{{ product.P_name }}"
-                                        onsubmit="return prepareCartIconUpdate(this)">
-                                        {% csrf_token %}
-                                        <button type="submit" style="background: none; border: none;">
-                                            <i id="cart-icon-{{ product.P_id }}"
-                                                class="icon-shopping-bag{% if product.P_id in cart_ids %} add_to_carted{% endif %}"
-                                                style="font-size: 18px; margin-left: 10px; border: 2px solid transparent; padding: 4px; position: relative; top: 20px;"></i>
-                                        </button>
-                                    </form>
+                                    {% if user.is_authenticated %}
+<form action="{% url 'add_to_cart' product.P_id %}" method="POST"
+      target="hidden_iframe"
+      data-product-id="{{ product.P_id }}"
+      data-product-name="{{ product.P_name }}"
+      onsubmit="return prepareCartIconUpdate(this)">
+    {% csrf_token %}
+    <button type="submit" style="background: none; border: none;">
+        <i id="cart-icon-{{ product.P_id }}"
+           class="icon-shopping-bag{% if product.P_id in cart_ids %} add_to_carted{% endif %}"
+           style="font-size: 18px; margin-left: 10px; border: 2px solid transparent; padding: 4px; position: relative; top: 20px;"></i>
+    </button>
+</form>
+{% else %}
+<button type="button" style="background: none; border: none;"
+        onclick="window.location.href='{% url 'login' %}?next={{ request.path }}'">
+    <i class="icon-shopping-bag" style="font-size: 18px; margin-left: 10px; border: 2px solid transparent; padding: 4px; position: relative; top: 20px;"></i>
+</button>
+{% endif %}
                                 </li>
                                 <li class="wishlist">
                                     <a href="javascript:void(0);"
-                                        class="wishlist-btn"
-                                        data-product-id="{{ product.P_id }}"
-                                        data-product-name="{{ product.P_name }}"
-                                        title="Add to Wishlist">
-                                        <i class="fa fa-heart-o{% if product.P_id in wishlist_ids %} wishlisted{% endif %}"></i>
-                                        <i class="fa fa-heart{% if product.P_id in wishlist_ids %} wishlisted{% endif %}"></i>
-                                    </a>
+   class="wishlist-btn"
+   data-product-id="{{ product.P_id }}"
+   data-product-name="{{ product.P_name }}"
+   title="Add to Wishlist"
+   {% if not user.is_authenticated %}
+   onclick="window.location.href='{% url 'login' %}?next={{ request.path }}'"
+   {% endif %}
+>
+    <i class="fa fa-heart-o{% if product.P_id in wishlist_ids %} wishlisted{% endif %}"></i>
+    <i class="fa fa-heart{% if product.P_id in wishlist_ids %} wishlisted{% endif %}"></i>
+</a>
                                 </li>
                                 <li class="quick_button">
                                     <a href="/prod_view/?myid={{ product.P_id }}" title="Quick View">
