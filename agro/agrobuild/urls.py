@@ -5,6 +5,7 @@ from django.conf.urls.static import static
 from django.contrib.auth.views import LogoutView
 from django.conf.urls.static import static
 from .views import AdminDashboardView  # Add this import
+from django.contrib import admin
 
 urlpatterns = [
     path('', views.blog_list, name='blog_list'),
@@ -43,6 +44,7 @@ urlpatterns = [
     path('admin/dashboard/', AdminDashboardView.as_view(), name='admin_dashboard'),
     path('admin-login/', views.admin_login, name='adminlogin'),
     path('email-otp-verify/', views.email_otp_verify, name='email_otp_verify'),
+    path('admin/', admin.site.urls),
     
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
