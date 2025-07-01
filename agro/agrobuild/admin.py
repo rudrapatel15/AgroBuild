@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
-from .models import Product, Wishlist, CartItem, Order, OrderItem, Category, UserProfile, ContactMessage, Blog, BlogComment, Feedback, WateringReminder, NotificationHistory
+from .models import Product, Wishlist, CartItem, Order, OrderItem, Category, UserProfile, ContactMessage, Blog, BlogComment, Feedback, WateringReminder, NotificationHistory, ChatMessage
 from django.utils import timezone
 from django.utils.html import format_html
 
@@ -122,3 +122,13 @@ class CategoryAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     search_fields = ('name',)
     list_filter = ('parent',)
+
+@admin.register(ChatMessage)
+class ChatMessageAdmin(admin.ModelAdmin):
+    list_display = ['user', 'message', 'response', 'is_user_message', 'timestamp']
+    list_filter = ['is_user_message', 'timestamp']
+    search_fields = ['message', 'response', 'user__username']
+    readonly_fields = ['timestamp']
+    
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('user')

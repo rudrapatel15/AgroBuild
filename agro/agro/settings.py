@@ -28,9 +28,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-f-if+h2&0p+8f9c91ob
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-
 ALLOWED_HOSTS = ['*']
-
 
 # Application definition
 
@@ -149,6 +147,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # settings.py
 RAZORPAY_KEY_ID = 'your_razorpay_key_id'
 RAZORPAY_KEY_SECRET = 'your_razorpay_key_secret'
+
+# NEWS API CONFIGURATION
+# NEWS_API_KEY = 'pub_f31c9a5024e14ee6ad77b60c62ca5029'
+NEWS_API_KEY = '5fba44e93aaf4a368cff517bbaa376dc'
+# GNEWS_API_KEY = 'ead3807db4ccaf64a362b33c231553df'
 
 # Set your timezone (e.g., for India)
 TIME_ZONE = 'Asia/Kolkata'

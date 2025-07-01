@@ -131,3 +131,4 @@ class Command(BaseCommand):
                                 reminder.last_sent = now
                                 reminder.save()
                                 break
+                            
