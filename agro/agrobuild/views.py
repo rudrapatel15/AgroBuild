@@ -283,11 +283,7 @@ def download_invoice(request, order_id):
        context['signature_base64'] = ''
         
     html = render_to_string('htmldemo.net/invoice.html', context)
-<<<<<<< HEAD
-    config = pdfkit.configuration(wkhtmltopdf=r"E:\clone\AgroBuild\wkhtmltopdf\bin\wkhtmltopdf.exe")
-=======
-    config = pdfkit.configuration(wkhtmltopdf=r"C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\wkhtmltopdf\bin\wkhtmltopdf.exe")
->>>>>>> de90efe688720d7b2fda6abfb7984a60af7bc11d
+    config = pdfkit.configuration(wkhtmltopdf=r"C:\Users\a\Desktop\Agro Build Pro\AgroBuild\wkhtmltopdf\bin\wkhtmltopdf.exe")
     options = {
         'enable-local-file-access': None,
         'encoding': 'UTF-8',

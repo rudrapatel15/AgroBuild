@@ -2,15 +2,8 @@ from django.urls import path
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
-<<<<<<< HEAD
-from django.contrib.auth.views import LogoutView
-from django.conf.urls.static import static
-from django.contrib import admin
-from .views import AdminDashboardView  # Add this import
-=======
 from .views import AdminDashboardView
 from django.contrib import admin
->>>>>>> de90efe688720d7b2fda6abfb7984a60af7bc11d
 
 urlpatterns = [
     
