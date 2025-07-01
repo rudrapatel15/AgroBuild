@@ -1,0 +1,53 @@
+ <span class="item_count">{% with cart_items|length as count %}{{ count }}{% endwith %}</span>
+<div class="mini_cart">
+   
+                                                <div class="cart_close">
+                                                <div class="cart_text">
+                                                    <h3><strong>Cart</strong></h3>
+                                                </div>
+                                                <div class="mini_cart_close">
+                                                    <a href="javascript:void(0)"><i class="icon-x"></i></a>
+                                                </div>
+                                            </div>
+                                            <div class="cart_gallery">
+                                                {% if cart_items %}
+                                                    {% for item in cart_items %}
+                                                    <div class="cart_item">
+                                                        <div class="cart_img">
+                                                            <a href="#"><img src="/media/{{ item.product.P_img }}" alt="{{ item.product.P_name }}"></a>
+                                                        </div>
+                                                        <div class="cart_info">
+                                                            <a href="#"><b>{{ item.product.P_name }}</b></a>
+                                                            <p><span>{{ item.quantity }} </span> x <span>₹{{ item.product.P_price }}</span></p>
+                                                        </div>
+                                                        <div class="cart_remove">
+                                                            <a href="javascript:void(0);" class="remove-cart-item-btn" data-item-id="{{ item.id }}">
+                                                                <i class="icon-x"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    <div class="cart_item">
+                                                        <p style="padding: 10px;"><b>Your cart is empty.</b></p>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="mini_cart_table">
+                                                <div class="cart_table_border">
+                                                    <div class="cart_total">
+                                                        <span><b>Total:</b></span>
+                                                        <span class="price">₹<span id="cart_total">{{ cart_total }}</span></span>
+                                                    </div>
+                                                </div>
+                                                <br>
+                                                <div class="mini_cart_footer">
+                                                    <div class="cart_button">
+                                                        <a href="{% url 'cart' %}" class="view-cart-btn"><i class="fa fa-shopping-cart"></i> View Cart</a>
+                                                    </div>
+                                                    <div class="cart_button">
+                                                        <a class="active checkout-btn" href="{% url 'checkout' %}"><i class="fa fa-sign-in"></i> Checkout</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>

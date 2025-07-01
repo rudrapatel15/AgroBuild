@@ -404,6 +404,13 @@
 </style>
 
 <script>
+// Chatbot with ChatGPT-like typing effect
+// Features:
+// - Real-time typing animation for bot responses
+// - HTML content support (lists, formatting)
+// - Configurable typing speed
+// - Error handling and fallbacks
+// - Blinking cursor animation
 document.addEventListener('DOMContentLoaded', function() {
     const chatbotToggle = document.getElementById('chatbot-toggle');
     const chatbotWindow = document.getElementById('chatbot-window');
@@ -413,6 +420,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const chatbotMessages = document.getElementById('chatbot-messages');
     const suggestionBtns = document.querySelectorAll('.suggestion-btn');
     const clearHistoryBtn = document.getElementById('clear-history-btn');
+    
+    // Check if all required elements exist
+    if (!chatbotToggle || !chatbotWindow || !chatbotClose || !chatbotInput || !chatbotSend || !chatbotMessages) {
+        console.error('Chatbot elements not found. Chatbot functionality disabled.');
+        return;
+    }
     
     let isTyping = false;
     
@@ -495,21 +508,25 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Trigger typing effect for initial welcome message
     function triggerInitialTypingEffect() {
-        const initialMessage = chatbotMessages.querySelector('.message.bot-message .message-text');
-        if (initialMessage && !initialMessage.classList.contains('typing-complete')) {
-            const typingText = initialMessage.querySelector('.typing-text');
-            const cursor = initialMessage.querySelector('.typing-cursor');
-            
-            if (typingText && cursor) {
-                const fullText = typingText.innerHTML;
-                typingText.innerHTML = '';
-                cursor.style.display = 'inline-block';
+        try {
+            const initialMessage = chatbotMessages.querySelector('.message.bot-message .message-text');
+            if (initialMessage && !initialMessage.classList.contains('typing-complete')) {
+                const typingText = initialMessage.querySelector('.typing-text');
+                const cursor = initialMessage.querySelector('.typing-cursor');
                 
-                // Start typing effect after a short delay
-                setTimeout(() => {
-                    typeMessage(fullText, initialMessage);
-                }, 500);
+                if (typingText && cursor) {
+                    const fullText = typingText.innerHTML;
+                    typingText.innerHTML = '';
+                    cursor.style.display = 'inline-block';
+                    
+                    // Start typing effect after a short delay
+                    setTimeout(() => {
+                        typeMessage(fullText, initialMessage);
+                    }, 500);
+                }
             }
+        } catch (error) {
+            console.error('Error triggering initial typing effect:', error);
         }
     }
     
@@ -591,44 +608,85 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Typing effect function
     function typeMessage(text, messageElement) {
-        const typingText = messageElement.querySelector('.typing-text');
-        const cursor = messageElement.querySelector('.typing-cursor');
-        let index = 0;
-        
-        // Handle HTML content (like lists) by splitting on tags
-        const textParts = splitTextWithHTML(text);
-        let currentPartIndex = 0;
-        let currentCharIndex = 0;
-        
-        function typeNextChar() {
-            if (currentPartIndex < textParts.length) {
-                const currentPart = textParts[currentPartIndex];
-                
-                if (currentPart.isHTML) {
-                    // Add HTML tag immediately
-                    typingText.innerHTML += currentPart.content;
-                    currentPartIndex++;
-                    setTimeout(typeNextChar, 50);
-                } else {
-                    // Type text character by character
-                    if (currentCharIndex < currentPart.content.length) {
-                        typingText.textContent += currentPart.content[currentCharIndex];
-                        currentCharIndex++;
-                        setTimeout(typeNextChar, 30); // Adjust speed here
+        try {
+            // Validate input
+            if (!text || typeof text !== 'string') {
+                console.error('Invalid text for typing effect:', text);
+                return;
+            }
+            
+            const typingText = messageElement.querySelector('.typing-text');
+            const cursor = messageElement.querySelector('.typing-cursor');
+            
+            if (!typingText || !cursor) {
+                console.error('Typing effect elements not found');
+                return;
+            }
+            
+            // Typing speed configuration
+            const charDelay = 30; // milliseconds per character
+            const htmlDelay = 50; // milliseconds for HTML tags
+            const initialDelay = 200; // milliseconds before starting
+            
+            // Handle HTML content (like lists) by splitting on tags
+            const textParts = splitTextWithHTML(text);
+            let currentPartIndex = 0;
+            let currentCharIndex = 0;
+            let currentHTML = '';
+            
+            function typeNextChar() {
+                try {
+                    if (currentPartIndex < textParts.length) {
+                        const currentPart = textParts[currentPartIndex];
+                        
+                        if (currentPart.isHTML) {
+                            // Add HTML tag immediately
+                            currentHTML += currentPart.content;
+                            typingText.innerHTML = currentHTML;
+                            currentPartIndex++;
+                            setTimeout(typeNextChar, htmlDelay);
+                        } else {
+                            // Type text character by character
+                            if (currentCharIndex < currentPart.content.length) {
+                                currentHTML += currentPart.content[currentCharIndex];
+                                typingText.innerHTML = currentHTML;
+                                currentCharIndex++;
+                                setTimeout(typeNextChar, charDelay);
+                            } else {
+                                currentPartIndex++;
+                                currentCharIndex = 0;
+                                setTimeout(typeNextChar, htmlDelay);
+                            }
+                        }
                     } else {
-                        currentPartIndex++;
-                        currentCharIndex = 0;
-                        setTimeout(typeNextChar, 50);
+                        // Typing complete
+                        messageElement.classList.add('typing-complete');
+                        cursor.style.display = 'none';
                     }
+                } catch (error) {
+                    console.error('Error in typing effect:', error);
+                    // Fallback: show full text immediately
+                    typingText.innerHTML = text;
+                    messageElement.classList.add('typing-complete');
+                    cursor.style.display = 'none';
                 }
-            } else {
-                // Typing complete
-                messageElement.classList.add('typing-complete');
+            }
+            
+            // Start typing effect after initial delay
+            setTimeout(typeNextChar, initialDelay);
+        } catch (error) {
+            console.error('Error initializing typing effect:', error);
+            // Fallback: show full text immediately
+            const typingText = messageElement.querySelector('.typing-text');
+            const cursor = messageElement.querySelector('.typing-cursor');
+            if (typingText) {
+                typingText.innerHTML = text || '';
+            }
+            if (cursor) {
                 cursor.style.display = 'none';
             }
+            messageElement.classList.add('typing-complete');
         }
-        
-        typeNextChar();
     }
     
     // Helper function to split text while preserving HTML tags

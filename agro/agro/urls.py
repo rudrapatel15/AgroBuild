@@ -22,6 +22,10 @@ urlpatterns = [
     path('api/news/', views.fetch_agriculture_news, name='fetch_agriculture_news'),
     path('api/news/<str:category>/', views.fetch_category_news, name='fetch_category_news'),
     
+    # API endpoints for fetching news
+    path('api/news/', views.fetch_agriculture_news, name='fetch_agriculture_news'),
+    path('api/news/<str:category>/', views.fetch_category_news, name='fetch_category_news'),
+    
     # Chatbot API endpoint
     path('api/chatbot/', views.chatbot_response, name='chatbot_response'),
     
@@ -35,5 +39,6 @@ urlpatterns = [
     path('chatbot-test/', views.chatbot_test_page, name='chatbot_test'),
       
 ] 
+
 if settings.DEBUG:
     urlpatterns +=static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

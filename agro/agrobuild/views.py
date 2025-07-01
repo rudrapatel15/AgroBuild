@@ -1,4 +1,3 @@
-# views.py
 from django.shortcuts import render, redirect
 from .models import Product, Wishlist, CartItem, Order, OrderItem, Category, UserProfile, ContactMessage, Blog, BlogComment, Feedback, WateringReminder, NotificationHistory
 from django.contrib.auth.models import User
@@ -9,7 +8,7 @@ from django.views.decorators.http import require_POST
 from django.templatetags.static import static
 from django.http import JsonResponse
 from django.conf import settings
-from django.contrib.auth import logout
+from django.contrib.auth import logout, authenticate, login
 from django.contrib import messages
 from django.utils import timezone
 from django.contrib.staticfiles import finders
@@ -32,9 +31,6 @@ from django.db.models import Sum, Count, F
 import datetime
 from django.core.mail import send_mail
 import random 
-from django.views.decorators.csrf import csrf_exempt
-import json
-import re
 
 
 @method_decorator(staff_member_required, name='dispatch')
@@ -641,9 +637,26 @@ def index(request):
             if n > 0:
                 nSlides = n // 4 + ceil((n / 4) - (n // 4))
                 allProds.append([prod, range(1, nSlides), nSlides, category_name])
-    
+
+    # --- Add this for random products ---
+    random_products = list(Product.objects.all())
+    random.shuffle(random_products)
+    random_products = random_products[:20]  # Show 12 random products
+
+    for product in random_products:
+        if hasattr(product, 'old_price') and product.old_price and product.old_price > product.P_price:
+            product.discount_percent = int(round((product.old_price - product.P_price) * 100 / product.old_price))
+        else:
+            product.discount_percent = 0
+
     cart_message = request.session.pop('cart_message', None)
-    return render(request, 'htmldemo.net/index.html', {'allProds': allProds, 'wishlist_ids': wishlist_ids, 'cart_ids': cart_ids, 'cart_message': cart_message})
+    return render(request, 'htmldemo.net/index.html', {
+        'allProds': allProds,
+        'wishlist_ids': wishlist_ids,
+        'cart_ids': cart_ids,
+        'cart_message': cart_message,
+        'random_products': random_products,  # Pass to template
+    })
 
 def account(request): return render(request, 'htmldemo.net/my-account.html')
 
@@ -677,13 +690,25 @@ def add_to_cart(request, product_id):
     cart_item = CartItem.objects.filter(user=request.user, product=product).first()
 
     if request.method == 'POST':
-        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        # AJAX/iframe/JS request for instant update
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('_ts'):
             if cart_item:
                 cart_item.delete()
-                return JsonResponse({'status': 'removed', 'message': f"{product.P_name} removed from cart"})
+                # Update mini cart context
+                updated_cart_items = CartItem.objects.filter(user=request.user).select_related('product')
+                updated_cart_total = sum(item.product.P_price * item.quantity for item in updated_cart_items)
+                return render(request, 'htmldemo.net/mini_cart_partial.html', {
+                    'cart_items': updated_cart_items,
+                    'cart_total': updated_cart_total,
+                })
             else:
                 CartItem.objects.create(user=request.user, product=product, quantity=1)
-                return JsonResponse({'status': 'added', 'message': f"{product.P_name} added to cart"})
+                updated_cart_items = CartItem.objects.filter(user=request.user).select_related('product')
+                updated_cart_total = sum(item.product.P_price * item.quantity for item in updated_cart_items)
+                return render(request, 'htmldemo.net/mini_cart_partial.html', {
+                    'cart_items': updated_cart_items,
+                    'cart_total': updated_cart_total,
+                })
         # fallback for normal POST (not AJAX)
         if cart_item:
             cart_item.delete()
@@ -956,105 +981,3 @@ def category_products(request, slug):
         'cart_ids': cart_ids,
     }
     return render(request, 'htmldemo.net/category_products.html', context)
-
-def chatbot_response(request):
-    """
-    Handle chatbot queries and return appropriate responses
-    """
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            user_message = data.get('message', '').lower().strip()
-            
-            # Agriculture knowledge base
-            agriculture_qa = {
-                # Plant care
-                'watering': {
-                    'keywords': ['water', 'watering', 'how often water', 'when to water', 'irrigation'],
-                    'response': "Most plants need regular watering. Check soil moisture by inserting your finger 1-2 inches deep. Water when the top layer feels dry. Avoid overwatering as it can cause root rot. Indoor plants typically need water every 1-2 weeks, while outdoor plants may need more frequent watering depending on weather."
-                },
-                'fertilizer': {
-                    'keywords': ['fertilizer', 'fertilizing', 'nutrients', 'plant food', 'npk'],
-                    'response': "Fertilizers provide essential nutrients (NPK - Nitrogen, Phosphorus, Potassium) to plants. Use organic fertilizers for better soil health. Apply during growing season (spring/summer) and reduce in winter. Follow package instructions for proper dosage. Over-fertilizing can harm plants."
-                },
-                'sunlight': {
-                    'keywords': ['sunlight', 'sun', 'light', 'shade', 'bright', 'dark'],
-                    'response': "Different plants have different light requirements. Full sun plants need 6+ hours of direct sunlight. Partial sun/shade plants need 3-6 hours. Full shade plants thrive with minimal direct sunlight. Check plant tags or research specific plant needs."
-                },
-                'soil': {
-                    'keywords': ['soil', 'potting mix', 'dirt', 'ph', 'drainage'],
-                    'response': "Good soil is crucial for plant health. Use well-draining potting mix for containers. Garden soil should be rich in organic matter. Most plants prefer slightly acidic to neutral pH (6.0-7.0). Test your soil pH and amend as needed."
-                },
-                'pests': {
-                    'keywords': ['pest', 'insect', 'bug', 'disease', 'aphid', 'spider mite'],
-                    'response': "Common plant pests include aphids, spider mites, and mealybugs. Use neem oil or insecticidal soap for organic control. Remove affected leaves and isolate infected plants. Regular inspection helps catch problems early."
-                },
-                'seeds': {
-                    'keywords': ['seed', 'germination', 'planting', 'sow', 'seedling'],
-                    'response': "Plant seeds at the recommended depth (usually 2-3 times the seed diameter). Keep soil moist but not soggy. Most seeds germinate in 7-14 days. Start seeds indoors 6-8 weeks before last frost for vegetables."
-                },
-                'pruning': {
-                    'keywords': ['prune', 'trim', 'cut', 'deadhead', 'trimming'],
-                    'response': "Pruning promotes healthy growth and removes dead/damaged parts. Use clean, sharp tools. Prune flowering plants after they bloom. Remove dead or crossing branches. Don't prune more than 1/3 of the plant at once."
-                },
-                'indoor_plants': {
-                    'keywords': ['indoor', 'houseplant', 'room', 'apartment'],
-                    'response': "Popular indoor plants include pothos, snake plant, and peace lily. They prefer bright, indirect light and moderate humidity. Water when top soil is dry. Use well-draining pots and potting mix."
-                },
-                'vegetables': {
-                    'keywords': ['vegetable', 'tomato', 'carrot', 'lettuce', 'garden'],
-                    'response': "Start with easy vegetables like tomatoes, lettuce, and herbs. Plant in well-draining soil with plenty of organic matter. Most vegetables need 6+ hours of sunlight. Water regularly and fertilize as needed."
-                },
-                'organic': {
-                    'keywords': ['organic', 'natural', 'chemical free', 'pesticide'],
-                    'response': "Organic gardening avoids synthetic chemicals. Use compost, manure, and organic fertilizers. Control pests with neem oil, companion planting, and beneficial insects. Build healthy soil for natural pest resistance."
-                },
-                'seasonal': {
-                    'keywords': ['season', 'spring', 'summer', 'fall', 'winter', 'planting time'],
-                    'response': "Spring: Plant cool-season crops and start warm-season seeds. Summer: Plant heat-loving vegetables and maintain watering. Fall: Plant cool-season crops and prepare for winter. Winter: Plan next season and maintain indoor plants."
-                }
-            }
-            
-            # Check for matches
-            best_match = None
-            highest_score = 0
-            
-            for category, qa_data in agriculture_qa.items():
-                for keyword in qa_data['keywords']:
-                    if keyword in user_message:
-                        score = len(keyword)  # Simple scoring based on keyword length
-                        if score > highest_score:
-                            highest_score = score
-                            best_match = qa_data['response']
-            
-            # If no specific match, provide general help
-            if not best_match:
-                general_responses = [
-                    "I can help with plant care, watering, fertilizing, pest control, and general gardening questions. What specific topic would you like to know about?",
-                    "For agriculture questions, I can assist with plant care, soil management, pest control, and seasonal gardening. Please ask a specific question!",
-                    "I'm here to help with your agriculture and gardening questions. Try asking about watering, fertilizing, plant care, or pest management."
-                ]
-                import random
-                best_match = random.choice(general_responses)
-            
-            return JsonResponse({
-                'success': True,
-                'response': best_match,
-                'user_message': user_message
-            })
-            
-        except json.JSONDecodeError:
-            return JsonResponse({
-                'success': False,
-                'response': 'Sorry, I couldn\'t understand your message. Please try again.'
-            })
-        except Exception as e:
-            return JsonResponse({
-                'success': False,
-                'response': 'Sorry, something went wrong. Please try again.'
-            })
-    
-    return JsonResponse({
-        'success': False,
-        'response': 'Please send a POST request with your question.'
-    })

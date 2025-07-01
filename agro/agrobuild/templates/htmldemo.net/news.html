@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token }}">
     <title>{{ title }}</title>
+    <link rel="shortcut icon" type="image/x-x-icon" href="{% static 'img/favicon.ico' %}">
     <style>
         * {
             margin: 0;
@@ -18,12 +19,6 @@
             background: linear-gradient(135deg, #1a2332 0%, #2d3748 100%);
             color: #e2e8f0;
             min-height: 100vh;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* Internet Explorer 10+ */
-        }
-
-        body::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
         }
 
         .header {
@@ -110,12 +105,6 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 40px 20px;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* Internet Explorer 10+ */
-        }
-
-        .main-content::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
         }
 
         .page-title {
@@ -142,12 +131,6 @@
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 30px;
             margin-top: 40px;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* Internet Explorer 10+ */
-        }
-
-        .news-grid::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
         }
 
         .news-card {
@@ -394,73 +377,22 @@
             margin: 0 auto;
         }
 
-        /* Hide scrollbar for body */
-        body {
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* Internet Explorer 10+ */
+        .news-footer-bar {
+            width: 100%;
+            background: rgba(26, 35, 50, 0.97);
+            color: #a0aec0;
+            text-align: center;
+            padding: 18px 0 12px 0;
+            font-size: 1rem;
+            border-top: 1px solid #4a5568;
+            letter-spacing: 0.5px;
+            margin-top: 60px;
         }
 
-        body::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
-        }
-
-        /* Hide scrollbar for main content area */
-        .main-content {
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* Internet Explorer 10+ */
-        }
-
-        .main-content::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
-        }
-
-        /* Hide scrollbar for news grid container */
-        .news-grid {
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* Internet Explorer 10+ */
-        }
-
-        .news-grid::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
-        }
-
-        /* Hide scrollbar for any other scrollable elements */
-        * {
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* Internet Explorer 10+ */
-        }
-
-        *::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
-        }
-
-        /* Comprehensive scrollbar hiding for all elements */
-        html, body, .main-content, .news-grid, .news-container, 
-        .chatbot-messages, .chatbot-window, .news-card {
-            scrollbar-width: none !important; /* Firefox */
-            -ms-overflow-style: none !important; /* Internet Explorer 10+ */
-        }
-
-        html::-webkit-scrollbar, 
-        body::-webkit-scrollbar, 
-        .main-content::-webkit-scrollbar, 
-        .news-grid::-webkit-scrollbar, 
-        .news-container::-webkit-scrollbar,
-        .chatbot-messages::-webkit-scrollbar,
-        .chatbot-window::-webkit-scrollbar,
-        .news-card::-webkit-scrollbar {
-            display: none !important; /* Chrome, Safari, Opera */
-        }
-
-        /* Ensure scroll functionality is maintained */
-        html, body {
-            overflow-y: auto;
-            overflow-x: hidden;
-        }
-
-        .main-content {
-            overflow-y: auto;
-            overflow-x: hidden;
+        .news-footer-bar .footer-brand {
+            color: #8bc34a;
+            font-weight: bold;
+            text-decoration: none;
         }
     </style>
 </head>
@@ -468,7 +400,7 @@
     <header class="header">
         <div class="header-top">
             <div class="date">&lt;/{{ current_date }}&gt;</div>
-            <div class="logo">&lt;/AGRO BUILD&gt;</div>
+            <a href="{% url 'blog_list' %}" class="logo" style="text-decoration:none;">&lt;/AGRO BUILD&gt;</a>
             <div class="user-section">👤 Welcome, User</div>
         </div>
         <!-- Navigation menu removed for a cleaner look -->
@@ -506,6 +438,10 @@
             <!-- News articles will be dynamically loaded here -->
         </div>
     </main>
+
+    <footer class="news-footer-bar">
+        <span>Copyright © 2025 <span class="footer-brand"><a href="{% url 'blog_list' %}" style="color: #8bc34a; text-decoration: none;">Agro_Build.co</a></span>. All rights reserved.</span>
+    </footer>
 
     <script>
         class AgricultureNews {
