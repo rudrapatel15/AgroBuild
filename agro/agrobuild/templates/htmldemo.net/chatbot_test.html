@@ -13,48 +13,60 @@
                 </div>
                 <div class="card-body">
                     <h5>Welcome to the AgriBot Test Page!</h5>
-                    <p>This page is to test the agriculture chatbot functionality. The chatbot widget should appear in the bottom-right corner of this page. <strong>New Feature:</strong> AgriBot now has a ChatGPT-like typing effect that makes responses appear character by character!</p>
+                    <p>This page is to test the agriculture chatbot functionality. The chatbot widget should appear in the bottom-right corner of this page.</p>
                     
                     <div class="alert alert-info">
-                        <h6><i class="bi bi-info-circle"></i> Test Instructions:</h6>
+                        <h6>Test Instructions:</h6>
                         <ol>
                             <li>Look for the "Ask AgriBot" button in the bottom-right corner</li>
                             <li>Click on it to open the chat window</li>
-                            <li>Notice the ChatGPT-like typing effect when AgriBot responds</li>
                             <li>Try asking questions like:
                                 <ul>
+                                    <li>"What is farming?"</li>
                                     <li>"How often should I water my plants?"</li>
-                                    <li>"What fertilizer should I use?"</li>
+                                    <li>"Tell me about weather in India"</li>
                                     <li>"How to control pests naturally?"</li>
-                                    <li>"Best time to plant vegetables?"</li>
-                                    <li>"How to care for indoor plants?"</li>
                                 </ul>
                             </li>
-                            <li>The chatbot should respond with helpful agriculture advice</li>
                         </ol>
                     </div>
-                    
-                    <div class="alert alert-success">
-                        <h6><i class="bi bi-check-circle"></i> Features Tested:</h6>
+
+                    <div class="alert alert-warning">
+                        <h6>If the chatbot is not working:</h6>
                         <ul>
-                            <li>✅ Chatbot widget integration</li>
-                            <li>✅ Message sending and receiving</li>
-                            <li>✅ Agriculture knowledge base</li>
-                            <li>✅ Responsive design</li>
-                            <li>✅ Suggestion buttons</li>
-                            <li>✅ Typing indicators</li>
-                            <li>✅ ChatGPT-like typing effect</li>
-                            <li>✅ HTML content support in typing</li>
+                            <li>Check the browser console for JavaScript errors</li>
+                            <li>Make sure you're logged in (for chat history)</li>
+                            <li>Try refreshing the page</li>
+                            <li>Check if the server is running properly</li>
                         </ul>
                     </div>
-                    
-                    <div class="text-center">
-                        <a href="{% url 'index' %}" class="btn btn-primary">
-                            <i class="bi bi-house"></i> Back to Home
-                        </a>
-                        <a href="{% url 'agriculture_news' %}" class="btn btn-success">
-                            <i class="bi bi-newspaper"></i> Agriculture News
-                        </a>
+
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6>Test API Endpoints</h6>
+                                </div>
+                                <div class="card-body">
+                                    <button class="btn btn-primary btn-sm mb-2" onclick="testMainChatbot()">Test Main Chatbot</button>
+                                    <button class="btn btn-secondary btn-sm mb-2" onclick="testSimpleChatbot()">Test Simple Chatbot</button>
+                                    <button class="btn btn-warning btn-sm mb-2" onclick="testWeatherChatbot()">Test Weather Chatbot</button>
+                                    <div id="test-results" class="mt-3"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6>Manual Test</h6>
+                                </div>
+                                <div class="card-body">
+                                    <input type="text" id="manual-test-input" class="form-control mb-2" placeholder="Enter test message">
+                                    <button class="btn btn-success btn-sm" onclick="sendManualTest()">Send Test</button>
+                                    <div id="manual-test-results" class="mt-3"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -62,27 +74,182 @@
     </div>
 </div>
 
-<style>
-.card {
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    border: none;
-    border-radius: 15px;
+<script>
+function testMainChatbot() {
+    const resultsDiv = document.getElementById('test-results');
+    resultsDiv.innerHTML = '<div class="text-info">Testing main chatbot endpoint...</div>';
+    
+    fetch('/api/chatbot/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            message: 'What is farming?'
+        })
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+        return response.json();
+    })
+    .then(data => {
+        console.log('Response data:', data);
+        resultsDiv.innerHTML = `
+            <div class="alert alert-success">
+                <strong>Success!</strong><br>
+                Response: ${data.response}<br>
+                Success: ${data.success}
+            </div>
+        `;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        resultsDiv.innerHTML = `
+            <div class="alert alert-danger">
+                <strong>Error!</strong><br>
+                ${error.message}
+            </div>
+        `;
+    });
 }
 
-.card-header {
-    border-radius: 15px 15px 0 0 !important;
-    border: none;
+function testSimpleChatbot() {
+    const resultsDiv = document.getElementById('test-results');
+    resultsDiv.innerHTML = '<div class="text-info">Testing simple chatbot endpoint...</div>';
+    
+    fetch('/test-chatbot/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            message: 'Test message'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Simple test response:', data);
+        resultsDiv.innerHTML = `
+            <div class="alert alert-success">
+                <strong>Simple Test Success!</strong><br>
+                Response: ${data.response}<br>
+                Success: ${data.success}
+            </div>
+        `;
+    })
+    .catch(error => {
+        console.error('Simple test error:', error);
+        resultsDiv.innerHTML = `
+            <div class="alert alert-danger">
+                <strong>Simple Test Error!</strong><br>
+                ${error.message}
+            </div>
+        `;
+    });
 }
 
-.alert {
-    border-radius: 10px;
-    border: none;
+function testWeatherChatbot() {
+    const resultsDiv = document.getElementById('test-results');
+    resultsDiv.innerHTML = '<div class="text-info">Testing weather chatbot endpoint...</div>';
+    
+    fetch('/api/chatbot/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            message: 'weather'
+        })
+    })
+    .then(response => {
+        console.log('Weather test response status:', response.status);
+        return response.json();
+    })
+    .then(data => {
+        console.log('Weather test response data:', data);
+        resultsDiv.innerHTML = `
+            <div class="alert alert-success">
+                <strong>Weather Test Success!</strong><br>
+                Response: ${data.response}<br>
+                Success: ${data.success}
+            </div>
+        `;
+    })
+    .catch(error => {
+        console.error('Weather test error:', error);
+        resultsDiv.innerHTML = `
+            <div class="alert alert-danger">
+                <strong>Weather Test Error!</strong><br>
+                ${error.message}
+            </div>
+        `;
+    });
 }
 
-.btn {
-    border-radius: 25px;
-    padding: 10px 25px;
-    margin: 5px;
+function sendManualTest() {
+    const input = document.getElementById('manual-test-input');
+    const message = input.value.trim();
+    const resultsDiv = document.getElementById('manual-test-results');
+    
+    if (!message) {
+        resultsDiv.innerHTML = '<div class="alert alert-warning">Please enter a message</div>';
+        return;
+    }
+    
+    resultsDiv.innerHTML = '<div class="text-info">Sending manual test...</div>';
+    
+    fetch('/api/chatbot/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            message: message
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Manual test response:', data);
+        resultsDiv.innerHTML = `
+            <div class="alert alert-success">
+                <strong>Manual Test Success!</strong><br>
+                Your message: ${message}<br>
+                Bot response: ${data.response}<br>
+                Success: ${data.success}
+            </div>
+        `;
+    })
+    .catch(error => {
+        console.error('Manual test error:', error);
+        resultsDiv.innerHTML = `
+            <div class="alert alert-danger">
+                <strong>Manual Test Error!</strong><br>
+                ${error.message}
+            </div>
+        `;
+    });
 }
-</style>
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Log CSRF token for debugging
+console.log('CSRF Token:', getCookie('csrftoken'));
+</script>
+{% endblock %} 
 {% endblock %} 

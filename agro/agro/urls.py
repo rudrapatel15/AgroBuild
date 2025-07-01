@@ -37,6 +37,12 @@ urlpatterns = [
     
     # Chatbot test page
     path('chatbot-test/', views.chatbot_test_page, name='chatbot_test'),
+    
+    # Test chatbot endpoint
+    path('test-chatbot/', views.test_chatbot, name='test_chatbot'),
+    
+    # Debug weather endpoint
+    path('debug-weather/', views.debug_weather, name='debug_weather'),
       
 ] 
 

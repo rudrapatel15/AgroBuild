@@ -205,7 +205,7 @@
             transition: .5s;
             transform: translateX(100%);
             box-shadow: 0 0 30px rgba(0,0,0,0.08);
-            {% comment %} overflow-y: auto; {% endcomment %}
+            /* overflow-y: auto; */
         }
         .mini_cart.active {
             transform: translateX(0);
@@ -854,88 +854,6 @@
     <script src="{% static 'js/plugins.js' %}"></script>
     <script src="{% static 'js/popularSearches.js' %}"></script>
     <script src="{% static 'js/main.js' %}"></script>
-<script>
-$(document).ready(function () {
-    $('.remove-cart-item-btn').on('click', function () {
-        var itemId = $(this).data('item-id');
-        var itemElement = $(this).closest('.cart_item');
-
-        $.ajax({
-            url: "{% url 'remove_from_cart' %}",
-            type: "POST",
-            data: {
-                'item_id': itemId,
-                'csrfmiddlewaretoken': '{{ csrf_token }}'
-            },
-            success: function (data) {
-                if (data.success) {
-                    itemElement.remove();
-
-                    // Recalculate total
-                    let newTotal = 0;
-                    let totalQuantity = 0;
-                    $('.cart_item').each(function () {
-                        var qty = parseInt($(this).find('.cart_info p span:first').text());
-                        var price = parseFloat($(this).find('.cart_info p span:last').text().replace('₹', ''));
-                        newTotal += qty * price;
-                        totalQuantity += qty;
-                    });
-
-                    $('#cart_total').text(newTotal.toFixed(2));
-                    $('.item_count').text(totalQuantity);
-
-                    // If no items left
-                    if ($('.cart_item').length === 0) {
-                        $('.cart_gallery').find('.cart_item').remove(); // remove leftover cart items
-                        $('.cart_gallery').append(
-                            `<div class="cart_item">
-                                <p style="padding: 10px;"><b>Your cart is empty.</b></p>
-                            </div>`
-                        );
-                        $('.checkout-btn, .view-cart-btn').addClass('disabled');
-                    }
-                }
-            }
-
-            function formatIST(date) {
-                const options = { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' };
-                return new Date(date).toLocaleString('en-IN', options);
-            }
-
-            function loadNotifications() {
-                $.get('{% url "get_notifications" %}', function(data) {
-                    const items = $('#notificationItems');
-                    const count = $('#notificationCount');
-                    if (data.notifications.length > 0) {
-                        count.text(data.notifications.length);
-                        items.empty();
-                        data.notifications.forEach(function(n) {
-                            const timeIST = formatIST(n.timestamp);
-                            items.append(`
-                                <div class="notification_item">
-                                    <div class="notification_img">
-                                        <img src="${n.product_img || '{% static "img/plant-placeholder.png" %}'}" alt="${n.product_name}">
-                                    </div>
-                                    <div class="notification_content">
-                                        <p class="notification_text">${n.message}</p>
-                                        <small class="notification_time">${timeIST}</small>
-                                    </div>
-                                </div>
-                            `);
-                        });
-                    } else {
-                        count.text('0');
-                        items.html('<div class="empty_notice">No new notifications</div>');
-                    }
-                });
-            }
-
-            updateNotificationCount();
-            setInterval(function() { updateNotificationCount(true); }, 60000);
-        });
-    });
-});
-</script>
 
     <script>
         function playNotificationSound() {
