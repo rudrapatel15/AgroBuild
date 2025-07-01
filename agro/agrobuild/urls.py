@@ -2,12 +2,11 @@ from django.urls import path
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
-from django.contrib.auth.views import LogoutView
-from django.conf.urls.static import static
-from .views import AdminDashboardView  # Add this import
+from .views import AdminDashboardView
 from django.contrib import admin
 
 urlpatterns = [
+    
     path('', views.blog_list, name='blog_list'),
     path('wishlist/', views.wishlist, name="wishlist"),
     path('add_to_wishlist/<int:product_id>/', views.add_to_wishlist, name='add_to_wishlist'),
@@ -21,7 +20,7 @@ urlpatterns = [
     path('update_cart/', views.update_cart, name='update_cart'),
     path('remove_from_cart/', views.remove_from_cart, name='remove_from_cart'),
     path('add_to_cart/<int:product_id>/', views.add_to_cart, name='add_to_cart'),
-    path('add-to-cart/<int:product_id>/', views.add_to_cart_from_wishlist, name='add_to_cart'),
+    path('add-to-cart-from-wishlist/<int:product_id>/', views.add_to_cart_from_wishlist, name='add_to_cart_from_wishlist'),
     path('checkout/', views.checkout, name='checkout'),
     path('order-confirmation/<int:order_id>/', views.order_confirmation, name='order_confirmation'),
     path('home/', views.index, name='home'),
@@ -46,7 +45,7 @@ urlpatterns = [
     path('email-otp-verify/', views.email_otp_verify, name='email_otp_verify'),
     path('admin/', admin.site.urls),
     
-]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
