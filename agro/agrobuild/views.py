@@ -244,7 +244,7 @@ def download_invoice(request, order_id):
        context['signature_base64'] = ''
         
     html = render_to_string('htmldemo.net/invoice.html', context)
-    config = pdfkit.configuration(wkhtmltopdf=r"C:\Users\a\Desktop\Agro Build Pro\AgroBuild\wkhtmltopdf\bin\wkhtmltopdf.exe")
+    config = pdfkit.configuration(wkhtmltopdf=r"E:\clone\AgroBuild\wkhtmltopdf\bin\wkhtmltopdf.exe")
     options = {
         'enable-local-file-access': None,
         'encoding': 'UTF-8',
@@ -988,7 +988,7 @@ def admin_login(request):
         user = authenticate(request, username=username, password=password)
         if user is not None and user.is_superuser:
             login(request, user)
-            return redirect('admin_dashboard')
+            return redirect('admin/dash.html')
         else:
             messages.error(request, 'Invalid credentials or insufficient permissions.')
     return render(request, 'admin/black_dashboard.html')
