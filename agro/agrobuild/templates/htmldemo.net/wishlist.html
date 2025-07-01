@@ -57,7 +57,7 @@
                                         <td class="product-price">₹{{ item.product.P_price }}</td>
                                         <td class="product_quantity">In Stock</td>
                                         <td class="product_total">
-                                            <a href="{% url 'add_to_cart' item.product.P_id %}">Add To Cart</a>
+                                            <a href="{% url 'add_to_cart_from_wishlist' item.product.P_id %}">Add To Cart</a>
                                         </td>
                                     </tr>
                                     {% empty %}

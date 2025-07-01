@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import Product, Wishlist, CartItem, Order, OrderItem, Category, UserProfile, ContactMessage, Blog, BlogComment, Feedback, WateringReminder, NotificationHistory
+from .models import Product, Wishlist, CartItem, Order, OrderItem, Category, UserProfile, ContactMessage, Blog, BlogComment, Feedback, WateringReminder, NotificationHistory, ChatMessage
 from django.contrib.auth.models import User
 from math import ceil
 from django.contrib.auth.decorators import login_required
@@ -31,7 +31,11 @@ from django.db.models import Sum, Count, F
 import datetime
 from django.core.mail import send_mail
 import random 
-
+from django.http import JsonResponse
+import json
+import uuid
+import requests
+from django.views.decorators.csrf import csrf_exempt
 
 @method_decorator(staff_member_required, name='dispatch')
 class AdminDashboardView(TemplateView):
@@ -42,14 +46,14 @@ class AdminDashboardView(TemplateView):
         from .models import Product, Order, UserProfile, Category, OrderItem
         
          # Stock of all products
-        stock_labels = list(Product.objects.values_list('P_name', flat=True))
-        stock_counts = list(Product.objects.values_list('stock', flat=True))
+        stock_labels = list(Product.objects.values_list('P_name', flat=True))  # type: ignore
+        stock_counts = list(Product.objects.values_list('stock', flat=True))  # type: ignore
         context['stock_labels'] = stock_labels
         context['stock_counts'] = stock_counts
 
         # High sales products (top 5 by quantity sold)
         top_products = (
-            OrderItem.objects.values('product__P_name')
+            OrderItem.objects.values('product__P_name')  # type: ignore
             .annotate(total_sold=Sum('quantity'))
             .order_by('-total_sold')[:5]
         )
@@ -63,7 +67,7 @@ class AdminDashboardView(TemplateView):
         for i in range(1, 13):
             month_label = timezone.datetime(now.year, i, 1).strftime('%b')
             months.append(month_label)
-            orders = Order.objects.filter(created_at__year=now.year, created_at__month=i)
+            orders = Order.objects.filter(created_at__year=now.year, created_at__month=i)  # type: ignore
             total = orders.aggregate(total=Sum('total_amount'))['total'] or 0
             profit = float(total) * 0.2  # Example: 20% profit margin
             profits.append(round(profit, 2))
@@ -72,7 +76,7 @@ class AdminDashboardView(TemplateView):
 
         # Products per category
         category_data = (
-            Category.objects.annotate(count=Count('product'))
+            Category.objects.annotate(count=Count('product'))  # type: ignore
             .order_by('-count')
         )
         context['category_labels'] = [cat.name for cat in category_data]
@@ -86,7 +90,7 @@ class AdminDashboardView(TemplateView):
             month = (now - timezone.timedelta(days=30*i)).strftime('%b %Y')
             months.append(month)
             user_counts.append(
-                UserProfile.objects.filter(
+                UserProfile.objects.filter(  # type: ignore
                     user__date_joined__year=(now - timezone.timedelta(days=30*i)).year,
                     user__date_joined__month=(now - timezone.timedelta(days=30*i)).month
                 ).count()
@@ -98,22 +102,56 @@ class AdminDashboardView(TemplateView):
         order_counts = []
         for i in range(5, -1, -1):
             order_counts.append(
-                Order.objects.filter(
+                Order.objects.filter(  # type: ignore
                     created_at__year=(now - timezone.timedelta(days=30*i)).year,
                     created_at__month=(now - timezone.timedelta(days=30*i)).month
                 ).count()
             )
         context['order_month_counts'] = order_counts
-        context['product_count'] = Product.objects.count()
-        context['order_count'] = Order.objects.count()
-        context['user_count'] = UserProfile.objects.count()
-        context['feedback_count'] = Feedback.objects.count()
-        context['recent_orders'] = Order.objects.order_by('-created_at')[:5]
-        context['recent_users'] = UserProfile.objects.order_by('-id')[:5]
-        context['feedback_list'] = Feedback.objects.order_by('-created_at')[:10]  # latest 10 feedbacks
-        context['all_orders'] = Order.objects.all().order_by('-created_at') 
+        context['product_count'] = Product.objects.count()  # type: ignore
+        context['order_count'] = Order.objects.count()  # type: ignore
+        context['user_count'] = UserProfile.objects.count()  # type: ignore
+        context['feedback_count'] = Feedback.objects.count()  # type: ignore
+        context['recent_orders'] = Order.objects.order_by('-created_at')[:5]  # type: ignore
+        context['recent_users'] = UserProfile.objects.order_by('-id')[:5]  # type: ignore
+        context['feedback_list'] = Feedback.objects.order_by('-created_at')[:10]  # latest 10 feedbacks  # type: ignore
+        context['all_orders'] = Order.objects.all().order_by('-created_at')   # type: ignore
         context['now'] = datetime.datetime.now()   
         return context
+from django.contrib.auth.models import User
+from django.utils import timezone
+import calendar
+
+def get_users_per_month():
+    # Get all users ordered by date_joined
+    users = User.objects.order_by('date_joined')
+    if not users.exists():
+        return [], []
+
+    first_user = users.first().date_joined
+    now = timezone.now()
+    months = []
+    counts = []
+    cumulative = 0
+
+    # Generate (year, month) tuples from first user to now
+    year_months = []
+    y, m = first_user.year, first_user.month
+    while (y < now.year) or (y == now.year and m <= now.month):
+        year_months.append((y, m))
+        if m == 12:
+            y += 1
+            m = 1
+        else:
+            m += 1
+
+    for y, m in year_months:
+        # Count users up to the end of this month
+        end_of_month = timezone.datetime(y, m, calendar.monthrange(y, m)[1], 23, 59, 59, tzinfo=timezone.utc)
+        cumulative = User.objects.filter(date_joined__lte=end_of_month).count()
+        months.append(f"{calendar.month_abbr[m]} {y}")
+        counts.append(cumulative)
+    return months, counts
 
 @login_required(login_url='/login/')
 def view_invoice(request, order_id):
@@ -167,14 +205,14 @@ def view_invoice(request, order_id):
     # Add logo and signature same as in download_invoice
     logo_path = finders.find('img/logo/logo.png')
     if logo_path:
-        with open(logo_path, "rb") as img_file:
+        with open(logo_path, "rb") as img_file:  # type: ignore
             context['logo_base64'] = base64.b64encode(img_file.read()).decode('utf-8')
     else:
         context['logo_base64'] = ''
 
     signature_path = finders.find('img/signatures.jpg')
     if signature_path:
-        with open(signature_path, "rb") as img_file:
+        with open(signature_path, "rb") as img_file:  # type: ignore
             context['signature_base64'] = base64.b64encode(img_file.read()).decode('utf-8')
     else:
         context['signature_base64'] = ''
@@ -185,7 +223,7 @@ def view_invoice(request, order_id):
 def download_invoice(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
     if order.payment_status.lower() != 'paid':
-        return HttpResponse("Invoice not available until payment is verified.", status=403)
+        return HttpResponse("Invoice not available until payment is verified.", status=403)  # type: ignore
     subtotal = Decimal('0')
     total_tax = Decimal('0')
     total_amount = Decimal('0')
@@ -232,32 +270,32 @@ def download_invoice(request, order_id):
    
     logo_path = finders.find('img/logo/logo.png')  # Adjust path as needed
     if logo_path:
-       with open(logo_path, "rb") as img_file:
+       with open(logo_path, "rb") as img_file:  # type: ignore
         context['logo_base64'] = base64.b64encode(img_file.read()).decode('utf-8')
     else:
         context['logo_base64'] = ''
 
     signature_path = finders.find('img/signatures.jpg')
     if signature_path:
-       with open(signature_path, "rb") as img_file:
+       with open(signature_path, "rb") as img_file:  # type: ignore
         context['signature_base64'] = base64.b64encode(img_file.read()).decode('utf-8')
     else:
        context['signature_base64'] = ''
         
     html = render_to_string('htmldemo.net/invoice.html', context)
-    config = pdfkit.configuration(wkhtmltopdf=r"D:\AgroBUild(Main)\AgroBuild\wkhtmltopdf\bin\wkhtmltopdf.exe")
+    config = pdfkit.configuration(wkhtmltopdf=r"C:\Users\RUDRA PATEL\PycharmProjects\AGRO_BUILD_final 1\wkhtmltopdf\bin\wkhtmltopdf.exe")
     options = {
         'enable-local-file-access': None,
         'encoding': 'UTF-8',
     }
     pdf = pdfkit.from_string(html, False, configuration=config, options=options)
-    response = HttpResponse(pdf, content_type='application/pdf')
+    response = HttpResponse(pdf, content_type='application/pdf')  # type: ignore
     response['Content-Disposition'] = f'attachment; filename=invoice_{order.id}.pdf'
     return response
 
 @login_required(login_url='/login/')
 def get_notifications(request):
-    notifications = NotificationHistory.objects.filter(user=request.user).order_by('-created_at')[:10]
+    notifications = NotificationHistory.objects.filter(user=request.user).order_by('-created_at')[:10]  # type: ignore
     data = [{
         'message': n.message,
         'product_name': n.product.P_name,
@@ -268,7 +306,7 @@ def get_notifications(request):
 
 @login_required(login_url='/login/')
 def view_all_notifications(request):
-    notifications = NotificationHistory.objects.filter(user=request.user).order_by('-created_at')
+    notifications = NotificationHistory.objects.filter(user=request.user).order_by('-created_at')  # type: ignore
     # Optionally mark as read:
     notifications.update(is_read=True)
     return render(request, 'htmldemo.net/notifications.html', {'notifications': notifications})
@@ -281,11 +319,12 @@ def delete_notification(request, id):
 
 @login_required(login_url='/login/')
 def clear_notifications(request):
-    NotificationHistory.objects.filter(user=request.user).delete()
+    NotificationHistory.objects.filter(user=request.user).delete()  # type: ignore
     return redirect('view_all_notifications')
 
-@login_required(login_url='/login/')
 def feedback(request):
+    feedbacks = Feedback.objects.all().order_by('-created_at')  # Show latest first
+
     if request.method == 'POST':
         form = FeedbackForm(request.POST)
         if form.is_valid():
@@ -305,29 +344,34 @@ def feedback(request):
                 'email': request.user.email
             }
         form = FeedbackForm(initial=initial)
-    
-    return render(request, 'htmldemo.net/feedback.html', {'form': form})
+
+    return render(request, 'htmldemo.net/feedback.html', {
+        'form': form,
+        'feedbacks': feedbacks
+    })
 
 def search(request):
     query = request.GET.get('q', '').strip()
     category_slug = request.GET.get('category', '')
-    
-    if len(query) < 3:
+
+    if len(query) < 1:
         return render(request, 'htmldemo.net/search.html', {
             'query': query,
             'message': 'Please enter at least 3 characters to search'
         })
-    
-    products = Product.objects.filter(
-        Q(P_name__icontains=query) | 
-        Q(P_Description__icontains=query)
-    )
-    
+
+    products = Product.objects.filter(  # type: ignore
+        Q(P_name__icontains=query) |
+        Q(P_Description__icontains=query) |
+        Q(categories__name__icontains=query) |   
+        Q(categories__slug__icontains=query)    
+    ).distinct()
+
     # If searching from a category page, filter by that category
     if category_slug:
         category = get_object_or_404(Category, slug=category_slug)
         products = products.filter(categories=category)
-    
+
     # For AJAX requests
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         results = []
@@ -340,11 +384,11 @@ def search(request):
                 'category': ', '.join([cat.name for cat in product.categories.all()])
             })
         return JsonResponse({'results': results})
-    
+
     paginator = Paginator(products, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    
+
     return render(request, 'htmldemo.net/search.html', {
         'products': page_obj,
         'query': query,
@@ -354,19 +398,23 @@ def search(request):
 def search_ajax(request):
     query = request.GET.get('q', '').strip()
     category_slug = request.GET.get('category', '')
-    
-    if len(query) < 3:
+
+    if len(query) < 1:
         return JsonResponse({'results': []})
-    
-    products = Product.objects.filter(
-        Q(P_name__icontains=query) | 
-        Q(P_Description__icontains=query)
-    )
-    
+
+    products = Product.objects.all()
+    if query:
+        products = products.filter(
+            Q(P_name__icontains=query) |
+            Q(P_Description__icontains=query) |
+            Q(categories__name__icontains=query) |   
+            Q(categories__slug__icontains=query)     
+        ).distinct()
+
     if category_slug:
         category = get_object_or_404(Category, slug=category_slug)
         products = products.filter(categories=category)
-    
+
     results = []
     for product in products[:10]:
         results.append({
@@ -376,26 +424,26 @@ def search_ajax(request):
             'P_price': str(product.P_price),
             'category': ', '.join([cat.name for cat in product.categories.all()])
         })
-    
+
     return JsonResponse({'results': results})
 
 def blog_list(request):
-    blogs = Blog.objects.all().order_by('-date')
+    blogs = Blog.objects.all().order_by('-date')  # type: ignore
     return render(request, 'htmldemo.net/blog.html', {'blogs': blogs})
     
 def blog_detail(request, id):
     blog = get_object_or_404(Blog, id=id)
     comments = blog.comments.all().order_by('-created_at')
-    related_blogs = Blog.objects.filter(type=blog.type).exclude(id=id)[:3]
-    recent_posts = Blog.objects.all().order_by('-date')[:4]
-    recent_comments = BlogComment.objects.all().order_by('-created_at')[:4]
+    related_blogs = Blog.objects.filter(type=blog.type).exclude(id=id)[:3]  # type: ignore
+    recent_posts = Blog.objects.all().order_by('-date')[:4]  # type: ignore
+    recent_comments = BlogComment.objects.all().order_by('-created_at')[:4]  # type: ignore
 
     if request.method == 'POST':
         name = request.POST.get('name')
         email = request.POST.get('email')
         message = request.POST.get('message')
         if name and email and message:
-            BlogComment.objects.create(blog=blog, name=name, email=email, message=message)
+            BlogComment.objects.create(blog=blog, name=name, email=email, message=message)  # type: ignore
             return redirect('blog_detail', id=blog.id)
 
     return render(request, 'htmldemo.net/blog-details.html', {
@@ -409,7 +457,7 @@ def blog_detail(request, id):
 @login_required(login_url='/login/')
 def save_contact(request):
     if request.method == 'POST':
-        ContactMessage.objects.create(
+        ContactMessage.objects.create(  # type: ignore
             user=request.user,
             name=request.POST.get('name'),
             email=request.POST.get('email'),
@@ -429,20 +477,20 @@ def update_cart(request):
         if item_id.startswith('quantity_'):
             item_pk = int(item_id.split('_')[1])
             try:
-                cart_item = CartItem.objects.get(id=item_pk, user=request.user)
+                cart_item = CartItem.objects.get(id=item_pk, user=request.user)  # type: ignore
                 cart_item.quantity = max(1, int(quantity))  
                 cart_item.save()
-            except CartItem.DoesNotExist:
+            except CartItem.DoesNotExist:  # type: ignore
                 continue
     return redirect('cart')
 
 @login_required(login_url='/login/')
 def my_account(request, order_id=None):
     # Fetch user profile
-    profile, created = UserProfile.objects.get_or_create(user=request.user)
+    profile, created = UserProfile.objects.get_or_create(user=request.user)  # type: ignore
     
     # Fetch all user orders
-    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    orders = Order.objects.filter(user=request.user).order_by('-created_at')  # type: ignore
     
     # Paginate orders
     paginator = Paginator(orders, 10)  # Show 10 orders per page
@@ -484,7 +532,7 @@ def my_account(request, order_id=None):
 @login_required(login_url='/login/')
 def update_account(request):
     user = request.user
-    profile, created = UserProfile.objects.get_or_create(user=user)
+    profile, created = UserProfile.objects.get_or_create(user=user)  # type: ignore
 
     if request.method == 'POST':
         new_email = (request.POST.get('email') or '').strip()
@@ -575,7 +623,7 @@ def email_otp_verify(request):
             user.first_name = pending.get('first_name', user.first_name)
             user.last_name = pending.get('last_name', user.last_name)
             user.save()
-            profile, _ = UserProfile.objects.get_or_create(user=user)
+            profile, _ = UserProfile.objects.get_or_create(user=user)  # type: ignore
             profile.phone = pending.get('phone', profile.phone)
             profile.gender = pending.get('gender', profile.gender)
             dob = pending.get('dob', '')
@@ -604,42 +652,49 @@ def logout_view(request):
 @login_required(login_url='/login/')
 def add_to_cart_from_wishlist(request, product_id):
     product = get_object_or_404(Product, P_id=product_id)
-    cart_item, created = CartItem.objects.get_or_create(user=request.user, product=product)
+
+    # Add to cart
+    cart_item, created = CartItem.objects.get_or_create(user=request.user, product=product)  # type: ignore
     if not created:
         cart_item.quantity += 1
         cart_item.save()
+
+    # Remove from wishlist
+    Wishlist.objects.filter(user=request.user, product=product).delete()  # type: ignore
+
     return redirect('cart')
+
 
 @require_POST
 def remove_from_cart(request):
     if request.method == "POST":
         item_id = request.POST.get('item_id')
-        CartItem.objects.filter(id=item_id, user=request.user).delete()
+        CartItem.objects.filter(id=item_id, user=request.user).delete()  # type: ignore
         return JsonResponse({'success': True})
     return JsonResponse({'success': False}, status=400)
 
 def index(request):
     if request.user.is_authenticated:
-        wishlist_ids = set(Wishlist.objects.filter(user=request.user).values_list('product__P_id', flat=True))
-        cart_ids = set(CartItem.objects.filter(user=request.user).values_list('product__P_id', flat=True))
+        wishlist_ids = set(Wishlist.objects.filter(user=request.user).values_list('product__P_id', flat=True))  # type: ignore
+        cart_ids = set(CartItem.objects.filter(user=request.user).values_list('product__P_id', flat=True))  # type: ignore
     else:
         wishlist_ids = set()
         cart_ids = set()
     
     allProds = []
-    categories_to_show = ['indoor plants', 'Fruit Seeds', 'Garden Tools']
+    categories_to_show = ['indoor plants', 'Mental Health Plant', 'Colorful Plants']
     
     for category_name in categories_to_show:
-        category = Category.objects.filter(name__iexact=category_name).first()
+        category = Category.objects.filter(name__iexact=category_name).first()  # type: ignore
         if category:
-            prod = Product.objects.filter(categories=category)
+            prod = Product.objects.filter(categories=category)  # type: ignore
             n = len(prod)
             if n > 0:
                 nSlides = n // 4 + ceil((n / 4) - (n // 4))
                 allProds.append([prod, range(1, nSlides), nSlides, category_name])
 
     # --- Add this for random products ---
-    random_products = list(Product.objects.all())
+    random_products = list(Product.objects.all())  # type: ignore
     random.shuffle(random_products)
     random_products = random_products[:20]  # Show 12 random products
 
@@ -662,13 +717,13 @@ def account(request): return render(request, 'htmldemo.net/my-account.html')
 
 @login_required(login_url='/login/')
 def wishlist(request):
-    wishlist_items = Wishlist.objects.filter(user=request.user).select_related('product')
+    wishlist_items = Wishlist.objects.filter(user=request.user).select_related('product')  # type: ignore
     return render(request, 'htmldemo.net/wishlist.html', {'wishlist_items': wishlist_items})
 
 @login_required(login_url='/login/')
 def add_to_wishlist(request, product_id):
     product = get_object_or_404(Product, P_id=product_id)
-    wishlist_item, created = Wishlist.objects.get_or_create(user=request.user, product=product)
+    wishlist_item, created = Wishlist.objects.get_or_create(user=request.user, product=product)  # type: ignore
     if not created:
         wishlist_item.delete()
         status = 'removed'
@@ -687,7 +742,7 @@ def remove_from_wishlist(request, product_id):
 @login_required(login_url='/login/')
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, P_id=product_id)
-    cart_item = CartItem.objects.filter(user=request.user, product=product).first()
+    cart_item = CartItem.objects.filter(user=request.user, product=product).first()  # type: ignore
 
     if request.method == 'POST':
         # AJAX/iframe/JS request for instant update
@@ -695,15 +750,15 @@ def add_to_cart(request, product_id):
             if cart_item:
                 cart_item.delete()
                 # Update mini cart context
-                updated_cart_items = CartItem.objects.filter(user=request.user).select_related('product')
+                updated_cart_items = CartItem.objects.filter(user=request.user).select_related('product')  # type: ignore
                 updated_cart_total = sum(item.product.P_price * item.quantity for item in updated_cart_items)
                 return render(request, 'htmldemo.net/mini_cart_partial.html', {
                     'cart_items': updated_cart_items,
                     'cart_total': updated_cart_total,
                 })
             else:
-                CartItem.objects.create(user=request.user, product=product, quantity=1)
-                updated_cart_items = CartItem.objects.filter(user=request.user).select_related('product')
+                CartItem.objects.create(user=request.user, product=product, quantity=1)  # type: ignore
+                updated_cart_items = CartItem.objects.filter(user=request.user).select_related('product')  # type: ignore
                 updated_cart_total = sum(item.product.P_price * item.quantity for item in updated_cart_items)
                 return render(request, 'htmldemo.net/mini_cart_partial.html', {
                     'cart_items': updated_cart_items,
@@ -714,7 +769,7 @@ def add_to_cart(request, product_id):
             cart_item.delete()
             messages.success(request, f"{product.P_name} removed from cart")
         else:
-            CartItem.objects.create(user=request.user, product=product, quantity=1)
+            CartItem.objects.create(user=request.user, product=product, quantity=1)  # type: ignore
             messages.success(request, f"{product.P_name} added to cart")
         return redirect(request.POST.get('return_url', 'index'))
 
@@ -724,7 +779,7 @@ def basic(request): return render(request, 'htmldemo.net/basic.html')
 
 @login_required(login_url='/login/')
 def cart(request):
-    cart_items = CartItem.objects.filter(user=request.user).select_related('product')
+    cart_items = CartItem.objects.filter(user=request.user).select_related('product')  # type: ignore
     subtotal = sum(item.product.P_price * item.quantity for item in cart_items)
     shipping = 100
     total = subtotal + shipping
@@ -753,7 +808,7 @@ def checkout(request):
         if product_id and quantity:  # Buy Now flow
             try:
                 is_buy_now = True
-                buy_now_product = Product.objects.get(P_id=product_id)
+                buy_now_product = Product.objects.get(P_id=product_id)  # type: ignore
                 buy_now_quantity = int(quantity)
                 if buy_now_quantity < 1:
                     raise ValueError("Quantity must be at least 1")
@@ -767,14 +822,14 @@ def checkout(request):
                     'subtotal': subtotal,
                 }]
                 has_plants = hasattr(buy_now_product, 'is_plant') and buy_now_product.is_plant()
-            except Product.DoesNotExist:
+            except Product.DoesNotExist:  # type: ignore
                 messages.error(request, "Product not found.")
                 return redirect('home')
             except ValueError as e:
                 messages.error(request, f"Invalid quantity or price: {str(e)}")
                 return redirect('home')
         else:  # Cart Buy flow
-            cart_items = CartItem.objects.filter(user=request.user).select_related('product')
+            cart_items = CartItem.objects.filter(user=request.user).select_related('product')  # type: ignore
             if not cart_items.exists():
                 messages.error(request, "Your cart is empty.")
                 return redirect('cart')
@@ -811,7 +866,7 @@ def checkout(request):
                 return redirect('checkout')
 
             # Create Order
-            order = Order.objects.create(
+            order = Order.objects.create(  # type: ignore
                 user=request.user,
                 full_name=request.POST.get('full_name'),
                 email=request.POST.get('email'),
@@ -831,13 +886,13 @@ def checkout(request):
                 product_id = request.POST.get('buy_now_product_id')
                 quantity = request.POST.get('buy_now_quantity')
                 try:
-                    product = Product.objects.get(P_id=product_id)
+                    product = Product.objects.get(P_id=product_id)  # type: ignore
                     quantity = int(quantity)
                     if quantity < 1:
                         raise ValueError("Quantity must be at least 1")
                     if product.P_price is None or product.P_price <= 0:
                         raise ValueError(f"Invalid price for product {product.P_name}")
-                    OrderItem.objects.create(
+                    OrderItem.objects.create(  # type: ignore
                         order=order,
                         product=product,
                         price=product.P_price,
@@ -851,7 +906,7 @@ def checkout(request):
                         morning_time = request.POST.get('morning_time', '08:00')
                         evening_time = request.POST.get('evening_time', '18:00')
                         for cat in product.categories.filter(name__icontains='plant'):
-                            WateringReminder.objects.update_or_create(
+                            WateringReminder.objects.update_or_create(  # type: ignore
                                 user=request.user,
                                 product=product,
                                 category=cat,
@@ -864,7 +919,7 @@ def checkout(request):
                                     'is_active': True,
                                 }
                             )
-                except Product.DoesNotExist:
+                except Product.DoesNotExist:  # type: ignore
                     messages.error(request, "Selected product not found.")
                     return redirect('checkout')
                 except ValueError as e:
@@ -872,7 +927,7 @@ def checkout(request):
                     return redirect('checkout')
             else:
                 # Handle Cart Buy order
-                cart_items = CartItem.objects.filter(user=request.user).select_related('product')
+                cart_items = CartItem.objects.filter(user=request.user).select_related('product')  # type: ignore
                 if not cart_items.exists():
                     messages.error(request, "Your cart is empty.")
                     return redirect('cart')
@@ -880,7 +935,7 @@ def checkout(request):
                     if item.product.P_price is None or item.product.P_price <= 0:
                         messages.error(request, f"Invalid price for product {item.product.P_name}")
                         return redirect('cart')
-                    OrderItem.objects.create(
+                    OrderItem.objects.create(  # type: ignore
                         order=order,
                         product=item.product,
                         price=item.product.P_price,
@@ -894,7 +949,7 @@ def checkout(request):
                         morning_time = request.POST.get('morning_time', '08:00')
                         evening_time = request.POST.get('evening_time', '18:00')
                         for cat in item.product.categories.filter(name__icontains='plant'):
-                            WateringReminder.objects.update_or_create(
+                            WateringReminder.objects.update_or_create(  # type: ignore
                                 user=request.user,
                                 product=item.product,
                                 category=cat,
@@ -957,17 +1012,17 @@ def faq(request): return render(request, 'htmldemo.net/faq.html')
 def prod_view(request):
     prod_id = request.GET.get('myid')
     product = get_object_or_404(Product, P_id=prod_id)
-    cart_ids = set(CartItem.objects.filter(user=request.user).values_list('product__P_id', flat=True)) if request.user.is_authenticated else set()
-    wishlist_ids = set(Wishlist.objects.filter(user=request.user).values_list('product__P_id', flat=True)) if request.user.is_authenticated else set()
+    cart_ids = set(CartItem.objects.filter(user=request.user).values_list('product__P_id', flat=True)) if request.user.is_authenticated else set()  # type: ignore
+    wishlist_ids = set(Wishlist.objects.filter(user=request.user).values_list('product__P_id', flat=True)) if request.user.is_authenticated else set()  # type: ignore
     return render(request, 'htmldemo.net/prod_view.html', {'product': product, 'cart_ids': cart_ids, 'wishlist_ids': wishlist_ids})
 
 def category_products(request, slug):
     category = get_object_or_404(Category, slug=slug)
-    products = Product.objects.filter(categories=category)
+    products = Product.objects.filter(categories=category)  # type: ignore
     subcategories = category.children.all()
     if request.user.is_authenticated:
-        wishlist_ids = set(Wishlist.objects.filter(user=request.user).values_list('product__P_id', flat=True))
-        cart_ids = set(CartItem.objects.filter(user=request.user).values_list('product__P_id', flat=True))
+        wishlist_ids = set(Wishlist.objects.filter(user=request.user).values_list('product__P_id', flat=True))  # type: ignore
+        cart_ids = set(CartItem.objects.filter(user=request.user).values_list('product__P_id', flat=True))  # type: ignore
     else:
         wishlist_ids = set()
         cart_ids = set()
@@ -981,3 +1036,183 @@ def category_products(request, slug):
         'cart_ids': cart_ids,
     }
     return render(request, 'htmldemo.net/category_products.html', context)
+
+def admin_login(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None and user.is_superuser:
+            login(request, user)
+            return redirect('admin_dashboard')
+        else:
+            messages.error(request, 'Invalid credentials or insufficient permissions.')
+    return render(request, 'admin/black_dashboard.html')
+
+# AI Chatbot Views
+def generate_session_id():
+    """Generate a unique session ID for anonymous users"""
+    return str(uuid.uuid4())
+
+def get_ai_response(user_message, context=""):
+    """
+    Get AI response using a free API (Hugging Face Inference API)
+    You can replace this with OpenAI API or any other AI service
+    """
+    try:
+        # Using Hugging Face's free inference API
+        API_URL = "https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium"
+        headers = {
+            "Authorization": f"Bearer {getattr(settings, 'HUGGINGFACE_API_KEY', 'hf_demo')}"
+        }
+        
+        # Create a context-aware prompt for AgroBuild
+        agro_context = """
+        You are AgroBot, a helpful AI assistant for AgroBuild, an online plant and gardening store. 
+        You help customers with:
+        - Plant care advice
+        - Product recommendations
+        - Gardening tips
+        - Order status inquiries
+        - General gardening questions
+        
+        Be friendly, knowledgeable, and helpful. If you don't know something specific about AgroBuild products, 
+        suggest they contact customer support or browse the website.
+        """
+        
+        full_prompt = f"{agro_context}\n\nUser: {user_message}\nAgroBot:"
+        
+        payload = {
+            "inputs": full_prompt,
+            "parameters": {
+                "max_length": 150,
+                "temperature": 0.7,
+                "do_sample": True
+            }
+        }
+        
+        response = requests.post(API_URL, headers=headers, json=payload, timeout=10)
+        
+        if response.status_code == 200:
+            result = response.json()
+            if isinstance(result, list) and len(result) > 0:
+                ai_response = result[0].get('generated_text', '')
+                # Extract only the AI response part
+                if 'AgroBot:' in ai_response:
+                    ai_response = ai_response.split('AgroBot:')[-1].strip()
+                return ai_response
+            else:
+                return "I'm here to help with your gardening and plant care questions! How can I assist you today?"
+        else:
+            # Fallback response if API fails
+            return "I'm here to help with your gardening and plant care questions! How can I assist you today?"
+            
+    except Exception as e:
+        print(f"AI API Error: {e}")
+        # Fallback responses for common questions
+        fallback_responses = {
+            'plant': "I can help you with plant care! What specific plant are you asking about?",
+            'water': "Watering needs vary by plant. Most plants need water when the top inch of soil feels dry.",
+            'order': "For order inquiries, please check your account or contact our customer support.",
+            'price': "You can find product prices on our website. Is there a specific product you're interested in?",
+            'garden': "I'd love to help with your garden! What specific gardening question do you have?",
+            'fertilizer': "Fertilizer needs depend on your plants. Most plants benefit from regular feeding during growing season.",
+            'pest': "For pest control, I can recommend organic solutions. What type of pest problem are you facing?"
+        }
+        
+        user_lower = user_message.lower()
+        for keyword, response in fallback_responses.items():
+            if keyword in user_lower:
+                return response
+        
+        return "I'm here to help with your gardening and plant care questions! How can I assist you today?"
+
+@csrf_exempt
+def chatbot_response(request):
+    """Handle chatbot API requests"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            user_message = data.get('message', '').strip()
+            
+            if not user_message:
+                return JsonResponse({'error': 'Message is required'}, status=400)
+            
+            # Get user (if authenticated)
+            user = request.user if request.user.is_authenticated else None
+            
+            if not user:
+                return JsonResponse({'error': 'Authentication required'}, status=401)
+            
+            # Get AI response
+            ai_response = get_ai_response(user_message)
+            
+            # Save conversation to database
+            ChatMessage.objects.create(  # type: ignore
+                user=user,
+                message=user_message,
+                response=ai_response,
+                is_user_message=True
+            )
+            
+            return JsonResponse({
+                'response': ai_response,
+                'user_id': user.id
+            })
+            
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    
+    return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
+
+def get_chat_history(request):
+    """Get chat history for the current user"""
+    try:
+        user = request.user if request.user.is_authenticated else None
+        
+        if not user:
+            return JsonResponse({'messages': []})
+        
+        # Get messages for user
+        messages = ChatMessage.objects.filter(user=user).order_by('timestamp')[:50]  # type: ignore
+        
+        message_list = []
+        for msg in messages:
+            # Add user message
+            message_list.append({
+                'role': 'user',
+                'content': msg.message,
+                'timestamp': msg.timestamp.isoformat()
+            })
+            
+            # Add bot response if exists
+            if msg.response:
+                message_list.append({
+                    'role': 'assistant',
+                    'content': msg.response,
+                    'timestamp': msg.timestamp.isoformat()
+                })
+        
+        return JsonResponse({'messages': message_list})
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+def clear_chat_history(request):
+    """Clear chat history for the current user"""
+    try:
+        user = request.user if request.user.is_authenticated else None
+        
+        if user:
+            ChatMessage.objects.filter(user=user).delete()  # type: ignore
+        
+        return JsonResponse({'success': True})
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+def chatbot_test_page(request):
+    """Test page for the chatbot"""
+    return render(request, 'htmldemo.net/chatbot_test.html')

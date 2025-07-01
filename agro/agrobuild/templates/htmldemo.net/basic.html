@@ -457,6 +457,17 @@
             outline: none !important;
             box-shadow: none !important;
         }
+        .dropdown-item:focus,
+        .dropdown-item:active,
+        .dropdown-item:hover {
+            background-color: transparent !important;
+            color: inherit !important;
+        }
+        
+        .dropdown-item:focus-visible {
+            outline: none !important;
+            box-shadow: none !important;
+        }
     </style>
     <script src="{% static 'js/vendor/modernizr-3.7.1.min.js' %}"></script>
 </head>
@@ -501,7 +512,7 @@
                                                     <li><hr class="dropdown-divider"></li>
                                                     <li><a class="dropdown-item" href="{% url 'my_account' %}"><i class="bi bi-person me-2"></i> My Account</a></li>
                                                     {% if user.is_superuser %}
-                                                        <li><a class="dropdown-item" href="{% url 'adminlogin' %}"><i class="bi bi-shield-lock me-2"></i> Admin Panel</a></li>
+                                                        <li><a class="dropdown-item" href="/admin/"><i class="bi bi-shield-lock me-2"></i> Admin Panel</a></li>
                                                     {% endif %}
                                                     <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
                                                 {% else %}
@@ -928,8 +939,12 @@
         });
     </script>
     {% block js %}{% endblock %}
+<<<<<<< HEAD
     
     <!-- Include Chatbot -->
     {% include 'htmldemo.net/chatbot.html' %}
+=======
+    {% include 'htmldemo.net/chatbot.html' %}
+>>>>>>> cc73a86f0b92c8928cff10e2446c1c99ad452767
 </body>
 </html>
