@@ -453,6 +453,8 @@
             background-color: transparent !important;
             color: inherit !important;
         }
+<<<<<<< HEAD
+=======
         .dropdown-item:focus-visible {
             outline: none !important;
             box-shadow: none !important;
@@ -463,6 +465,7 @@
             background-color: transparent !important;
             color: inherit !important;
         }
+>>>>>>> de90efe688720d7b2fda6abfb7984a60af7bc11d
         
         .dropdown-item:focus-visible {
             outline: none !important;
@@ -512,7 +515,7 @@
                                                     <li><hr class="dropdown-divider"></li>
                                                     <li><a class="dropdown-item" href="{% url 'my_account' %}"><i class="bi bi-person me-2"></i> My Account</a></li>
                                                     {% if user.is_superuser %}
-                                                        <li><a class="dropdown-item" href="/admin/"><i class="bi bi-shield-lock me-2"></i> Admin Panel</a></li>
+                                                        <li><a class="dropdown-item" href="/admin/"><i class="bi bi-shield-lock me-2"></i> Admin Panel</a></li>
                                                     {% endif %}
                                                     <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
                                                 {% else %}
@@ -939,10 +942,6 @@
         });
     </script>
     {% block js %}{% endblock %}
-
-    
-    <!-- Include Chatbot -->
     {% include 'htmldemo.net/chatbot.html' %}
-
 </body>
 </html>

@@ -22,6 +22,8 @@ from agrobuild.models import ChatMessage
 
 logger = logging.getLogger(__name__)
 
+from agrobuild.models import ChatMessage
+
 # OTP validity period in seconds (2 minutes)
 OTP_VALIDITY_SECONDS = 120
 
@@ -1013,83 +1015,4 @@ def chatbot_test_page(request):
     """
     Render the chatbot test page
     """
-    return render(request, 'htmldemo.net/chatbot_test.html')
-
-def test_chatbot(request):
-    """
-    Simple test endpoint for chatbot
-    """
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            user_message = data.get('message', '')
-            return JsonResponse({
-                'success': True,
-                'response': f'Test response: You said "{user_message}"'
-            })
-        except Exception as e:
-            return JsonResponse({
-                'success': False,
-                'response': f'Test error: {str(e)}'
-            })
-    
-    return JsonResponse({
-        'success': True,
-        'response': 'Test endpoint is working!'
-    })
-
-@csrf_exempt
-def debug_weather(request):
-    """
-    Debug endpoint for weather queries
-    """
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            user_message = data.get('message', '')
-            print(f"Debug weather - User message: '{user_message}'")
-            
-            # Test the weather logic directly
-            message_lower = user_message.lower()
-            print(f"Debug weather - Lowercase: '{message_lower}'")
-            
-            weather_keywords = ['weather', 'climate', 'temperature', 'rain', 'rainfall', 'sunny', 'hot', 'cold', 'humid', 'dry']
-            has_weather_keyword = any(word in message_lower for word in weather_keywords)
-            print(f"Debug weather - Has weather keyword: {has_weather_keyword}")
-            
-            if has_weather_keyword:
-                if 'india' in message_lower:
-                    response = "India weather response"
-                elif 'forecast' in message_lower:
-                    response = "Forecast response"
-                elif 'monsoon' in message_lower:
-                    response = "Monsoon response"
-                elif 'rain' in message_lower or 'rainfall' in message_lower:
-                    response = "Rain response"
-                else:
-                    response = "General weather response"
-            else:
-                response = "No weather keyword found"
-            
-            return JsonResponse({
-                'success': True,
-                'response': f'Debug: {response}',
-                'debug_info': {
-                    'original_message': user_message,
-                    'lowercase_message': message_lower,
-                    'has_weather_keyword': has_weather_keyword,
-                    'weather_keywords_checked': weather_keywords
-                }
-            })
-        except Exception as e:
-            return JsonResponse({
-                'success': False,
-                'response': f'Debug error: {str(e)}'
-            })
-    
-    return JsonResponse({
-        'success': True,
-        'response': 'Debug weather endpoint is working!'
-    })
-
     return render(request, 'htmldemo.net/chatbot_test.html')
