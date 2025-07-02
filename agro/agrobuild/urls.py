@@ -40,11 +40,9 @@ urlpatterns = [
     path('get-notifications/', views.get_notifications, name='get_notifications'),
     path('invoice/<int:order_id>/', views.download_invoice, name='download_invoice'),
     path('invoice/view/<int:order_id>/', views.view_invoice, name='view_invoice'),
-    path('admin/', admin.site.urls),
     path('dashboard/', AdminDashboardView.as_view(), name='admin_dashboard'),
     path('admin-login/', views.admin_login, name='adminlogin'),
     path('email-otp-verify/', views.email_otp_verify, name='email_otp_verify'),
-    path('admin/', admin.site.urls),
     
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
