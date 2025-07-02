@@ -1016,3 +1016,10 @@ def chatbot_test_page(request):
     Render the chatbot test page
     """
     return render(request, 'htmldemo.net/chatbot_test.html')
+
+def test_chatbot(request):
+    return render(request, 'htmldemo.net/chatbot_test.html')
+
+def debug_weather(request):
+    from django.http import HttpResponse
+    return HttpResponse("Debug weather endpoint is under construction.")

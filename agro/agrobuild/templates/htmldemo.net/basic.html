@@ -25,8 +25,7 @@
     <link rel="stylesheet" href="{% static 'css/plugins.css' %}">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     
-      <style>
-        /* User Dropdown */
+     <style>
         /* Hide scrollbar for all browsers */
         body, html, * {
             scrollbar-width: none;      /* Firefox */
@@ -134,7 +133,7 @@
 
         /* Header Account Icons */
         .header_account-list {
-            margin-left: 15px;  
+            margin-left: 15px;
         }
         .header_account-list a {
             color: #333;
@@ -196,8 +195,8 @@
             width: 375px;
             min-width: 375px;
             max-width: 375px;
-            height: 100vh;
-            padding: 18px 18px 18px;
+            height: 100%;
+            padding: 18px 18px 33px;
             background: #fff;
             z-index: 999;
             right: 0;
@@ -205,7 +204,7 @@
             transition: .5s;
             transform: translateX(100%);
             box-shadow: 0 0 30px rgba(0,0,0,0.08);
-            /* overflow-y: auto; */
+            {% comment %} overflow-y: auto; {% endcomment %}
         }
         .mini_cart.active {
             transform: translateX(0);
@@ -485,8 +484,7 @@
                                     <a href="{% url 'index' %}"><img src="{% static 'img/logo/logo.png' %}" alt=""></a>
                                 </div>
                             </div>
-                            <div class="col-lg-6 col-md-6 col-6">
-                                
+                            <div class="col-lg-6 col-md-6 col-6">    
                             </div>
                         <div class="col-lg-3 col-md-3 col-2">
                             <div class="header_account_area">
@@ -512,7 +510,7 @@
                                                     <li><hr class="dropdown-divider"></li>
                                                     <li><a class="dropdown-item" href="{% url 'my_account' %}"><i class="bi bi-person me-2"></i> My Account</a></li>
                                                     {% if user.is_superuser %}
-                                                        <li><a class="dropdown-item" href="/admin/"><i class="bi bi-shield-lock me-2"></i> Admin Panel</a></li>
+                                                        <li><a class="dropdown-item" href="/admin/"><i class="bi bi-shield-lock me-2"></i> Admin Panel</a></li>
                                                     {% endif %}
                                                     <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
                                                 {% else %}
@@ -522,7 +520,7 @@
                                             </ul>
                                         </div>
                                     </div>
-                                </div> 
+                                </div>
                                 <div class="header_account_list">
                                     <div class="header_account-list header_wishlist">
                                         <a href="{% url 'wishlist' %}"><i class="icon-heart"></i></a>
@@ -535,16 +533,16 @@
                                             <span class="item_count">{{ cart_items.count }}</span>
                                         </a>
                                         <!--mini cart-->
-                                       <div class="mini_cart">
-                                            <div class="cart_gallery">
-                                                <div class="cart_close">
-                                                    <div class="cart_text">
-                                                        <h3><strong>Cart</strong></h3>
-                                                    </div>
-                                                    <div class="mini_cart_close">
-                                                        <a href="javascript:void(0)"><i class="icon-x"></i></a>
-                                                    </div>
+                                        <div class="mini_cart">
+                                            <div class="cart_close">
+                                                <div class="cart_text">
+                                                    <h3><strong>Cart</strong></h3>
                                                 </div>
+                                                <div class="mini_cart_close">
+                                                    <a href="javascript:void(0)"><i class="icon-x"></i></a>
+                                                </div>
+                                            </div>
+                                            <div class="cart_gallery">
                                                 {% if cart_items %}
                                                     {% for item in cart_items %}
                                                     <div class="cart_item">
@@ -865,6 +863,53 @@
     <script src="{% static 'js/plugins.js' %}"></script>
     <script src="{% static 'js/popularSearches.js' %}"></script>
     <script src="{% static 'js/main.js' %}"></script>
+    
+  <script>
+$(document).ready(function () {
+    $('.remove-cart-item-btn').on('click', function () {
+        var itemId = $(this).data('item-id');
+        var itemElement = $(this).closest('.cart_item');
+
+        $.ajax({
+            url: "{% url 'remove_from_cart' %}",
+            type: "POST",
+            data: {
+                'item_id': itemId,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function (data) {
+                if (data.success) {
+                    itemElement.remove();
+
+                    // Recalculate total
+                    let newTotal = 0;
+                    let totalQuantity = 0;
+                    $('.cart_item').each(function () {
+                        var qty = parseInt($(this).find('.cart_info p span:first').text());
+                        var price = parseFloat($(this).find('.cart_info p span:last').text().replace('₹', ''));
+                        newTotal += qty * price;
+                        totalQuantity += qty;
+                    });
+
+                    $('#cart_total').text(newTotal.toFixed(2));
+                    $('.item_count').text(totalQuantity);
+
+                    // If no items left
+                    if ($('.cart_item').length === 0) {
+                        $('.cart_gallery').find('.cart_item').remove(); // remove leftover cart items
+                        $('.cart_gallery').append(
+                            `<div class="cart_item">
+                                <p style="padding: 10px;"><b>Your cart is empty.</b></p>
+                            </div>`
+                        );
+                        $('.checkout-btn, .view-cart-btn').addClass('disabled');
+                    }
+                }
+            }
+        });
+    });
+});
+</script>
 
     <script>
         function playNotificationSound() {
@@ -939,6 +984,6 @@
         });
     </script>
     {% block js %}{% endblock %}
-    {% include 'htmldemo.net/chatbot.html' %}
+    {% include 'htmldemo.net/chatbot.html' %}  
 </body>
 </html>

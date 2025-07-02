@@ -221,7 +221,7 @@ JAZZMIN_SETTINGS = {
     "custom_links": {
         "agrobuild": [{
             "name": "Admin Dashboard",
-            "url": "/admin/dashboard/",
+            "url": "/dashboard/",
             "icon": "fas fa-tachometer-alt",
             "permissions": ["auth.view_user"]
         }, {
