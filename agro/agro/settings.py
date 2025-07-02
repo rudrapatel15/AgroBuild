@@ -305,3 +305,20 @@ JAZZMIN_UI_TWEAKS = {
     },
     "actions_sticky_top": True
 }
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]
+
+CORS_ALLOW_ALL_ORIGINS = DEBUG  # Only allow all origins in development
+
+# News API Configuration
+# Get your free API key from: https://newsapi.org/
+NEWS_API_KEY = '5fba44e93aaf4a368cff517bbaa376dc'  # <-- Replace with your actual NewsAPI key
+
+# # Alternative news sources API keys (optional)
+# GNEWS_API_KEY = os.environ.get('GNEWS_API_KEY', '')
+# CURRENTS_API_KEY = os.environ.get('CURRENTS_API_KEY', '')

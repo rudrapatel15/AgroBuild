@@ -178,6 +178,8 @@ Watering Reminder Command Loaded
 Watering Reminder Command Loaded
 Watering Reminder Command Loaded
 Watering Reminder Command Loaded
+<<<<<<< HEAD
+=======
 Watering Reminder Command Loaded
 Watering Reminder Command Loaded
 Watering Reminder Command Loaded
@@ -2023,3 +2025,4 @@ System check identified some issues:
 WARNINGS:
 ?: (urls.W005) URL namespace 'admin' isn't unique. You may not be able to reverse all URLs in this namespace
 Watering Reminder Command Loaded
+>>>>>>> 6c030b3ef050452fe8d299751a12309ef0f2de12

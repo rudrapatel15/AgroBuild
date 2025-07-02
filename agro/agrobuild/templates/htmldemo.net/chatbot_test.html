@@ -62,6 +62,187 @@
     </div>
 </div>
 
+<<<<<<< HEAD
+<script>
+function testMainChatbot() {
+    const resultsDiv = document.getElementById('test-results');
+    resultsDiv.innerHTML = '<div class="text-info">Testing main chatbot endpoint...</div>';
+    
+    fetch('/api/chatbot/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            message: 'What is farming?'
+        })
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+        return response.json();
+    })
+    .then(data => {
+        console.log('Response data:', data);
+        resultsDiv.innerHTML = `
+            <div class="alert alert-success">
+                <strong>Success!</strong><br>
+                Response: ${data.response}<br>
+                Success: ${data.success}
+            </div>
+        `;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        resultsDiv.innerHTML = `
+            <div class="alert alert-danger">
+                <strong>Error!</strong><br>
+                ${error.message}
+            </div>
+        `;
+    });
+}
+
+function testSimpleChatbot() {
+    const resultsDiv = document.getElementById('test-results');
+    resultsDiv.innerHTML = '<div class="text-info">Testing simple chatbot endpoint...</div>';
+    
+    fetch('/test-chatbot/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            message: 'Test message'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Simple test response:', data);
+        resultsDiv.innerHTML = `
+            <div class="alert alert-success">
+                <strong>Simple Test Success!</strong><br>
+                Response: ${data.response}<br>
+                Success: ${data.success}
+            </div>
+        `;
+    })
+    .catch(error => {
+        console.error('Simple test error:', error);
+        resultsDiv.innerHTML = `
+            <div class="alert alert-danger">
+                <strong>Simple Test Error!</strong><br>
+                ${error.message}
+            </div>
+        `;
+    });
+}
+
+function testWeatherChatbot() {
+    const resultsDiv = document.getElementById('test-results');
+    resultsDiv.innerHTML = '<div class="text-info">Testing weather chatbot endpoint...</div>';
+    
+    fetch('/api/chatbot/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            message: 'weather'
+        })
+    })
+    .then(response => {
+        console.log('Weather test response status:', response.status);
+        return response.json();
+    })
+    .then(data => {
+        console.log('Weather test response data:', data);
+        resultsDiv.innerHTML = `
+            <div class="alert alert-success">
+                <strong>Weather Test Success!</strong><br>
+                Response: ${data.response}<br>
+                Success: ${data.success}
+            </div>
+        `;
+    })
+    .catch(error => {
+        console.error('Weather test error:', error);
+        resultsDiv.innerHTML = `
+            <div class="alert alert-danger">
+                <strong>Weather Test Error!</strong><br>
+                ${error.message}
+            </div>
+        `;
+    });
+}
+
+function sendManualTest() {
+    const input = document.getElementById('manual-test-input');
+    const message = input.value.trim();
+    const resultsDiv = document.getElementById('manual-test-results');
+    
+    if (!message) {
+        resultsDiv.innerHTML = '<div class="alert alert-warning">Please enter a message</div>';
+        return;
+    }
+    
+    resultsDiv.innerHTML = '<div class="text-info">Sending manual test...</div>';
+    
+    fetch('/api/chatbot/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            message: message
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Manual test response:', data);
+        resultsDiv.innerHTML = `
+            <div class="alert alert-success">
+                <strong>Manual Test Success!</strong><br>
+                Your message: ${message}<br>
+                Bot response: ${data.response}<br>
+                Success: ${data.success}
+            </div>
+        `;
+    })
+    .catch(error => {
+        console.error('Manual test error:', error);
+        resultsDiv.innerHTML = `
+            <div class="alert alert-danger">
+                <strong>Manual Test Error!</strong><br>
+                ${error.message}
+            </div>
+        `;
+    });
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Log CSRF token for debugging
+console.log('CSRF Token:', getCookie('csrftoken'));
+</script>
+{% endblock %} 
+{% endblock %} 
+=======
 <style>
 .card {
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
