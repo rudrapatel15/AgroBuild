@@ -799,12 +799,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Check if user is logged in and show clear history button
     function checkUserLoginStatus() {
-<<<<<<< HEAD
         const isLoggedIn = document.body.hasAttribute('data-user-authenticated') || 
                           document.querySelector('[data-user-authenticated="true"]') !== null ||
-=======
-        const isLoggedIn = document.body.hasAttribute('data-user-authenticated') || document.querySelector('[data-user-authenticated="true"]') !== null ||
->>>>>>> ac0cf7c4af26e4b2137e0a03a4c03de2c9833741
                           document.cookie.includes('sessionid');
         
         if (isLoggedIn && clearHistoryBtn) {
@@ -867,8 +863,4 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
-<<<<<<< HEAD
 </script>
-=======
-</script>  
->>>>>>> ac0cf7c4af26e4b2137e0a03a4c03de2c9833741
