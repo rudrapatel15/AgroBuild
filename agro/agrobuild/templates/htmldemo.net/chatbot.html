@@ -9,7 +9,7 @@
     </div>
     
     <!-- Chat Window -->
-    <div id="chatbot-window" class="chatbot-window">
+    <div id="chatbot-window" class="chatbot-window" data-username="{% if user.is_authenticated %}{{ user.first_name|default:user.username }}{% endif %}">
         <div class="chatbot-header">
             <div class="chatbot-title">
                 <i class="bi bi-robot"></i>
@@ -31,10 +31,10 @@
                     <i class="bi bi-robot message-icon"></i>
                     <div class="message-text">
                         <span class="typing-text">{% if user.is_authenticated %}
-                                            Hello {{ user.first_name|default:user.username }}! 👋 I'm AgriBot, your agriculture assistant. I can help you with:
-                                        {% else %}
-                                            Hello! I'm AgriBot, your agriculture assistant. I can help you with:
-                                        {% endif %}
+                            Hello {{ user.first_name|default:user.username }}! 👋 I'm AgriBot, your agriculture assistant. I can help you with:
+                        {% else %}
+                            Hello! I'm AgriBot, your agriculture assistant. I can help you with:
+                        {% endif %}
                         <ul>
                             <li>Plant care and watering</li>
                             <li>Fertilizing and soil management</li>
@@ -61,11 +61,25 @@
             <div class="chatbot-suggestions">
                 <button class="suggestion-btn" data-suggestion="How often should I water my plants?">Watering</button>
                 <button class="suggestion-btn" data-suggestion="What fertilizer should I use?">Fertilizer</button>
-                <button class="suggestion-btn" data-suggestion="How to control pests naturally?">Pest Control</button>
                 <button class="suggestion-btn" data-suggestion="How does weather affect crops?">Weather & Crops</button>
                 <button class="suggestion-btn" data-suggestion="Weather forecast for farming">Weather Forecast</button>
-                <button class="suggestion-btn" data-suggestion="How to handle extreme weather?">Extreme Weather</button>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Modal for Clear History Confirmation -->
+<div id="chatbot-modal" class="chatbot-modal" style="display:none;">
+    <div class="chatbot-modal-content">
+        <div class="chatbot-modal-header">
+            <span class="chatbot-modal-title"><i class="bi bi-exclamation-triangle-fill"></i> Clear Chat History</span>
+        </div>
+        <div class="chatbot-modal-body">
+            <p>Are you sure you want to clear your chat history? This action cannot be undone.</p>
+        </div>
+        <div class="chatbot-modal-footer">
+            <button id="chatbot-modal-cancel" class="chatbot-modal-btn cancel">Cancel</button>
+            <button id="chatbot-modal-confirm" class="chatbot-modal-btn confirm">Yes, Clear</button>
         </div>
     </div>
 </div>
@@ -404,6 +418,84 @@
         display: none;
     }
 }
+
+/* Chatbot Modal Styles */
+.chatbot-modal {
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+.chatbot-modal-content {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    width: 340px;
+    max-width: 90vw;
+    padding: 0;
+    overflow: hidden;
+    animation: chatbotModalIn 0.25s cubic-bezier(.4,2,.6,1) both;
+}
+@keyframes chatbotModalIn {
+    from { transform: translateY(40px) scale(0.95); opacity: 0; }
+    to { transform: none; opacity: 1; }
+}
+.chatbot-modal-header {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: #fff;
+    padding: 16px 20px 10px 20px;
+    font-size: 18px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.chatbot-modal-title i {
+    color: #ffc107;
+    font-size: 20px;
+}
+.chatbot-modal-body {
+    padding: 18px 20px 10px 20px;
+    font-size: 15px;
+    color: #333;
+}
+.chatbot-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 12px 20px 16px 20px;
+    background: #f7f7f7;
+}
+.chatbot-modal-btn {
+    border: none;
+    border-radius: 6px;
+    padding: 8px 18px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+.chatbot-modal-btn.cancel {
+    background: #e0e0e0;
+    color: #333;
+}
+.chatbot-modal-btn.cancel:hover {
+    background: #bdbdbd;
+}
+.chatbot-modal-btn.confirm {
+    background: #4CAF50;
+    color: #fff;
+}
+.chatbot-modal-btn.confirm:hover {
+    background: #388e3c;
+}
 </style>
 
 <script>
@@ -475,12 +567,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                 } else {
                     // No chat history, show welcome message with typing effect
+                    const username = chatbotWindow.getAttribute('data-username');
                     chatbotMessages.innerHTML = `
                         <div class="message bot-message">
                             <div class="message-content">
                                 <i class="bi bi-robot message-icon"></i>
                                 <div class="message-text">
-                                    <span class="typing-text">Hello! I'm AgriBot, your agriculture assistant. I can help you with:
+                                    <span class="typing-text">${username ? `Hello ${username}! 👋 I'm AgriBot, your agriculture assistant. I can help you with:` : `Hello! I'm AgriBot, your agriculture assistant. I can help you with:`}
                                     <ul>
                                         <li>Plant care and watering</li>
                                         <li>Fertilizing and soil management</li>
@@ -570,47 +663,55 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Helper: Check if user is near the bottom of the chat
+    function isUserNearBottom(container, threshold = 60) {
+        return container.scrollHeight - container.scrollTop - container.clientHeight < threshold;
+    }
+    
     // Add message to chat
     function addMessage(text, sender) {
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${sender}-message`;
-        
         const messageContent = document.createElement('div');
         messageContent.className = 'message-content';
-        
         const messageIcon = document.createElement('div');
         messageIcon.className = 'message-icon';
         messageIcon.innerHTML = sender === 'bot' ? '<i class="bi bi-robot"></i>' : '<i class="bi bi-person"></i>';
-        
         const messageText = document.createElement('div');
         messageText.className = 'message-text';
-        
         if (sender === 'bot') {
             // For bot messages, implement typing effect
             messageText.innerHTML = '<span class="typing-text"></span><span class="typing-cursor"></span>';
             messageContent.appendChild(messageIcon);
             messageContent.appendChild(messageText);
             messageDiv.appendChild(messageContent);
-            
             chatbotMessages.appendChild(messageDiv);
-            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
-            
+            // Only scroll if user is near the bottom
+            if (isUserNearBottom(chatbotMessages)) {
+                chatbotMessages.scrollTo({ top: chatbotMessages.scrollHeight, behavior: 'smooth' });
+            }
             // Start typing effect
-            typeMessage(text, messageText);
+            typeMessage(text, messageText, function() {
+                if (isUserNearBottom(chatbotMessages)) {
+                    chatbotMessages.scrollTo({ top: chatbotMessages.scrollHeight, behavior: 'smooth' });
+                }
+            });
         } else {
             // For user messages, display immediately
             messageText.textContent = text;
             messageContent.appendChild(messageIcon);
             messageContent.appendChild(messageText);
             messageDiv.appendChild(messageContent);
-            
             chatbotMessages.appendChild(messageDiv);
-            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+            // Only scroll if user is near the bottom
+            if (isUserNearBottom(chatbotMessages)) {
+                chatbotMessages.scrollTo({ top: chatbotMessages.scrollHeight, behavior: 'smooth' });
+            }
         }
     }
     
     // Typing effect function
-    function typeMessage(text, messageElement) {
+    function typeMessage(text, messageElement, onComplete) {
         try {
             // Validate input
             if (!text || typeof text !== 'string') {
@@ -641,19 +742,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 try {
                     if (currentPartIndex < textParts.length) {
                         const currentPart = textParts[currentPartIndex];
-                        
                         if (currentPart.isHTML) {
-                            // Add HTML tag immediately
                             currentHTML += currentPart.content;
                             typingText.innerHTML = currentHTML;
                             currentPartIndex++;
+                            // Scroll as bot types
+                            if (isUserNearBottom(chatbotMessages)) {
+                                chatbotMessages.scrollTo({ top: chatbotMessages.scrollHeight, behavior: 'smooth' });
+                            }
                             setTimeout(typeNextChar, htmlDelay);
                         } else {
-                            // Type text character by character
                             if (currentCharIndex < currentPart.content.length) {
                                 currentHTML += currentPart.content[currentCharIndex];
                                 typingText.innerHTML = currentHTML;
                                 currentCharIndex++;
+                                // Scroll as bot types
+                                if (isUserNearBottom(chatbotMessages)) {
+                                    chatbotMessages.scrollTo({ top: chatbotMessages.scrollHeight, behavior: 'smooth' });
+                                }
                                 setTimeout(typeNextChar, charDelay);
                             } else {
                                 currentPartIndex++;
@@ -662,9 +768,11 @@ document.addEventListener('DOMContentLoaded', function() {
                             }
                         }
                     } else {
-                        // Typing complete
                         messageElement.classList.add('typing-complete');
                         cursor.style.display = 'none';
+                        if (typeof onComplete === 'function') {
+                            onComplete();
+                        }
                     }
                 } catch (error) {
                     console.error('Error in typing effect:', error);
@@ -672,6 +780,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     typingText.innerHTML = text;
                     messageElement.classList.add('typing-complete');
                     cursor.style.display = 'none';
+                    if (typeof onComplete === 'function') {
+                        onComplete();
+                    }
                 }
             }
             
@@ -689,6 +800,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 cursor.style.display = 'none';
             }
             messageElement.classList.add('typing-complete');
+            if (typeof onComplete === 'function') {
+                onComplete();
+            }
         }
     }
     
@@ -814,52 +928,65 @@ document.addEventListener('DOMContentLoaded', function() {
     // Clear history button click
     if (clearHistoryBtn) {
         clearHistoryBtn.addEventListener('click', function() {
-            if (confirm('Are you sure you want to clear your chat history? This action cannot be undone.')) {
-                fetch('/api/clear-chat-history/', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': getCookie('csrftoken')
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Clear the chat messages and show welcome message
-                        chatbotMessages.innerHTML = `
-                            <div class="message bot-message">
-                                <div class="message-content">
-                                    <i class="bi bi-robot message-icon"></i>
-                                    <div class="message-text">
-                                        <span class="typing-text">Hello! I'm AgriBot, your agriculture assistant. I can help you with:
-                                        <ul>
-                                            <li>Plant care and watering</li>
-                                            <li>Fertilizing and soil management</li>
-                                            <li>Pest control and disease prevention</li>
-                                            <li>Weather information across India</li>
-                                            <li>Monsoon and seasonal patterns</li>
-                                            <li>Weather-based farming planning</li>
-                                            <li>Seasonal gardening tips</li>
-                                            <li>Indoor and outdoor plant care</li>
-                                        </ul>
-                                        What would you like to know?</span><span class="typing-cursor"></span>
-                                    </div>
+            document.getElementById('chatbot-modal').style.display = 'flex';
+        });
+    }
+
+    // Modal button handlers
+    const chatbotModal = document.getElementById('chatbot-modal');
+    const chatbotModalCancel = document.getElementById('chatbot-modal-cancel');
+    const chatbotModalConfirm = document.getElementById('chatbot-modal-confirm');
+    if (chatbotModal && chatbotModalCancel && chatbotModalConfirm) {
+        chatbotModalCancel.addEventListener('click', function() {
+            chatbotModal.style.display = 'none';
+        });
+        chatbotModalConfirm.addEventListener('click', function() {
+            chatbotModal.style.display = 'none';
+            // Proceed with clear history fetch
+            const username = chatbotWindow.getAttribute('data-username');
+            fetch('/api/clear-chat-history/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Clear the chat messages and show welcome message
+                    const username2 = chatbotWindow.getAttribute('data-username');
+                    chatbotMessages.innerHTML = `
+                        <div class="message bot-message">
+                            <div class="message-content">
+                                <i class="bi bi-robot message-icon"></i>
+                                <div class="message-text">
+                                    <span class="typing-text">${username2 ? `Hello ${username2}! 👋 I'm AgriBot, your agriculture assistant. I can help you with:` : `Hello! I'm AgriBot, your agriculture assistant. I can help you with:`}
+                                    <ul>
+                                        <li>Plant care and watering</li>
+                                        <li>Fertilizing and soil management</li>
+                                        <li>Pest control and disease prevention</li>
+                                        <li>Weather information across India</li>
+                                        <li>Monsoon and seasonal patterns</li>
+                                        <li>Weather-based farming planning</li>
+                                        <li>Seasonal gardening tips</li>
+                                        <li>Indoor and outdoor plant care</li>
+                                    </ul>
+                                    What would you like to know?</span><span class="typing-cursor"></span>
                                 </div>
                             </div>
-                        `;
-                        
-                        // Trigger typing effect for the new welcome message
-                        setTimeout(() => {
-                            triggerInitialTypingEffect();
-                        }, 100);
-                    } else {
-                        alert('Failed to clear chat history. Please try again.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error clearing chat history:', error);
+                        </div>
+                    `;
+                    setTimeout(() => {
+                        triggerInitialTypingEffect();
+                    }, 100);
+                } else {
                     alert('Failed to clear chat history. Please try again.');
-                });
-            }
+                }
+            })
+            .catch(error => {
+                console.error('Error clearing chat history:', error);
+                alert('Failed to clear chat history. Please try again.');
+            });
         });
     }
 });

@@ -1154,6 +1154,12 @@ def chatbot_response(request):
                 response=ai_response,
                 is_user_message=True
             )
+            ChatMessage.objects.create(  # type: ignore
+                user=user,
+                message=ai_response,
+                response=ai_response,
+                is_user_message=False
+            )
             
             return JsonResponse({
                 'response': ai_response,
@@ -1171,32 +1177,18 @@ def get_chat_history(request):
     """Get chat history for the current user"""
     try:
         user = request.user if request.user.is_authenticated else None
-        
         if not user:
             return JsonResponse({'messages': []})
-        
-        # Get messages for user
-        messages = ChatMessage.objects.filter(user=user).order_by('timestamp')[:50]  # type: ignore
-        
+        # Get all messages for user, ordered by timestamp
+        messages = ChatMessage.objects.filter(user=user).order_by('timestamp')  # type: ignore
         message_list = []
         for msg in messages:
-            # Add user message
             message_list.append({
-                'role': 'user',
+                'role': 'user' if msg.is_user_message else 'assistant',
                 'content': msg.message,
                 'timestamp': msg.timestamp.isoformat()
             })
-            
-            # Add bot response if exists
-            if msg.response:
-                message_list.append({
-                    'role': 'assistant',
-                    'content': msg.response,
-                    'timestamp': msg.timestamp.isoformat()
-                })
-        
         return JsonResponse({'messages': message_list})
-        
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
