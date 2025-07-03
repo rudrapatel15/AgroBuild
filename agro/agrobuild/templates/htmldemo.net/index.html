@@ -72,224 +72,228 @@
     margin: 0 10px;
 }
 </style>
-<!-- Slider Section -->
-<section class="slider_section">
-    <div class="slider_area owl-carousel">
-        <div class="single_slider d-flex align-items-center" data-bgimg="{% static 'img/slider/slider10.jpg' %}">
-            <div class="container">
-                <div class="row">
-                    <div class="col-12">
-                        <div class="slider_content">
-                            <h1>Plant the seeds</h1>  
-                            <p>of positivity, <span>and your life will be </span> a garden of happiness.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="single_slider d-flex align-items-center" data-bgimg="{% static 'img/slider/slider9.jpg' %}">
-            <div class="container">
-                <div class="row">
-                    <div class="col-12">
-                        <div class="slider_content">
-                            <h1>" The discovery </h1>    
-                            <p>of agriculture <span>was the first big step </span> toward a civilized life. </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="single_slider d-flex align-items-center" data-bgimg="{% static 'img/slider/slider3.jpg' %}">
-            <div class="container">
-                <div class="row">
-                    <div class="col-12">
-                        <div class="slider_content">
-                            <h1>" HE WHO PLANTS </h1> 
-                            <p>A TREE <span>PLANTS </span> A HOPE. " </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-<!-- Shipping Info -->
-<div class="shipping_area">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-4 col-md-6">
-                <div class="single_shipping">
-                    <div class="shipping_icone">
-                        <img src="{% static 'img/about/shipping1.png' %}" alt="">
-                    </div>
-                    <div class="shipping_content">
-                        <h3>Free Delivery</h3>
-                        <p>Free shipping around the world for all <br> orders over $120</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6">
-                <div class="single_shipping col_2">
-                    <div class="shipping_icone">
-                        <img src="{% static 'img/about/shipping2.png' %}" alt="">
-                    </div>
-                    <div class="shipping_content">
-                        <h3>Safe Payment</h3>
-                        <p>With our payment gateway, don’t worry <br> about your information</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6">
-                <div class="single_shipping col_3">
-                    <div class="shipping_icone">
-                        <img src="{% static 'img/about/shipping3.png' %}" alt="">
-                    </div>
-                    <div class="shipping_content">
-                        <h3>Friendly Services</h3>
-                        <p>You have 30-day return guarantee for <br> every single order</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<div class="product_area mb-95">
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <div class="product_header">
-                    <div class="section_title">
-                        <h2>Our Products</h2>
+<main>
+    <!-- Slider Section -->
+    <section class="slider_section">
+        <div class="slider_area owl-carousel">
+            <div class="single_slider d-flex align-items-center" data-bgimg="{% static 'img/slider/slider10.jpg' %}">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="slider_content">
+                                <h1>Plant the seeds</h1>  
+                                <p>of positivity, <span>and your life will be </span> a garden of happiness.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="single_slider d-flex align-items-center" data-bgimg="{% static 'img/slider/slider9.jpg' %}">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="slider_content">
+                                <h1>" The discovery </h1>    
+                                <p>of agriculture <span>was the first big step </span> toward a civilized life. </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="single_slider d-flex align-items-center" data-bgimg="{% static 'img/slider/slider3.jpg' %}">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="slider_content">
+                                <h1>" HE WHO PLANTS </h1> 
+                                <p>A TREE <span>PLANTS </span> A HOPE. " </p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-       <!-- Featured Products Section (styled like search.html) -->
-<div class="row">
-    {% for product in random_products %}
-    <div class="col-lg-3 col-md-4 col-sm-6">
-        <div class="product_items">
-            <article class="single_product">
-                <figure>
-                    <div class="product_thumb">
-                        <a class="primary_img" href="/prod_view/?myid={{ product.P_id }}">
-                            <img src="/media/{{ product.P_img }}" alt="{{ product.P_name }}" style="height:250px; width:100%; object-fit:cover;">
-                        </a>
-                        <div class="action_links">
-                            <ul>
-                                <li class="add_to_cart">
-                                    {% if user.is_authenticated %}
-<form action="{% url 'add_to_cart' product.P_id %}" method="POST"
-      target="hidden_iframe"
-      data-product-id="{{ product.P_id }}"
-      data-product-name="{{ product.P_name }}"
-      onsubmit="return prepareCartIconUpdate(this)">
-    {% csrf_token %}
-    <button type="submit" style="background: none; border: none;">
-        <i id="cart-icon-{{ product.P_id }}"
-           class="icon-shopping-bag{% if product.P_id in cart_ids %} add_to_carted{% endif %}"
-           style="font-size: 18px; margin-left: 10px; border: 2px solid transparent; padding: 4px; position: relative; top: 20px;"></i>
-    </button>
-</form>
-{% else %}
-<button type="button" style="background: none; border: none;"
-        onclick="window.location.href='{% url 'login' %}?next={{ request.path }}'">
-    <i class="icon-shopping-bag" style="font-size: 18px; margin-left: 10px; border: 2px solid transparent; padding: 4px; position: relative; top: 20px;"></i>
-</button>
-{% endif %}
-                                </li>
-                                <li class="wishlist">
-                                    <a href="javascript:void(0);"
-   class="wishlist-btn"
-   data-product-id="{{ product.P_id }}"
-   data-product-name="{{ product.P_name }}"
-   title="Add to Wishlist"
-   {% if not user.is_authenticated %}
-   onclick="window.location.href='{% url 'login' %}?next={{ request.path }}'"
-   {% endif %}
->
-    <i class="fa fa-heart-o{% if product.P_id in wishlist_ids %} wishlisted{% endif %}"></i>
-    <i class="fa fa-heart{% if product.P_id in wishlist_ids %} wishlisted{% endif %}"></i>
-</a>
-                                </li>
-                                <li class="quick_button">
-                                    <a href="/prod_view/?myid={{ product.P_id }}" title="Quick View">
-                                        <i class="icon-eye"></i>
+    </section>
+
+    <!-- Shipping Info -->
+    <section class="shipping_area">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-md-6">
+                    <div class="single_shipping">
+                        <div class="shipping_icone">
+                            <img src="{% static 'img/about/shipping1.png' %}" alt="">
+                        </div>
+                        <div class="shipping_content">
+                            <h3>Free Delivery</h3>
+                            <p>Free shipping around the world for all <br> orders over $120</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="single_shipping col_2">
+                        <div class="shipping_icone">
+                            <img src="{% static 'img/about/shipping2.png' %}" alt="">
+                        </div>
+                        <div class="shipping_content">
+                            <h3>Safe Payment</h3>
+                            <p>With our payment gateway, don't worry <br> about your information</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="single_shipping col_3">
+                        <div class="shipping_icone">
+                            <img src="{% static 'img/about/shipping3.png' %}" alt="">
+                        </div>
+                        <div class="shipping_content">
+                            <h3>Friendly Services</h3>
+                            <p>You have 30-day return guarantee for <br> every single order</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Product Area -->
+    <section class="product_area mb-95">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="product_header">
+                        <div class="section_title">
+                            <h2>Our Products</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                {% for product in random_products %}
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="product_items">
+                        <article class="single_product">
+                            <figure>
+                                <div class="product_thumb">
+                                    <a class="primary_img" href="/prod_view/?myid={{ product.P_id }}">
+                                        <img src="/media/{{ product.P_img }}" alt="{{ product.P_name }}" style="height:250px; width:100%; object-fit:cover;">
                                     </a>
-                                </li>
-                            </ul>
-                        </div>
+                                    <div class="action_links">
+                                        <ul>
+                                            <li class="add_to_cart">
+                                                {% if user.is_authenticated %}
+                                                <form action="{% url 'add_to_cart' product.P_id %}" method="POST"
+                                                      target="hidden_iframe"
+                                                      data-product-id="{{ product.P_id }}"
+                                                      data-product-name="{{ product.P_name }}"
+                                                      onsubmit="return prepareCartIconUpdate(this)">
+                                                    {% csrf_token %}
+                                                    <button type="submit" style="background: none; border: none;">
+                                                        <i id="cart-icon-{{ product.P_id }}"
+                                                           class="icon-shopping-bag{% if product.P_id in cart_ids %} add_to_carted{% endif %}"
+                                                           style="font-size: 18px; margin-left: 10px; border: 2px solid transparent; padding: 4px; position: relative; top: 20px;"></i>
+                                                    </button>
+                                                </form>
+                                                {% else %}
+                                                <button type="button" style="background: none; border: none;"
+                                                        onclick="window.location.href='{% url 'login' %}?next={{ request.path }}'">
+                                                    <i class="icon-shopping-bag" style="font-size: 18px; margin-left: 10px; border: 2px solid transparent; padding: 4px; position: relative; top: 20px;"></i>
+                                                </button>
+                                                {% endif %}
+                                            </li>
+                                            <li class="wishlist">
+                                                <a href="javascript:void(0);"
+                                                   class="wishlist-btn"
+                                                   data-product-id="{{ product.P_id }}"
+                                                   data-product-name="{{ product.P_name }}"
+                                                   title="Add to Wishlist"
+                                                   {% if not user.is_authenticated %}
+                                                   onclick="window.location.href='{% url 'login' %}?next={{ request.path }}'"
+                                                   {% endif %}
+                                                >
+                                                    <i class="fa fa-heart-o{% if product.P_id in wishlist_ids %} wishlisted{% endif %}"></i>
+                                                    <i class="fa fa-heart{% if product.P_id in wishlist_ids %} wishlisted{% endif %}"></i>
+                                                </a>
+                                            </li>
+                                            <li class="quick_button">
+                                                <a href="/prod_view/?myid={{ product.P_id }}" title="Quick View">
+                                                    <i class="icon-eye"></i>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <figcaption class="product_content">
+                                    <h4 class="product_name"><a href="/prod_view/?myid={{ product.P_id }}">{{ product.P_name }}</a></h4>
+                                    <div class="price_box">
+                                        <span class="current_price">₹{{ product.P_price }}</span>
+                                        {% if product.old_price and product.old_price > product.P_price %}
+                                            <span class="old_price" style="color:#aaa; text-decoration:line-through; margin-left:8px;">₹{{ product.old_price }}<br> <br></span>
+                                        {% endif %}
+                                    </div>
+                                </figcaption>
+                            </figure>
+                        </article>
                     </div>
-                    <figcaption class="product_content">
-                        <h4 class="product_name"><a href="/prod_view/?myid={{ product.P_id }}">{{ product.P_name }}</a></h4>
-                        <div class="price_box">
-                            <span class="current_price">₹{{ product.P_price }}</span>
-                            {% if product.old_price and product.old_price > product.P_price %}
-                                <span class="old_price" style="color:#aaa; text-decoration:line-through; margin-left:8px;">₹{{ product.old_price }}<br> <br></span>
-                            {% endif %}
-                        </div>
-                    </figcaption>
-                </figure>
-            </article>
+                </div>
+                {% endfor %}
+            </div>
         </div>
-    </div>
-    {% endfor %}
-</div>
-    </div>
-</div>
-<!-- Dynamic Product Sections -->
-{% for products, range, nSlides, category in allProds %}
-<div class="product_area mb-95">
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <div class="product_header">
-                    <div class="section_title">
-                        <h2>{{ category|title }} Products</h2>
+    </section>
+
+    <!-- Dynamic Product Sections -->
+    {% for products, range, nSlides, category in allProds %}
+    <section class="product_area mb-95">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="product_header">
+                        <div class="section_title">
+                            <h2>{{ category|title }} Products</h2>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="tab-content">
-            <div class="tab-pane fade show active" role="tabpanel">
-                <div class="row">
-                    <div class="product_carousel product_column4 owl-carousel">
-                        {% for product in products %}
-                        <div class="col-lg-3">
-                            <div class="product_items">
-                                <article class="single_product">
-                                    <figure>
-                                        <div class="product_thumb">
-                                            <a class="primary_img" href="/prod_view/?myid={{ product.P_id }}">
-                                                <img src="/media/{{ product.P_img }}" alt="{{ product.P_name }}" style="height:250px; width:250px; object-fit:cover;">
-                                            </a>
-                                            <div class="label_product"></div>
-                                            <div class="action_links">
-                                                <ul>
-                                                    <li class="add_to_cart">
-                                                    <form action="{% url 'add_to_cart' product.P_id %}" method="POST"
-      target="hidden_iframe"
-      data-product-id="{{ product.P_id }}"
-      data-product-name="{{ product.P_name }}"
-      onsubmit="return prepareCartIconUpdate(this)">
-    {% csrf_token %}
-    <button type="submit" style="background: none; border: none;">
-    <i id="cart-icon-{{ product.P_id }}"
-       class="icon-shopping-bag{% if product.P_id in cart_ids %} add_to_carted{% endif %}"
-       style="font-size: 18px; margin-left: 10px; border: 2px solid transparent; padding: 4px; position: relative; top: 20px;"></i>
-</button>
-</form>   
-{% if not user.is_authenticated %}
-    <script>
-        document.getElementById('cart-icon-{{ product.P_id }}').parentNode.parentNode.onsubmit = function() {
-            window.location.href = '/login/';
-            return false;
-        };
-    </script>
-    {% endif %}
-</li>
- 
+            <div class="tab-content">
+                <div class="tab-pane fade show active" role="tabpanel">
+                    <div class="row">
+                        <div class="product_carousel product_column4 owl-carousel">
+                            {% for product in products %}
+                            <div class="col-lg-3">
+                                <div class="product_items">
+                                    <article class="single_product">
+                                        <figure>
+                                            <div class="product_thumb">
+                                                <a class="primary_img" href="/prod_view/?myid={{ product.P_id }}">
+                                                    <img src="/media/{{ product.P_img }}" alt="{{ product.P_name }}" style="height:250px; width:250px; object-fit:cover;">
+                                                </a>
+                                                <div class="label_product"></div>
+                                                <div class="action_links">
+                                                    <ul>
+                                                        <li class="add_to_cart">
+                                                        <form action="{% url 'add_to_cart' product.P_id %}" method="POST"
+                                                              target="hidden_iframe"
+                                                              data-product-id="{{ product.P_id }}"
+                                                              data-product-name="{{ product.P_name }}"
+                                                              onsubmit="return prepareCartIconUpdate(this)">
+                                                            {% csrf_token %}
+                                                            <button type="submit" style="background: none; border: none;">
+                                                            <i id="cart-icon-{{ product.P_id }}"
+                                                               class="icon-shopping-bag{% if product.P_id in cart_ids %} add_to_carted{% endif %}"
+                                                               style="font-size: 18px; margin-left: 10px; border: 2px solid transparent; padding: 4px; position: relative; top: 20px;"></i>
+                                                        </button>
+                                                        </form>   
+                                                        {% if not user.is_authenticated %}
+                                                            <script>
+                                                                document.getElementById('cart-icon-{{ product.P_id }}').parentNode.parentNode.onsubmit = function() {
+                                                                    window.location.href = '/login/';
+                                                                    return false;
+                                                                };
+                                                            </script>
+                                                        {% endif %}
+                                                    </li>
+                                                     
                                                     <li class="wishlist">
                                                         <a href="javascript:void(0);"
                                                            class="wishlist-btn"
@@ -301,85 +305,86 @@
                                                         </a>
                                                     </li>
                                                     <li class="quick_button"><a href="/prod_view/?myid={{ product.P_id }}"><i class="icon-eye"></i></a></li>
-                                                </ul>
+                                                    </ul>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <figcaption class="product_content">
-                                            <h4 class="product_name"><a href="/prod_view/?myid={{ product.P_id }}">{{ product.P_name }}</a></h4>
-                                            <div class="price_box">
-                                                <span class="current_price">₹{{ product.P_price }}</span>
-                                            </div>
-                                        </figcaption>
-                                    </figure>
-                                </article>
+                                            <figcaption class="product_content">
+                                                <h4 class="product_name"><a href="/prod_view/?myid={{ product.P_id }}">{{ product.P_name }}</a></h4>
+                                                <div class="price_box">
+                                                    <span class="current_price">₹{{ product.P_price }}</span>
+                                                </div>
+                                            </figcaption>
+                                        </figure>
+                                    </article>
+                                </div>
                             </div>
+                            {% endfor %}
                         </div>
-                        {% endfor %}
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
-{% endfor %}
+    </section>
+    {% endfor %}
 
-<!-- Testimonial Section -->
-<div class="testimonial_area">
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <div class="section_title">
-                    <h2>What Our Customers Say?</h2>
-                </div>
-            </div>
-        </div>
-        <div class="testimonial_container">
+    <!-- Testimonial Section -->
+    <section class="testimonial_area">
+        <div class="container">
             <div class="row">
-                <div class="testimonial_carousel owl-carousel">
-                    <div class="col-12">
-                        <div class="single-testimonial">
-                            <div class="testimonial-icon-img">
-                                <img src="{% static 'img/about/testimonials-icon.png' %}" alt="">
-                            </div>
-                            <div class="testimonial_content">
-                                <p>"I've been using Agro Build for several months now and I'm extremely satisfied. Their plant selection is amazing, and the quality of the products is top-notch."</p>
-                                <div class="testimonial_text_img">
-                                    <a href="#"><img src="{% static 'img/about/customer1.jpeg' %}" alt=""></a>
+                <div class="col-12">
+                    <div class="section_title">
+                        <h2>What Our Customers Say?</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial_container">
+                <div class="row">
+                    <div class="testimonial_carousel owl-carousel">
+                        <div class="col-12">
+                            <div class="single-testimonial">
+                                <div class="testimonial-icon-img">
+                                    <img src="{% static 'img/about/testimonials-icon.png' %}" alt="">
                                 </div>
-                                <div class="testimonial_author">
-                                    <p><a href="#">Adhya Sharma</a> / <span>CEO of CSC</span></p>
+                                <div class="testimonial_content">
+                                    <p>"I've been using Agro Build for several months now and I'm extremely satisfied. Their plant selection is amazing, and the quality of the products is top-notch."</p>
+                                    <div class="testimonial_text_img">
+                                        <a href="#"><img src="{% static 'img/about/customer1.jpeg' %}" alt=""></a>
+                                    </div>
+                                    <div class="testimonial_author">
+                                        <p><a href="#">Adhya Sharma</a> / <span>CEO of CSC</span></p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-12">
-                        <div class="single-testimonial">
-                            <div class="testimonial-icon-img">
-                                <img src="{% static 'img/about/testimonials-icon.png' %}" alt="">
-                            </div>
-                            <div class="testimonial_content">
-                                <p>"The expert advice provided by Agro Build has been invaluable. I've learned so much about plant care and have been able to successfully grow a variety of plants in my garden."</p>
-                                <div class="testimonial_text_img">
-                                    <a href="#"><img src="{% static 'img/about/customer2.jpeg' %}" alt=""></a>
+                        <div class="col-12">
+                            <div class="single-testimonial">
+                                <div class="testimonial-icon-img">
+                                    <img src="{% static 'img/about/testimonials-icon.png' %}" alt="">
                                 </div>
-                                <div class="testimonial_author">
-                                    <p><a href="#">Hemani Oberoi</a> / <span>CEO of DND</span></p>
+                                <div class="testimonial_content">
+                                    <p>"The expert advice provided by Agro Build has been invaluable. I've learned so much about plant care and have been able to successfully grow a variety of plants in my garden."</p>
+                                    <div class="testimonial_text_img">
+                                        <a href="#"><img src="{% static 'img/about/customer2.jpeg' %}" alt=""></a>
+                                    </div>
+                                    <div class="testimonial_author">
+                                        <p><a href="#">Hemani Oberoi</a> / <span>CEO of DND</span></p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-12">
-                        <div class="single-testimonial">
-                            <div class="testimonial-icon-img">
-                                <img src="{% static 'img/about/testimonials-icon.png' %}" alt="">
-                            </div>
-                            <div class="testimonial_content">
-                                <p>"I love the convenience of ordering agricultural products directly from Agro Build. The delivery is always prompt, and the prices are competitive."</p>
-                                <div class="testimonial_text_img">
-                                    <a href="#"><img src="{% static 'img/about/customer3.jpeg' %}" alt=""></a>
+                        <div class="col-12">
+                            <div class="single-testimonial">
+                                <div class="testimonial-icon-img">
+                                    <img src="{% static 'img/about/testimonials-icon.png' %}" alt="">
                                 </div>
-                                <div class="testimonial_author">
-                                    <p><a href="#">Nilima Bhatt</a> / <span>CEO of SFD</span></p>
+                                <div class="testimonial_content">
+                                    <p>"I love the convenience of ordering agricultural products directly from Agro Build. The delivery is always prompt, and the prices are competitive."</p>
+                                    <div class="testimonial_text_img">
+                                        <a href="#"><img src="{% static 'img/about/customer3.jpeg' %}" alt=""></a>
+                                    </div>
+                                    <div class="testimonial_author">
+                                        <p><a href="#">Nilima Bhatt</a> / <span>CEO of SFD</span></p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -387,12 +392,26 @@
                 </div>
             </div>
         </div>
-    </div>
-</div>
+    </section>
+</main>
 
 <!-- Popup for Add to Cart (only for index page) -->
 <script>
 let lastSubmittedProductId = null;
+
+function handleIframeLoad() {
+    if (!lastSubmittedProductId) return;
+
+    // Update all cart icons with this product ID
+    document.querySelectorAll("#cart-icon-" + lastSubmittedProductId).forEach(function(icon) {
+        icon.classList.add('add_to_carted');
+    });
+
+    const productNameElem = document.querySelector(`form[data-product-id="${lastSubmittedProductId}"]`);
+    const productName = productNameElem ? productNameElem.getAttribute('data-product-name') : '';
+    showCartPopup(`${productName} added to cart`);
+    lastSubmittedProductId = null;
+}
 
 function prepareCartIconUpdate(form) {
     lastSubmittedProductId = form.getAttribute('data-product-id');
@@ -405,20 +424,6 @@ function prepareCartIconUpdate(form) {
     return true;
 }
 
-function handleIframeLoad() {
-    if (!lastSubmittedProductId) return;
-
-    // Update all cart icons with this product ID
-    document.querySelectorAll("#cart-icon-" + lastSubmittedProductId).forEach(function(icon) {
-        icon.classList.add('add_to_carted');
-        // No border color change!
-    });
-
-    const productNameElem = document.querySelector(`form[data-product-id="${lastSubmittedProductId}"]`);
-    const productName = productNameElem ? productNameElem.getAttribute('data-product-name') : '';
-    showCartPopup(`${productName} added to cart`);
-    lastSubmittedProductId = null;
-}
 function showCartPopup(message) {
     const existingPopup = document.querySelector('.add_to_cart-popup');
     if (existingPopup) existingPopup.remove();
