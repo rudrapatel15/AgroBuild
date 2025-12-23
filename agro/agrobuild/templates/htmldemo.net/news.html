@@ -573,6 +573,12 @@
             }
 
             renderNews(articles) {
+                // Sort: India news first, then World/others
+                articles.sort((a, b) => {
+                    if (a.region === "India" && b.region !== "India") return -1;
+                    if (a.region !== "India" && b.region === "India") return 1;
+                    return 0;
+                });
                 const container = document.getElementById('news-container');
                 container.innerHTML = '';
 
@@ -629,6 +635,13 @@
                         <div class="news-meta">
                             ${isLive ? '<span class="live-badge">LIVE</span>' : ''}
                             <span class="news-category category-${category.toLowerCase().replace(/\s+/g, '-')}">${category}</span>
+                            ${
+                                article.region === "India"
+                                    ? '<span class="news-category" style="background:#2ecc71;margin-left:6px;">India</span>'
+                                    : article.region === "World"
+                                        ? '<span class="news-category" style="background:#3498db;margin-left:6px;">World</span>'
+                                        : ''
+                            }
                             <span class="relevance-indicator" title="Relevance Score: ${relevanceScore}">${relevanceIndicator}</span>
                         </div>
                         <h3 class="news-title" onclick="this.openArticle('${article.url}')">${article.title}</h3>
@@ -713,13 +726,14 @@
                 newsApp.fetchNews();
             }
         }
+        {% comment %} window.refreshNews = refreshNews; {% endcomment %}
 
-        // Auto-refresh news every 5 minutes
+        // Auto-refresh news every 1 hour
         setInterval(() => {
             if (newsApp) {
                 newsApp.fetchNews();
             }
-        }, 300000);
+        }, 3600000);
     </script>
 </body>
 </html>

@@ -514,93 +514,296 @@ def agriculture_news_page(request):
     }
     return render(request, 'htmldemo.net/news.html', context)
 
+# def fetch_agriculture_news(request):
+#     """
+#     Fetch agriculture news from external API or generate mock data
+#     """
+#     try:
+#         # Mock agriculture news data for demonstration
+#         mock_news = [
+#             {
+#                 'title': 'New Agricultural Technology Boosts Crop Yields by 30%',
+#                 'description': 'Innovative farming techniques and smart irrigation systems are revolutionizing agriculture in India.',
+#                 'url': '#',
+#                 'urlToImage': '/static/img/blog/blog-big1.jpg',
+#                 'publishedAt': timezone.now().isoformat(),
+#                 'source': {'name': 'AgroBuild News'},
+#                 'category': 'Agricultural Technology',
+#                 'relevance_score': 9,
+#                 'matched_keywords': ['technology', 'crop yields', 'farming']
+#             },
+#             {
+#                 'title': 'Government Announces New Subsidies for Small Farmers',
+#                 'description': 'The government has introduced new subsidy schemes to support small and marginal farmers across the country.',
+#                 'url': '#',
+#                 'urlToImage': '/static/img/blog/blog-big2.jpg',
+#                 'publishedAt': (timezone.now() - timezone.timedelta(hours=2)).isoformat(),
+#                 'source': {'name': 'Agricultural Policy'},
+#                 'category': 'Agricultural Policy',
+#                 'relevance_score': 8,
+#                 'matched_keywords': ['government', 'subsidies', 'farmers']
+#             },
+#             {
+#                 'title': 'Weather Forecast: Favorable Conditions for Rabi Crops',
+#                 'description': 'Meteorological department predicts ideal weather conditions for wheat and other rabi crops this season.',
+#                 'url': '#',
+#                 'urlToImage': '/static/img/blog/blog-big3.jpg',
+#                 'publishedAt': (timezone.now() - timezone.timedelta(hours=4)).isoformat(),
+#                 'source': {'name': 'Weather Updates'},
+#                 'category': 'Weather & Climate',
+#                 'relevance_score': 7,
+#                 'matched_keywords': ['weather', 'rabi crops', 'wheat']
+#             },
+#             {
+#                 'title': 'Organic Farming Gains Popularity Among Urban Consumers',
+#                 'description': 'Growing health consciousness is driving demand for organic produce, creating new opportunities for farmers.',
+#                 'url': '#',
+#                 'urlToImage': '/static/img/product/BACF.webp',
+#                 'publishedAt': (timezone.now() - timezone.timedelta(hours=6)).isoformat(),
+#                 'source': {'name': 'Market Trends'},
+#                 'category': 'Agricultural Markets',
+#                 'relevance_score': 6,
+#                 'matched_keywords': ['organic', 'farming', 'consumers']
+#             },
+#             {
+#                 'title': 'Sustainable Farming Practices Reduce Environmental Impact',
+#                 'description': 'Farmers adopting eco-friendly practices are seeing both environmental and economic benefits.',
+#                 'url': '#',
+#                 'urlToImage': '/static/img/service/services1.jpg',
+#                 'publishedAt': (timezone.now() - timezone.timedelta(hours=8)).isoformat(),
+#                 'source': {'name': 'Sustainability News'},
+#                 'category': 'Sustainable Farming',
+#                 'relevance_score': 8,
+#                 'matched_keywords': ['sustainable', 'farming', 'environmental']
+#             },
+#             {
+#                 'title': 'New Crop Varieties Resistant to Climate Change',
+#                 'description': 'Agricultural research institutes are developing crop varieties that can withstand extreme weather conditions.',
+#                 'url': '#',
+#                 'urlToImage': '/static/img/service/services2.jpg',
+#                 'publishedAt': (timezone.now() - timezone.timedelta(hours=10)).isoformat(),
+#                 'source': {'name': 'Research Updates'},
+#                 'category': 'Agricultural Technology',
+#                 'relevance_score': 9,
+#                 'matched_keywords': ['crop varieties', 'climate change', 'research']
+#             }
+#         ]
+        
+#         return JsonResponse({
+#             'success': True,
+#             'articles': mock_news,
+#             'total': len(mock_news),
+#             'queries_searched': 10
+#         })
+        
+#     except Exception as e:
+#         return JsonResponse({
+#             'success': False,
+#             'error': f'Failed to fetch news: {str(e)}'
+#         })
+
+def categorize_article(article):
+    """
+    Assign a category to a news article based on its content.
+    """
+    category_keywords = {
+        "Agricultural Technology": ["technology", "tech", "innovation", "drone", "sensor", "digital", "AI", "robot", "research"],
+        "Agricultural Policy": ["policy", "government", "subsidy", "scheme", "law", "regulation"],
+        "Weather & Climate": ["weather", "climate", "rain", "monsoon", "forecast", "temperature", "drought", "flood"],
+        "Agricultural Markets": ["market", "price", "commodity", "trade", "export", "import", "demand", "supply"],
+        "Sustainable Farming": ["sustainable", "organic", "eco-friendly", "natural", "environment", "biodiversity"],
+        "Crop News": ["crop", "harvest", "yield", "seed", "variety", "production"],
+        "Livestock & Dairy": ["livestock", "dairy", "milk", "cattle", "animal", "poultry"],
+        "Expert Insights": ["expert", "advice", "tip", "insight", "analysis"],
+        "Government Policies": ["government", "policy", "scheme", "subsidy"],
+    }
+    text = (article.get("title", "") + " " + article.get("description", "")).lower()
+    for category, keywords in category_keywords.items():
+        if any(word in text for word in keywords):
+            return category
+    return "General Agriculture"
+
 def fetch_agriculture_news(request):
     """
-    Fetch agriculture news from external API or generate mock data
+    Fetch agriculture news from NewsAPI.org or show mock data if API fails.
     """
+    api_key = getattr(settings, 'NEWS_API_KEY', None)
+    url = (
+        "https://newsapi.org/v2/everything?"
+        "q=(agriculture OR farming OR crops OR agri) AND (India OR Indian)&"
+        "language=en&"
+        "sortBy=publishedAt&"
+        f"apiKey={api_key}"
+    )
+    agriculture_keywords = [
+        "agriculture", "farming", "crop", "crops", "farmer", "farmers",
+        "soil", "irrigation", "harvest", "pesticide", "fertilizer",
+        "horticulture", "dairy", "livestock", "organic", "plant", "seed"
+    ]
     try:
-        # Mock agriculture news data for demonstration
-        mock_news = [
-            {
-                'title': 'New Agricultural Technology Boosts Crop Yields by 30%',
-                'description': 'Innovative farming techniques and smart irrigation systems are revolutionizing agriculture in India.',
-                'url': '#',
-                'urlToImage': '/static/img/blog/blog-big1.jpg',
-                'publishedAt': timezone.now().isoformat(),
-                'source': {'name': 'AgroBuild News'},
-                'category': 'Agricultural Technology',
-                'relevance_score': 9,
-                'matched_keywords': ['technology', 'crop yields', 'farming']
-            },
-            {
-                'title': 'Government Announces New Subsidies for Small Farmers',
-                'description': 'The government has introduced new subsidy schemes to support small and marginal farmers across the country.',
-                'url': '#',
-                'urlToImage': '/static/img/blog/blog-big2.jpg',
-                'publishedAt': (timezone.now() - timezone.timedelta(hours=2)).isoformat(),
-                'source': {'name': 'Agricultural Policy'},
-                'category': 'Agricultural Policy',
-                'relevance_score': 8,
-                'matched_keywords': ['government', 'subsidies', 'farmers']
-            },
-            {
-                'title': 'Weather Forecast: Favorable Conditions for Rabi Crops',
-                'description': 'Meteorological department predicts ideal weather conditions for wheat and other rabi crops this season.',
-                'url': '#',
-                'urlToImage': '/static/img/blog/blog-big3.jpg',
-                'publishedAt': (timezone.now() - timezone.timedelta(hours=4)).isoformat(),
-                'source': {'name': 'Weather Updates'},
-                'category': 'Weather & Climate',
-                'relevance_score': 7,
-                'matched_keywords': ['weather', 'rabi crops', 'wheat']
-            },
-            {
-                'title': 'Organic Farming Gains Popularity Among Urban Consumers',
-                'description': 'Growing health consciousness is driving demand for organic produce, creating new opportunities for farmers.',
-                'url': '#',
-                'urlToImage': '/static/img/product/BACF.webp',
-                'publishedAt': (timezone.now() - timezone.timedelta(hours=6)).isoformat(),
-                'source': {'name': 'Market Trends'},
-                'category': 'Agricultural Markets',
-                'relevance_score': 6,
-                'matched_keywords': ['organic', 'farming', 'consumers']
-            },
-            {
-                'title': 'Sustainable Farming Practices Reduce Environmental Impact',
-                'description': 'Farmers adopting eco-friendly practices are seeing both environmental and economic benefits.',
-                'url': '#',
-                'urlToImage': '/static/img/service/services1.jpg',
-                'publishedAt': (timezone.now() - timezone.timedelta(hours=8)).isoformat(),
-                'source': {'name': 'Sustainability News'},
-                'category': 'Sustainable Farming',
-                'relevance_score': 8,
-                'matched_keywords': ['sustainable', 'farming', 'environmental']
-            },
-            {
-                'title': 'New Crop Varieties Resistant to Climate Change',
-                'description': 'Agricultural research institutes are developing crop varieties that can withstand extreme weather conditions.',
-                'url': '#',
-                'urlToImage': '/static/img/service/services2.jpg',
-                'publishedAt': (timezone.now() - timezone.timedelta(hours=10)).isoformat(),
-                'source': {'name': 'Research Updates'},
-                'category': 'Agricultural Technology',
-                'relevance_score': 9,
-                'matched_keywords': ['crop varieties', 'climate change', 'research']
-            }
-        ]
-        
-        return JsonResponse({
-            'success': True,
-            'articles': mock_news,
-            'total': len(mock_news),
-            'queries_searched': 10
-        })
-        
+        # if api_key:
+        #     response = requests.get(url, timeout=5)
+        #     data = response.json()
+        #     articles = data.get("articles", [])
+        #     if articles:
+        #         return JsonResponse({
+        #             'success': True,
+        #             'articles': articles,
+        #             'total': len(articles),
+        #             'queries_searched': 10
+        #         })
+        # if api_key:
+        #     response = requests.get(url, timeout=5)
+        #     data = response.json()
+        #     articles = data.get("articles", [])
+        #     # Filter articles for agriculture relevance
+        #     filtered_articles = []
+        #     india_articles = []
+        #     world_articles = []
+        #     all_matched_keywords = set()
+        #     for article in articles:
+        #         text = (article.get("title", "") + " " + article.get("description", "")).lower()
+        #         # matched = [word for word in agriculture_keywords if word in text]
+        #         matched = list({word for word in agriculture_keywords if word in text})
+        #         if matched:
+        #             # Assign category
+        #             article["category"] = categorize_article(article)
+        #             article["matched_keywords"] = matched
+        #             filtered_articles.append(article)
+        #             all_matched_keywords.update(matched)
+        #     # Separate articles into India and World categories
+        #     for article in filtered_articles:
+        #         if "India" in article.get("title", "") or "India" in article.get("description", ""):
+        #             india_articles.append(article)
+        #         else:
+        #             world_articles.append(article)
+        #     if filtered_articles:
+        #         return JsonResponse({
+        #             'success': True,
+        #             'articles': filtered_articles,
+        #             'india_articles': india_articles,
+        #             'world_articles': world_articles,
+        #             'total': len(filtered_articles),
+        #             'queries_searched': len(all_matched_keywords),  
+        #         })
+        if api_key:
+            response = requests.get(url, timeout=5)
+            data = response.json()
+            articles = data.get("articles", [])
+            # Filter articles for agriculture relevance and remove duplicates
+            filtered_articles = []
+            india_articles = []
+            world_articles = []
+            all_matched_keywords = set()
+            seen_urls = set()
+            for article in articles:
+                text = (article.get("title", "") + " " + article.get("description", "")).lower()
+                matched = list({word for word in agriculture_keywords if word in text})
+                if matched:
+                    article["category"] = categorize_article(article)
+                    article["matched_keywords"] = matched
+                    url = article.get("url")
+                    if url not in seen_urls:
+                        filtered_articles.append(article)
+                        seen_urls.add(url)
+                        all_matched_keywords.update(matched)
+            # Separate articles into India and World categories
+            for article in filtered_articles:
+                if "India" in article.get("title", "") or "India" in article.get("description", ""):
+                    article["region"] = "India"
+                    india_articles.append(article)
+                else:
+                    article["region"] = "World"
+                    world_articles.append(article)
+            if filtered_articles:
+                return JsonResponse({
+                    'success': True,
+                    'articles': filtered_articles,
+                    'india_articles': india_articles,
+                    'world_articles': world_articles,
+                    'total': len(filtered_articles),
+                    'queries_searched': len(all_matched_keywords),  
+                })
     except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'error': f'Failed to fetch news: {str(e)}'
-        })
+        # Optionally log the error
+        pass
+
+    # Fallback: Mock news data
+    mock_news = [
+        {
+            'title': 'New Agricultural Technology Boosts Crop Yields by 30%',
+            'description': 'Innovative farming techniques and smart irrigation systems are revolutionizing agriculture in India.',
+            'url': '#',
+            'urlToImage': '/static/img/blog/blog-big1.jpg',
+            'publishedAt': timezone.now().isoformat(),
+            'source': {'name': 'AgroBuild News'},
+            'category': 'Agricultural Technology',
+            'relevance_score': 9,
+            'matched_keywords': ['technology', 'crop yields', 'farming']
+        },
+        {
+            'title': 'Government Announces New Subsidies for Small Farmers',
+            'description': 'The government has introduced new subsidy schemes to support small and marginal farmers across the country.',
+            'url': '#',
+            'urlToImage': '/static/img/blog/blog-big2.jpg',
+            'publishedAt': (timezone.now() - timezone.timedelta(hours=2)).isoformat(),
+            'source': {'name': 'Agricultural Policy'},
+            'category': 'Agricultural Policy',
+            'relevance_score': 8,
+            'matched_keywords': ['government', 'subsidies', 'farmers']
+        },
+        {
+            'title': 'Weather Forecast: Favorable Conditions for Rabi Crops',
+            'description': 'Meteorological department predicts ideal weather conditions for wheat and other rabi crops this season.',
+            'url': '#',
+            'urlToImage': '/static/img/blog/blog-big3.jpg',
+            'publishedAt': (timezone.now() - timezone.timedelta(hours=4)).isoformat(),
+            'source': {'name': 'Weather Updates'},
+            'category': 'Weather & Climate',
+            'relevance_score': 7,
+            'matched_keywords': ['weather', 'rabi crops', 'wheat']
+        },
+        {
+            'title': 'Organic Farming Gains Popularity Among Urban Consumers',
+            'description': 'Growing health consciousness is driving demand for organic produce, creating new opportunities for farmers.',
+            'url': '#',
+            'urlToImage': '/static/img/product/BACF.webp',
+            'publishedAt': (timezone.now() - timezone.timedelta(hours=6)).isoformat(),
+            'source': {'name': 'Market Trends'},
+            'category': 'Agricultural Markets',
+            'relevance_score': 6,
+            'matched_keywords': ['organic', 'farming', 'consumers']
+        },
+        {
+            'title': 'Sustainable Farming Practices Reduce Environmental Impact',
+            'description': 'Farmers adopting eco-friendly practices are seeing both environmental and economic benefits.',
+            'url': '#',
+            'urlToImage': '/static/img/service/services1.jpg',
+            'publishedAt': (timezone.now() - timezone.timedelta(hours=8)).isoformat(),
+            'source': {'name': 'Sustainability News'},
+            'category': 'Sustainable Farming',
+            'relevance_score': 8,
+            'matched_keywords': ['sustainable', 'farming', 'environmental']
+        },
+        {
+            'title': 'New Crop Varieties Resistant to Climate Change',
+            'description': 'Agricultural research institutes are developing crop varieties that can withstand extreme weather conditions.',
+            'url': '#',
+            'urlToImage': '/static/img/service/services2.jpg',
+            'publishedAt': (timezone.now() - timezone.timedelta(hours=10)).isoformat(),
+            'source': {'name': 'Research Updates'},
+            'category': 'Agricultural Technology',
+            'relevance_score': 9,
+            'matched_keywords': ['crop varieties', 'climate change', 'research']
+        }
+        # ... add more mock articles as needed ...
+    ]
+    return JsonResponse({
+        'success': True,
+        'articles': mock_news,
+        'total': len(mock_news),
+        'queries_searched': 10
+    })
 
 def fetch_category_news(request, category):
     """
